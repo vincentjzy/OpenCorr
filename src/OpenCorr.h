@@ -1,5 +1,5 @@
 /*
- * This file is part of OpenCorr, a open-source C++ library for
+ * This file is part of OpenCorr, an open-source C++ library for
  * development of 2D, 3D/stereo and volumetric digital image correlation.
  *
  * Copyright (C) 2021, Zhenyu Jiang <zhenyujiang@scut.edu.cn>
