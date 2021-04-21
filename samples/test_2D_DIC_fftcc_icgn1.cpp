@@ -93,7 +93,7 @@ int main() {
 	results_output.setPath(file_path);
 	results_output.saveMap2D(POI_queue, 2);
 
-	//save the map of u-component
+	//save the map of v-component
 	file_path = tar_image_path + "_v.csv";
 	results_output.setPath(file_path);
 	results_output.saveMap2D(POI_queue, 3);
