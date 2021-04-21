@@ -1,6 +1,7 @@
 /*
  * This file is part of OpenCorr, an open-source C++ library for
- * development of 2D, 3D/stereo and volumetric digital image correlation.
+ * study and development of 2D, 3D/stereo and volumetric 
+ * digital image correlation.
  *
  * Copyright (C) 2021, Zhenyu Jiang <zhenyujiang@scut.edu.cn>
  *
@@ -8,8 +9,8 @@
  * Public License v. 2.0. If a copy of the MPL was not distributed
  * with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
- * More information about OpenCorr can be found at http://www.opencorr.org/
-*/
+ * More information about OpenCorr can be found at https://www.opencorr.org/
+ */
 
 #pragma once
 
