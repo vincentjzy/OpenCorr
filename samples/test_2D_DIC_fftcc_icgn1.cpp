@@ -1,6 +1,7 @@
 /*
 * This is an example demonstrating how to use OpenCorr to realize
-* path-independent DIC based on FFT-CC algorithm and ICGN algorithm.
+* path-independent DIC based on FFT-CC algorithm and ICGN 
+* (with 1st order shape function) algorithm.
 */
 
 #include "opencorr.h"

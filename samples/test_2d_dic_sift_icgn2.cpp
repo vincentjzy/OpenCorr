@@ -1,3 +1,9 @@
+/*
+* This is an example demonstrating how to use OpenCorr to realize
+* path-independent DIC based on SIFT-aided deformation estimation
+* and ICGN (with 2nd order shape function) algorithm.
+*/
+
 #include "opencorr.h"
 
 using namespace opencorr;
