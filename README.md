@@ -5,7 +5,7 @@ OpenCorr is an open source C++ library for development of 2D, 3D/stereo, and vol
 
 OpenCorr is developed and tested in Microsoft Visual Studio on Windows 10. The codes follow the standard of ISO C++ 14, theoretically it can be compiled on other OS like Linux. The building environment requires the following libraries correctly configured:
 
-- Eigen 3.3.9 (eigen.tuxfamily.com), used for basic operations of matrix
+- Eigen 3.3.9 (eigen.tuxfamily.org), used for basic operations of matrix.
 - OpenCV 3.4.5 (opencv.org), used to read images, and in modules related with image features and stereovision.
 - FFTW 3.3.9 (fftw.org), used for cross correlation.
 
