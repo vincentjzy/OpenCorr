@@ -15,7 +15,7 @@ There are some examples in folder "samples", which demonstrate how we use the mo
 
 - Fast Fourier transform-based cross correlation (FFT-CC): Estimation of integer-pixel displacement.
 - SIFT-aided DIC: Estimation of 1st order deformation
-- Inverse compositional Gaussian-Newton (ICGN) algorithm: high accuracy estimation of deformation. Two versions are implemented, one for 1st order shape function and the other 2nd order shape function.
+- Inverse compositional Gaussian-Newton (ICGN) algorithm: high accuracy estimation of deformation. Two versions are implemented, one for the 1st order shape function and the other for the 2nd order shape function.
 
 Figure 1 shows the framework of OpenCorr, which gives a guide to understand the structure of OpenCorr.
 ![image](https://github.com/vincentjzy/OpenCorr/blob/main/img/framework.png)
