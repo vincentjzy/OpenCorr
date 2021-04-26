@@ -7,9 +7,9 @@ Both the library and the webpage are under construction. Update will be frequent
 
 OpenCorr is developed and tested in Microsoft Visual Studio on Windows 10. The codes follow the standard of ISO C++ 14, theoretically it can be compiled on other OS like Linux. The building environment requires the following libraries correctly configured:
 
-- Eigen 3.3.9 (eigen.tuxfamily.org), used for basic operations of matrix.
-- OpenCV 3.4.5 (opencv.org), used to read images, and in modules related with image features and stereovision.
-- FFTW 3.3.9 (fftw.org), used for cross correlation.
+- Eigen 3.3.9 ([eigen.tuxfamily.org](eigen.tuxfamily.org)), used for basic operations of matrix.
+- OpenCV 3.4.5 ([opencv.org](opencv.org)), used to read images, and in modules related with image features and stereovision.
+- FFTW 3.3.9 ([fftw.org](fftw.org)), used for cross correlation.
 
 These libraries could be installed by downloading the source files (e.g., .h or .cpp) and static library files (.lib), and then place them into proper directories in your computer. Accordingly, the paths of source files and static library files need to be set in integrated development environment. Figure 1 gives an example in Visual Studio 2019 (community version).
 ![image](https://github.com/vincentjzy/OpenCorr/blob/main/img/configuration_of_path_in_vs.png)
@@ -24,7 +24,7 @@ There are some examples in folder "samples", which demonstrate how we use the mo
 Figure 2 shows the framework of OpenCorr, which gives a guide to understand the structure of OpenCorr.
 ![image](https://github.com/vincentjzy/OpenCorr/blob/main/img/framework.png)
 *Figure 2. Framework of OpenCorr*
-
+# References
 Users may refer to our papers for the details of the principle of the algorithms provided in OpenCorr.
 
 [1] Z. Jiang, Q. Kemao, H. Miao, J. Yang, L. Tang, Path-independent digital image correlation with high accuracy, speed and robustness, Optics and Lasers in Engineering, 65 (2015) 93-102.
