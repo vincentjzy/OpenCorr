@@ -16,7 +16,7 @@ There are some examples in folder "samples", which demonstrate how we use the mo
 - Inverse compositional Gaussian-Newton (ICGN) algorithm: high accuracy estimation of deformation. Two versions are implemented, one for 1st order shape function and the other 2nd order shape function.
 
 Figure 1 shows the framework of OpenCorr, which gives a guide to understand the structure of OpenCorr.
-![image](https://github.com/vincentjzy/OpenCorr/blob/main/img/framework.jpg)
+![image](https://github.com/vincentjzy/OpenCorr/blob/main/img/framework.png)
 *Figure 1. Framework of OpenCorr*
 
 Users may refer to our papers for the details of the principle of the algorithms provided in OpenCorr.
