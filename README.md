@@ -12,8 +12,7 @@ OpenCorr is developed and tested in Microsoft Visual Studio on Windows 10. The c
 - FFTW 3.3.9 ([fftw.org](fftw.org)), used for cross correlation.
 
 These libraries could be installed by downloading the source files (e.g., .h or .cpp) and static library files (.lib), and then place them into proper directories in your computer. Accordingly, the paths of source files and static library files need to be set in integrated development environment. Figure 1 gives an example in Visual Studio 2019 (community version).
-![image](https://github.com/vincentjzy/OpenCorr/blob/main/img/configuration_of_path_in_vs.png)
-*Figure 1. Illustration of setting paths in Visual Studio 2019*
+![Figure 1. Illustration of setting paths in Visual Studio 2019](https://github.com/vincentjzy/OpenCorr/blob/main/img/configuration_of_path_in_vs.png)
 
 There are some examples in folder "samples", which demonstrate how we use the modules in OpenCorr to build our own DIC programs. The DIC algorithms provided in this library include:
 
@@ -22,8 +21,8 @@ There are some examples in folder "samples", which demonstrate how we use the mo
 - Inverse compositional Gaussian-Newton (ICGN) algorithm: high accuracy estimation of deformation. Two versions are implemented, one for the 1st order shape function and the other for the 2nd order shape function.
 
 Figure 2 shows the framework of OpenCorr, which gives a guide to understand the structure of OpenCorr.
-![image](https://github.com/vincentjzy/OpenCorr/blob/main/img/framework.png)
-*Figure 2. Framework of OpenCorr*
+![Figure 2. Framework of OpenCorr](https://github.com/vincentjzy/OpenCorr/blob/main/img/framework.png)
+
 # References
 Users may refer to our papers for the details of the principle of the algorithms provided in OpenCorr.
 
