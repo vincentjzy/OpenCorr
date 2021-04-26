@@ -19,11 +19,11 @@
 namespace opencorr
 {
 
-	Calibration::Calibration(CameraIntrisics& intrisics, CameraExtrisics& extrisics) {
-		this->intrisics = intrisics;
-		this->extrisics = extrisics;
+	Calibration::Calibration(CameraIntrinsics& intrinsics, CameraExtrinsics& extrinsics) {
+		this->intrinsics = intrinsics;
+		this->extrinsics = extrinsics;
 
-		this->setIntrisicMatrix();
+		this->setIntrinsicMatrix();
 		this->setRotationMatrix();
 		this->setTranslationVector();
 		this->setProjectionMatrix();
@@ -35,29 +35,29 @@ namespace opencorr
 	Calibration::~Calibration() {
 	}
 
-	void Calibration::setIntrisicMatrix() {
-		this->intrisic_matrix.setIdentity();
-		this->intrisic_matrix(0, 0) = this->intrisics.fx;
-		this->intrisic_matrix(0, 1) = this->intrisics.fs;
-		this->intrisic_matrix(0, 2) = this->intrisics.cx;
-		this->intrisic_matrix(1, 1) = this->intrisics.fy;
-		this->intrisic_matrix(1, 2) = this->intrisics.cy;
-		if (this->intrisic_matrix.isIdentity()) {
-			throw std::exception(std::string("Null intrisics matrix").data());
+	void Calibration::setIntrinsicMatrix() {
+		this->intrinsic_matrix.setIdentity();
+		this->intrinsic_matrix(0, 0) = this->intrinsics.fx;
+		this->intrinsic_matrix(0, 1) = this->intrinsics.fs;
+		this->intrinsic_matrix(0, 2) = this->intrinsics.cx;
+		this->intrinsic_matrix(1, 1) = this->intrinsics.fy;
+		this->intrinsic_matrix(1, 2) = this->intrinsics.cy;
+		if (this->intrinsic_matrix.isIdentity()) {
+			throw std::exception(std::string("Null intrinsics matrix").data());
 		}
 	}
 
 	void Calibration::setRotationMatrix() {
 		cv::Mat cv_rotation_matrix;
-		cv::Mat cv_rotation_vector = (cv::Mat_<float>(3, 1) << this->extrisics.pitch, this->extrisics.roll, this->extrisics.yaw);
+		cv::Mat cv_rotation_vector = (cv::Mat_<float>(3, 1) << this->extrinsics.pitch, this->extrinsics.roll, this->extrinsics.yaw);
 		cv::Rodrigues(cv_rotation_vector, cv_rotation_matrix);
 		cv::cv2eigen(cv_rotation_matrix, this->rotation_matrix);
 	}
 
 	void Calibration::setTranslationVector() {
-		this->translation_vector(0) = this->extrisics.tx;
-		this->translation_vector(1) = this->extrisics.ty;
-		this->translation_vector(2) = this->extrisics.tz;
+		this->translation_vector(0) = this->extrinsics.tx;
+		this->translation_vector(1) = this->extrinsics.ty;
+		this->translation_vector(2) = this->extrinsics.tz;
 	}
 
 	void Calibration::setProjectionMatrix() {
@@ -66,13 +66,13 @@ namespace opencorr
 		RT_mat.block(0, 0, 3, 3) << this->rotation_matrix;
 		RT_mat.col(2) << this->translation_vector;
 
-		this->projection_matrix = this->intrisic_matrix * RT_mat;
+		this->projection_matrix = this->intrinsic_matrix * RT_mat;
 	}
 
 	Point2D Calibration::distort(Point2D& point) {
 		//convert to the physical image coordinates
-		float physical_x = (point.x - this->intrisics.cx - this->intrisics.fs * point.y) / this->intrisics.fx;
-		float physical_y = (point.y - this->intrisics.cy) / this->intrisics.fy;
+		float physical_x = (point.x - this->intrinsics.cx - this->intrinsics.fs * point.y) / this->intrinsics.fx;
+		float physical_y = (point.y - this->intrinsics.cy) / this->intrinsics.fy;
 
 		float physical_xx = physical_x * physical_x;
 		float physical_yy = physical_y * physical_y;
@@ -81,15 +81,15 @@ namespace opencorr
 		float distrotion_r4 = distortion_r2 * distortion_r2;
 		float distortion_r6 = distortion_r2 * distrotion_r4;
 		//radical distortion
-		float distortion_radial = 1 + this->intrisics.k1 * distortion_r2 + this->intrisics.k2 * distrotion_r4 + this->intrisics.k3 * distortion_r6;
+		float distortion_radial = 1 + this->intrinsics.k1 * distortion_r2 + this->intrinsics.k2 * distrotion_r4 + this->intrinsics.k3 * distortion_r6;
 		float distorted_x = physical_x * distortion_radial;
 		float distorted_y = physical_y * distortion_radial;
 		//tangential distortion
-		distorted_x += 2 * this->intrisics.p1 * physical_xy + this->intrisics.p2 * (distortion_r2 + 2 * physical_xx);
-		distorted_y += this->intrisics.p1 * (distortion_r2 + 2 * physical_yy) + 2 * this->intrisics.p2 * physical_xy;
+		distorted_x += 2 * this->intrinsics.p1 * physical_xy + this->intrinsics.p2 * (distortion_r2 + 2 * physical_xx);
+		distorted_y += this->intrinsics.p1 * (distortion_r2 + 2 * physical_yy) + 2 * this->intrinsics.p2 * physical_xy;
 		//convert back to the pixel image coordinates
-		physical_x = distorted_x * this->intrisics.fx + distorted_y * this->intrisics.fx + this->intrisics.cx;
-		physical_y = distorted_y * this->intrisics.fy + this->intrisics.cy;
+		physical_x = distorted_x * this->intrinsics.fx + distorted_y * this->intrinsics.fx + this->intrinsics.cx;
+		physical_y = distorted_y * this->intrinsics.fy + this->intrinsics.cy;
 
 		Point2D corrected_coordinate(physical_x, physical_y);
 		return corrected_coordinate;

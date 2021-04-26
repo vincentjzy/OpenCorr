@@ -24,7 +24,7 @@
 
 namespace opencorr
 {
-	union CameraIntrisics {
+	union CameraIntrinsics {
 		struct {
 			float fx, fy, fs;
 			float cx, cy;
@@ -34,7 +34,7 @@ namespace opencorr
 		float cam_i[13];
 	};
 
-	union CameraExtrisics {
+	union CameraExtrinsics {
 		struct {
 			float tx, ty, tz;
 			float pitch, roll, yaw;
@@ -45,20 +45,20 @@ namespace opencorr
 	class Calibration
 	{
 	public:
-		CameraIntrisics intrisics;
-		CameraExtrisics extrisics;
+		CameraIntrinsics intrinsics;
+		CameraExtrinsics extrinsics;
 		float convergence;
 		int iteration;
 
-		Eigen::Matrix3f intrisic_matrix; //camera intrisic matrix of camera
+		Eigen::Matrix3f intrinsic_matrix; //camera intrinsic matrix of camera
 		Eigen::Matrix3f rotation_matrix; //camera rotation matrix of camera
 		Eigen::Vector3f translation_vector; //camera translation matrix of camera
 		Eigen::MatrixXf projection_matrix; //projection matrix of camera
 
-		Calibration(CameraIntrisics& intrisics, CameraExtrisics& extrisics);
+		Calibration(CameraIntrinsics& intrinsics, CameraExtrinsics& extrinsics);
 		~Calibration();
 
-		void setIntrisicMatrix();
+		void setIntrinsicMatrix();
 		void setRotationMatrix();
 		void setTranslationVector();
 		void setProjectionMatrix();

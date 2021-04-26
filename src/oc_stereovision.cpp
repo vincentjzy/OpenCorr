@@ -46,11 +46,11 @@ namespace opencorr
 	}
 
 	void Stereovision::prepare() {
-		this->left_camera->setIntrisicMatrix();
+		this->left_camera->setIntrinsicMatrix();
 		this->left_camera->setRotationMatrix();
 		this->left_camera->setTranslationVector();
 		this->left_camera->setProjectionMatrix();
-		this->right_camera->setIntrisicMatrix();
+		this->right_camera->setIntrinsicMatrix();
 		this->right_camera->setRotationMatrix();
 		this->right_camera->setTranslationVector();
 		this->right_camera->setProjectionMatrix();
@@ -71,8 +71,8 @@ namespace opencorr
 	}
 
 	void Stereovision::fundementalMatrix() {
-		//creat transposed inverse intrisic matrix of right camera
-		Eigen::Matrix3f right_invK_t = this->right_camera->intrisic_matrix.inverse().transpose();
+		//creat transposed inverse intrinsic matrix of right camera
+		Eigen::Matrix3f right_invK_t = this->right_camera->intrinsic_matrix.inverse().transpose();
 
 		//create an anti-symmetric matrix of translation vector of right camera
 		Eigen::Matrix3f right_t_antisymmetric;
@@ -83,8 +83,8 @@ namespace opencorr
 		//create essential matrix of right camera
 		Eigen::Matrix3f right_E = right_t_antisymmetric * this->right_camera->rotation_matrix;
 
-		//creat inversed intrisic matrix of left camera
-		Eigen::Matrix3f left_K = this->left_camera->intrisic_matrix.inverse();
+		//creat inversed intrinsic matrix of left camera
+		Eigen::Matrix3f left_K = this->left_camera->intrinsic_matrix.inverse();
 
 		this->fundamental_matrix = right_invK_t * right_E * left_K;
 	}
