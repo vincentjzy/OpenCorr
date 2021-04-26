@@ -11,9 +11,9 @@ OpenCorr is developed and tested in Microsoft Visual Studio on Windows 10. The c
 - OpenCV 3.4.5 ([opencv.org](opencv.org)), used to read images, and in modules related with image features and stereovision.
 - FFTW 3.3.9 ([fftw.org](fftw.org)), used for cross correlation.
 
-These libraries could be installed by downloading the source files (e.g., .h or .cpp) and static library files (.lib), and then place them into proper directories in your computer. Accordingly, the paths of source files and static library files need to be set in integrated development environment. Figure 1 gives an example in Visual Studio 2019 (community version).
+These libraries could be installed by downloading the source files (e.g., .h or .cpp) and static library files (.lib), and then place them into proper directories in your computer. Accordingly, the paths of source files and static library files need to be set in integrated development environment. Figure 1 gives an example in Visual Studio 2019 community version.
 ![Figure 1. Illustration of setting paths in Visual Studio 2019](https://github.com/vincentjzy/OpenCorr/blob/main/img/configuration_of_path_in_vs.png)
-At last, the dynamic link library files (.dll) need to be placed in the directory where you build the executable programs or the ones listed in system PATH.
+At last, the dynamic link library files (.dll) need to be placed in the directory where you build the executable programs or the directoris listed in system PATH.
 
 There are some examples in folder "samples", which demonstrate how we use the modules in OpenCorr to build our own DIC programs. The DIC algorithms provided in this library include:
 
