@@ -15,7 +15,7 @@ There are some examples in folder "samples", which demonstrate how we use the mo
 - SIFT-aided DIC: Estimation of 1st order deformation
 - Inverse compositional Gaussian-Newton (ICGN) algorithm: high accuracy estimation of deformation. Two versions are implemented, one for 1st order shape function and the other 2nd order shape function.
 
-Figure 1 shows the framework of OpenCorr, which gives a guide to understand the structure of OpenCorr. It also briefly describ the function of modules.
+Figure 1 shows the framework of OpenCorr, which gives a guide to understand the structure of OpenCorr.
 ![image](https://github.com/vincentjzy/OpenCorr/blob/main/img/framework.jpg)
 *Figure 1. Framework of OpenCorr*
 
