@@ -3,7 +3,7 @@ OpenCorr is an open source C++ library for development of 2D, 3D/stereo, and vol
 
 Both the library and the webpage are under construction. Update will be frequent in the following months until we reach a stable version with relatively complete documentation. Comments and sugestions are welcome.
 
-## Get started
+# Get started
 
 OpenCorr is developed and tested in Microsoft Visual Studio on Windows 10. The codes follow the standard of ISO C++ 14, theoretically it can be compiled on other OS like Linux. The building environment requires the following libraries correctly configured:
 
@@ -11,15 +11,19 @@ OpenCorr is developed and tested in Microsoft Visual Studio on Windows 10. The c
 - OpenCV 3.4.5 (opencv.org), used to read images, and in modules related with image features and stereovision.
 - FFTW 3.3.9 (fftw.org), used for cross correlation.
 
+These libraries could be installed by downloading the source files (e.g., .h or .cpp) and static library files (.lib), and then place them into proper directories in your computer. Accordingly, the paths of source files and static library files need to be set in integrated development environment. Figure 1 gives an example in Visual Studio 2019 (community version).
+![image](https://github.com/vincentjzy/OpenCorr/blob/main/img/configuration_of_path_in_vs.png)
+*Figure 1. Illustration of setting paths in Visual Studio 2019*
+
 There are some examples in folder "samples", which demonstrate how we use the modules in OpenCorr to build our own DIC programs. The DIC algorithms provided in this library include:
 
 - Fast Fourier transform-based cross correlation (FFT-CC): Estimation of integer-pixel displacement.
 - SIFT-aided DIC: Estimation of 1st order deformation
 - Inverse compositional Gaussian-Newton (ICGN) algorithm: high accuracy estimation of deformation. Two versions are implemented, one for the 1st order shape function and the other for the 2nd order shape function.
 
-Figure 1 shows the framework of OpenCorr, which gives a guide to understand the structure of OpenCorr.
+Figure 2 shows the framework of OpenCorr, which gives a guide to understand the structure of OpenCorr.
 ![image](https://github.com/vincentjzy/OpenCorr/blob/main/img/framework.png)
-*Figure 1. Framework of OpenCorr*
+*Figure 2. Framework of OpenCorr*
 
 Users may refer to our papers for the details of the principle of the algorithms provided in OpenCorr.
 
