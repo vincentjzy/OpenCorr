@@ -160,7 +160,7 @@ namespace opencorr
 		left_matrix(0, 1) = x_left * this->left_camera->projection_matrix(2, 1) - this->left_camera->projection_matrix(0, 1);
 		left_matrix(1, 1) = y_left * this->left_camera->projection_matrix(2, 1) - this->left_camera->projection_matrix(1, 1);
 		left_matrix(2, 1) = x_right * this->right_camera->projection_matrix(2, 1) - this->right_camera->projection_matrix(0, 1);
-		left_matrix(3, 0) = y_right * this->right_camera->projection_matrix(2, 1) - this->right_camera->projection_matrix(1, 1);
+		left_matrix(3, 1) = y_right * this->right_camera->projection_matrix(2, 1) - this->right_camera->projection_matrix(1, 1);
 
 		//column 3
 		left_matrix(0, 2) = x_left * this->left_camera->projection_matrix(2, 2) - this->left_camera->projection_matrix(0, 2);

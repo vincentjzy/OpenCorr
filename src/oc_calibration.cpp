@@ -63,8 +63,8 @@ namespace opencorr
 	void Calibration::setProjectionMatrix() {
 		Eigen::MatrixXf RT_mat(3, 4);
 
-		RT_mat.block(0, 0, 3, 3) << this->rotation_matrix;
-		RT_mat.col(2) << this->translation_vector;
+		RT_mat.block(0, 0, 2, 2) << this->rotation_matrix;
+		RT_mat.col(3) << this->translation_vector;
 
 		this->projection_matrix = this->intrinsic_matrix * RT_mat;
 	}
