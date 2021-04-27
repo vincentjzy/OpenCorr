@@ -11,9 +11,9 @@
  *
  * More information about OpenCorr can be found at https://www.opencorr.org/
  */
-#include <opencv2\calib3d.hpp>
-#include <opencv2\opencv.hpp>
 
+#include <cmath>
+#include <opencv2\calib3d.hpp>
 #include "oc_calibration.h"
 
 namespace opencorr
@@ -71,27 +71,32 @@ namespace opencorr
 
 	Point2D Calibration::distort(Point2D& point) {
 		//convert to the physical image coordinates
-		float physical_x = (point.x - this->intrinsics.cx - this->intrinsics.fs * point.y) / this->intrinsics.fx;
 		float physical_y = (point.y - this->intrinsics.cy) / this->intrinsics.fy;
+		float physical_x = (point.x - this->intrinsics.cx - this->intrinsics.fs * physical_y) / this->intrinsics.fx;
 
+		//prepare the variables
 		float physical_xx = physical_x * physical_x;
 		float physical_yy = physical_y * physical_y;
 		float physical_xy = physical_x * physical_y;
 		float distortion_r2 = physical_xx + physical_yy;
 		float distrotion_r4 = distortion_r2 * distortion_r2;
 		float distortion_r6 = distortion_r2 * distrotion_r4;
-		//radical distortion
-		float distortion_radial = 1 + this->intrinsics.k1 * distortion_r2 + this->intrinsics.k2 * distrotion_r4 + this->intrinsics.k3 * distortion_r6;
-		float distorted_x = physical_x * distortion_radial;
-		float distorted_y = physical_y * distortion_radial;
-		//tangential distortion
-		distorted_x += 2 * this->intrinsics.p1 * physical_xy + this->intrinsics.p2 * (distortion_r2 + 2 * physical_xx);
-		distorted_y += this->intrinsics.p1 * (distortion_r2 + 2 * physical_yy) + 2 * this->intrinsics.p2 * physical_xy;
-		//convert back to the pixel image coordinates
-		physical_x = distorted_x * this->intrinsics.fx + distorted_y * this->intrinsics.fx + this->intrinsics.cx;
-		physical_y = distorted_y * this->intrinsics.fy + this->intrinsics.cy;
 
-		Point2D corrected_coordinate(physical_x, physical_y);
+		//impose radical distortion
+		float distortion_radial = (1 + this->intrinsics.k1 * distortion_r2 + this->intrinsics.k2 * distrotion_r4 + this->intrinsics.k3 * distortion_r6)
+			/ (1 + this->intrinsics.k4 * distortion_r2 + this->intrinsics.k5 * distrotion_r4 + this->intrinsics.k6 * distortion_r6);
+		float distorted_y = physical_y * distortion_radial;
+		float distorted_x = physical_x * distortion_radial;
+
+		//impose tangential distortion
+		distorted_y += this->intrinsics.p1 * (distortion_r2 + 2 * physical_yy) + 2 * this->intrinsics.p2 * physical_xy;
+		distorted_x += 2 * this->intrinsics.p1 * physical_xy + this->intrinsics.p2 * (distortion_r2 + 2 * physical_xx);
+
+		//convert back to the pixel image coordinates
+		float pixel_y = distorted_y * this->intrinsics.fy + this->intrinsics.cy;
+		float pixel_x = distorted_x * this->intrinsics.fx + distorted_y * this->intrinsics.fs + this->intrinsics.cx;
+
+		Point2D corrected_coordinate(pixel_x, pixel_y);
 		return corrected_coordinate;
 	}
 
@@ -101,48 +106,45 @@ namespace opencorr
 	}
 
 	Point2D Calibration::correct(Point2D& point) {
-		//Newton iterative method
-		// correct x-coordinate
-		Point2D coordinate_step1 = point;
-		Point2D distorted_coordinate_step1 = distort(coordinate_step1) - point;
-		Point2D coordinate_step2 = coordinate_step1 - distorted_coordinate_step1;
-		Point2D distorted_coordinate_step2 = distort(coordinate_step2) - point;
-		Point2D coordinate_increment = coordinate_step2 - coordinate_step1;
-		Point2D coordinate_result = coordinate_step2;
-		int i = 1;
-		while (i < this->iteration && coordinate_increment.x > this->convergence) {
-			i++;
-			coordinate_result = coordinate_step2 - distorted_coordinate_step2
-				/ (distorted_coordinate_step2 - distorted_coordinate_step1) * (coordinate_step2 - coordinate_step1);
-			coordinate_step1 = coordinate_step2;
-			coordinate_step2 = coordinate_result;
-			distorted_coordinate_step1 = distorted_coordinate_step2;
-			distorted_coordinate_step2 = distort(coordinate_step2) - point;
-			coordinate_increment = coordinate_step2 - coordinate_step1;
-		}
-		float corrected_x = coordinate_result.x;
+		//convert to the physical image coordinates
+		float physical_y = (point.y - this->intrinsics.cy) / this->intrinsics.fy;
+		float physical_x = (point.x - this->intrinsics.cx - this->intrinsics.fs * physical_y) / this->intrinsics.fx;
 
-		// correct y-coordinate
-		coordinate_step1 = point;
-		distorted_coordinate_step1 = distort(coordinate_step1) - point;
-		coordinate_step2 = coordinate_step1 - distorted_coordinate_step1;
-		distorted_coordinate_step2 = distort(coordinate_step2) - point;
-		coordinate_increment = coordinate_step2 - coordinate_step1;
-		coordinate_result = coordinate_step2;
-		i = 1;
-		while (i < this->iteration && coordinate_increment.y > this->convergence) {
+		//initialize the coordinates for iterative procedure
+		int i = 0;
+		Point2D coordinate_previous(0, 0);
+		Point2D coordinate_current(physical_x, physical_y);
+		Point2D coordinate_increment = coordinate_current - coordinate_previous;
+		//iterative procedure for undistortion
+		while (i < this->iteration && (fabs(coordinate_increment.x) > this->convergence || fabs(coordinate_increment.y) > this->convergence)) {
 			i++;
-			coordinate_result = coordinate_step2 - distorted_coordinate_step2
-				/ (distorted_coordinate_step2 - distorted_coordinate_step1) * (coordinate_step2 - coordinate_step1);
-			coordinate_step1 = coordinate_step2;
-			coordinate_step2 = coordinate_result;
-			distorted_coordinate_step1 = distorted_coordinate_step2;
-			distorted_coordinate_step2 = distort(coordinate_step2) - point;
-			coordinate_increment = coordinate_step2 - coordinate_step1;
+			coordinate_previous = coordinate_current;
+
+			//prepare the variables
+			float physical_xx = coordinate_previous.x * coordinate_previous.x;
+			float physical_yy = coordinate_previous.y * coordinate_previous.y;
+			float physical_xy = coordinate_previous.x * coordinate_previous.y;
+			float distortion_r2 = physical_xx + physical_yy;
+			float distrotion_r4 = distortion_r2 * distortion_r2;
+			float distortion_r6 = distortion_r2 * distrotion_r4;
+
+			//undistort the coordinates
+			float radial_factor = (1 + this->intrinsics.k4 * distortion_r2 + this->intrinsics.k5 * distrotion_r4 + this->intrinsics.k5 * distortion_r6)
+				/ (1 + this->intrinsics.k1 * distortion_r2 + this->intrinsics.k2 * distrotion_r4 + this->intrinsics.k3 * distortion_r6);
+			float tangential_y = this->intrinsics.p1 * (distortion_r2 + 2 * physical_yy) + 2 * this->intrinsics.p2 * physical_xy;
+			float tangential_x = 2 * this->intrinsics.p1 * physical_xy + this->intrinsics.p2 * (distortion_r2 + 2 * physical_xx);
+			coordinate_current.y = (coordinate_previous.y - tangential_y) * radial_factor;
+			coordinate_current.x = (coordinate_previous.x - tangential_x) * radial_factor;
+
+			//calculate the increment
+			coordinate_increment = coordinate_current - coordinate_previous;
 		}
-		float corrected_y = coordinate_result.y;
-		//create point with corrected coordinates
-		Point2D corrected_coordinate(corrected_x, corrected_y);
+		
+		//convert back to the pixel image coordinates
+		float pixel_y = coordinate_current.y * this->intrinsics.fy + this->intrinsics.cy;
+		float pixel_x = coordinate_current.x * this->intrinsics.fx + coordinate_current.y * this->intrinsics.fs + this->intrinsics.cx;
+
+		Point2D corrected_coordinate(pixel_x, pixel_y);
 		return corrected_coordinate;
 	}
 
