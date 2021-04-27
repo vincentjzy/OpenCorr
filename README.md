@@ -5,17 +5,23 @@ Both the library and the webpage are under construction. Update will be frequent
 
 # Get started
 
-OpenCorr is developed and tested in Microsoft Visual Studio on Windows 10. The codes follow the standard of ISO C++ 14, theoretically it can be compiled on other OS like Linux. The building environment requires the following libraries correctly configured:
+OpenCorr is developed and tested in Microsoft Visual Studio 2019 (community version) on Windows 10. The codes follow the standard of ISO C++ 14, theoretically it can be compiled on other OS like Linux. The building environment requires three freeware libraries:
 
 - Eigen 3.3.9 ([eigen.tuxfamily.org](eigen.tuxfamily.org)), used for basic operations of matrix.
-- OpenCV 3.4.5 ([opencv.org](opencv.org)), used to read images, and in modules related with image features and stereovision.
+- OpenCV 3.4.5 ([opencv.org](opencv.org)), used to read images, and inthe  modules related with image feature and stereovision.
 - FFTW 3.3.9 ([fftw.org](fftw.org)), used for cross correlation.
 
-These libraries could be installed by downloading the source files (e.g., .h or .cpp) and static library files (.lib), and then place them into proper directories in your computer. Accordingly, the paths of source files and static library files need to be set in integrated development environment. Figure 1 gives an example in Visual Studio 2019 community version.
+These libraries provide good instructions for installation. The main procedure can be summarized as the following steps:
+
+1. Download the source files (e.g. .h or .cpp) and static library files (.lib) from the websites;
+2. Place them into proper directories in your computer;
+3. Set the paths of source files and static library files in integrated development environment, as illustrated in Figure 1;
 ![image](https://github.com/vincentjzy/OpenCorr/blob/main/img/configuration_of_path_in_vs.png)
 *Figure 1. Illustration of setting paths in Visual Studio 2019*
 
-At last, the dynamic link library files (.dll) need to be placed in the directory where the executable programs are built or the directories listed in system PATH. To facilitate the configuration for beginners, we made a zip package of the three libraries and share it on [pan.baidu.com](https://pan.baidu.com/s/17qdAhXJZPLWydYiowwEzig) (code: vyfy). Users can download it and set the paths following the instructions mentioned above.
+4. Place the dynamic link library files (.dll) into the directory where the executable programs are built or the directories listed in system PATH.
+
+To facilitate the configuration for beginners, we made a zip package of the three libraries and share it on [pan.baidu.com](https://pan.baidu.com/s/17qdAhXJZPLWydYiowwEzig) (code: vyfy). Users can download it and set the paths following the instructions mentioned above.
 
 There are some examples in folder "samples", which demonstrate how we use the modules in OpenCorr to build our own DIC programs. The DIC algorithms provided in this library include:
 
