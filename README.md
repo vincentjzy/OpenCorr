@@ -15,7 +15,7 @@ These libraries could be installed by downloading the source files (e.g., .h or 
 ![image](https://github.com/vincentjzy/OpenCorr/blob/main/img/configuration_of_path_in_vs.png)
 *Figure 1. Illustration of setting paths in Visual Studio 2019*
 
-At last, the dynamic link library files (.dll) need to be placed in the directory where the executable programs are built or the directories listed in system PATH. To facilitate beginners, we made a zip package of the three libraries and share it on [pan.baidu.com](https://pan.baidu.com/s/17qdAhXJZPLWydYiowwEzig) (code: vyfy). Users can download it and set the paths following the instructions mentioned above.
+At last, the dynamic link library files (.dll) need to be placed in the directory where the executable programs are built or the directories listed in system PATH. To facilitate the configuration for beginners, we made a zip package of the three libraries and share it on [pan.baidu.com](https://pan.baidu.com/s/17qdAhXJZPLWydYiowwEzig) (code: vyfy). Users can download it and set the paths following the instructions mentioned above.
 
 There are some examples in folder "samples", which demonstrate how we use the modules in OpenCorr to build our own DIC programs. The DIC algorithms provided in this library include:
 
