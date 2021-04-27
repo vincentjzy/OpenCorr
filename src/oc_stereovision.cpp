@@ -89,7 +89,7 @@ namespace opencorr
 		this->fundamental_matrix = right_invK_t * right_E * left_K;
 	}
 
-	Point2D Stereovision::epoipolarMatch(POI2D& POI) {
+	Point2D Stereovision::epipolarMatch(POI2D& POI) {
 		//convert locatoin of left POI to a vector
 		Eigen::Vector3f left_vector;
 		left_vector << (POI.x + POI.deformation.u), (POI.y + POI.deformation.v), 1;
@@ -102,7 +102,7 @@ namespace opencorr
 		int y_right = (int)(line_slope * x_right + line_intercept);
 
 		std::vector<POI2D> POI_candidates;
-		POI2D current_POI(x_right, y_right);
+		POI2D current_POI(POI.x, POI.y);
 		current_POI.deformation.u = x_right - POI.x;
 		current_POI.deformation.v = y_right - POI.y;
 		POI_candidates.push_back(current_POI);

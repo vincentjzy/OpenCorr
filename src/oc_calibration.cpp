@@ -63,7 +63,7 @@ namespace opencorr
 	void Calibration::setProjectionMatrix() {
 		Eigen::MatrixXf RT_mat(3, 4);
 
-		RT_mat.block(0, 0, 2, 2) << this->rotation_matrix;
+		RT_mat.block(0, 0, 3, 3) << this->rotation_matrix;
 		RT_mat.col(3) << this->translation_vector;
 
 		this->projection_matrix = this->intrinsic_matrix * RT_mat;
@@ -139,7 +139,7 @@ namespace opencorr
 			//calculate the increment
 			coordinate_increment = coordinate_current - coordinate_previous;
 		}
-		
+
 		//convert back to the pixel image coordinates
 		float pixel_y = coordinate_current.y * this->intrinsics.fy + this->intrinsics.cy;
 		float pixel_x = coordinate_current.x * this->intrinsics.fx + coordinate_current.y * this->intrinsics.fs + this->intrinsics.cx;

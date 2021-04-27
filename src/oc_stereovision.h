@@ -56,7 +56,7 @@ namespace opencorr
 		void prepare();
 
 		void fundementalMatrix();
-		Point2D epoipolarMatch(POI2D& left_POI);
+		Point2D epipolarMatch(POI2D& left_POI);
 		Point3D reconstruct(Point2D& left_point, Point2D& right_point);
 	};
 	bool sortByZNCC(const POI2D& p1, const POI2D& p2);
