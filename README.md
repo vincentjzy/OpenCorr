@@ -4,7 +4,7 @@ OpenCorr is an open source C++ library for development of 2D, 3D/stereo, and vol
 OpenCorr is under construction. More functions, including the GPU accelerated modules will be released soon. Thus, update of both codes and webpages will be frequent in the following months until we reach a stable version with relatively complete documentation.
 
 Comments and sugestions are most welcome. You may reach us via
-1. Email: zhenyu.jiang (at) qq.com;
+1. Email: jiangzhenyu (at) opencorr.com;
 2. Discussion here (at GitHub);
 3. QQ group: 597895040
 
