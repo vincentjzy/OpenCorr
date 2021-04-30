@@ -16,7 +16,7 @@ These libraries provide good instructions for installation. The main procedure c
 1. Download the source files (e.g. .h or .cpp) and static library files (.lib) from the websites;
 2. Place them into proper directories in your computer;
 3. Set the paths of source files and static library files in integrated development environment, as illustrated in Figure 1;
-![image](https://github.com/vincentjzy/OpenCorr/blob/main/img/configuration_of_path_in_vs.png)
+![image](https://github.com/vincentjzy/OpenCorr/blob/main/img/configuration_path_vs.png)
 *Figure 1. Illustration of setting paths in Visual Studio 2019*
 
 4. Place the dynamic link library files (.dll) into the directory where the executable programs are built or the directories listed in system PATH.
