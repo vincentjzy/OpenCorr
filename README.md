@@ -9,8 +9,9 @@ Comments and suggestions are most welcome. You may reach us via
 3. QQ group: 597895040
 
 ># Important updates
->2021.04.23, OpenCorr is released to public
->2021.04.30, Modify structure of DIC module and stereovision module
+>2021.04.23, OpenCorr is released to public.
+>
+>2021.04.30, Modify structure of DIC module and stereovision module.
 
 # Get started
 
@@ -26,6 +27,7 @@ These libraries provide good instructions for installation. The main procedure c
 2. Place them into proper directories in your computer. For example, I created a solution in VS with name of OpenCorr and a project with same name. The source codes are stored in folder "D:\OpenCorr\OpenCorr\", the files of source codes and static libraries of the three libraries are also placed in folder "D\OpenCorr\", as shown in Figure 1;
 
 ![image](https://github.com/vincentjzy/OpenCorr/blob/main/img/opencorr_folder_list.png)
+
 *Figure 1. An example of directory structure*
 
 3. Set the paths of source files and static library files in VS, as illustrated in Figure 2;
