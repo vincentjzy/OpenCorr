@@ -3,6 +3,9 @@ OpenCorr is an open source C++ library for development of 2D, 3D/stereo, and vol
 
 Both the library and the webpage are under construction. Update will be frequent in the following months until we reach a stable version with relatively complete documentation. Comments and sugestions are welcome.
 
+># Important updates
+>2021.04.30, 
+
 # Get started
 
 OpenCorr is developed and tested in Microsoft Visual Studio 2019 (community version) on Windows 10. The codes follow the standard of ISO C++ 14, theoretically it can be compiled on other OS like Linux. The building environment requires three freeware libraries:
