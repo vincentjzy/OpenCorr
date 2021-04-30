@@ -32,18 +32,17 @@ namespace opencorr
 
 	public:
 		int subset_radius_x, subset_radius_y;
-		int CPU_thread_number; //number of CPU threads
+		int thread_number; //openmp thread number
 
 		DIC();
 		void setImages(Image2D& ref_img, Image2D& tar_img);
+
 		virtual void prepare();
 		virtual void compute(POI2D* POI) = 0;
+		virtual void compute(std::vector<POI2D>& POI_queue) = 0;
 		virtual ~DIC() = default;
 
-		void setThreadNumber(int CPU_thread_number);
-
 	};
-
 
 	class DVC
 	{
@@ -53,7 +52,6 @@ namespace opencorr
 
 	public:
 		int subvolume_radius_x, subvolume_radius_y, subvolume_radius_z;
-		int CPU_thread_number; //number of CPU threads
 		//		virtual void setImages(image3d& ref_img, image3d& tar_img) = 0;
 		//		virtual void prepare() = 0;
 		//		virtual void compute(POI3d* POI) = 0;

@@ -14,8 +14,8 @@
 
 #pragma once
 
-#ifndef _STEREOVISION_H_
-#define _STEREOVISION_H_
+#ifndef _EPIPOLAR_SEARCH_H_
+#define _EPIPOLAR_SEARCH_H_
 
 #include "oc_array.h"
 #include "oc_calibration.h"
@@ -29,31 +29,38 @@
 
 namespace opencorr
 {
-	class Stereovision
+	class EpipolarSearch : public DIC
 	{
 	protected:
+		int search_radius; //seaching radius along the epipolar
+		int search_step; //step of search along the epipolar
 		Calibration left_cam; //intrinsics and extrinsics of left camera
 		Calibration right_cam; //intrinsics and extrinsics of right camera
-		int thread_number; //openmp thread number
+		Eigen::Matrix3f fundamental_matrix; //fundamental mattrix of stereovision system
+		int icgn_sr_x, icgn_sr_y; //subset radius of ICGN
+		float icgn_conv; //convergence criterion of ICGN
+		float icgn_stop; //stop condition of ICGN
 
 	public:
-		Point2D left_2d_pt; //2D point in left view
-		Point2D right_2d_pt; //2D point in right view
-		Point3D space_pt; //3D point in space
+		ICGN2D1* icgn1;
+		EpipolarSearch(Calibration& left_cam, Calibration& right_cam, int thread_number);
+		~EpipolarSearch();
 
-		Stereovision(Calibration& left_cam, Calibration& right_cam, int thread_number);
-		~Stereovision();
+		int getSearchRadius() const;
+		int getSearchStep() const;
+		void setSearch(int search_radius, int search_step);
+		void setICGN(int subset_radius_x, int subset_radius_y, float conv_criterion, float stop_condition);
 
 		void updateCameraParameters(Calibration& left_cam, Calibration& right_cam);
-
-		void setPointPair(Point2D& left_point, Point2D& right_point);
+		void updateFundementalMatrix();
 
 		void prepare();
-
-		Point2D epipolarMatch(POI2D& left_POI);
-		Point3D reconstruct(Point2D& left_point, Point2D& right_point);
+		void compute(POI2D* POI);
+		void compute(std::vector<POI2D>& POI_queue);
 	};
+
 	bool sortByZNCC(const POI2D& p1, const POI2D& p2);
 
 }//namespace opencorr
-#endif //_STEREOVISION_H_
+
+#endif //_EPIPOLAR_SEARCH_H_

@@ -38,8 +38,7 @@ namespace opencorr
 		Subset2D* tar_subset;
 		Eigen::MatrixXf error_img;
 		Matrix6f hessian, inv_hessian;
-		float*** steepest_descent_img;
-		Deformation2D1 p_initial, p_current, p_increment;
+		float*** sd_img; //steepest descent image
 
 		static ICGN2D1_* allocate(int subset_radius_x, int subset_radius_y);
 		static void release(ICGN2D1_* instance);
@@ -51,22 +50,25 @@ namespace opencorr
 		Interpolation2D* tar_interp;
 		Gradient2D4* ref_gradient;
 
-		float convergence_criterion; // Convergence criterion: Norm of maximum deformation increment in subset
-		float stop_condition; // Stop condition: Max iteration
+		float conv_criterion; //convergence criterion: Norm of maximum deformation increment in subset
+		float stop_condition; //stop condition: Max iteration
 
 		std::vector<ICGN2D1_*> instance_pool;
 		ICGN2D1_* getInstance(int tid);
 
 	public:
-		ICGN2D1();
-		ICGN2D1(int subset_radius_x, int subset_radius_y, float convergence_criterion, float stop_condition);
+		ICGN2D1(int subset_radius_x, int subset_radius_y, float conv_criterion, float stop_condition, int thread_number);
 		~ICGN2D1();
 
-		void prepare();
+		void prepareRef(); //calculate gradient maps of ref image
+		void prepareTar(); //calculate interpolation coefficient look_up table of tar image
+		void prepare(); //calculate gradient maps of ref image and interpolation coefficient look_up table of tar image
+
 		void compute(POI2D* POI);
+		void compute(std::vector<POI2D>& POI_queue);
 
 		void setSubsetRadii(int subset_radius_x, int subset_radius_y);
-		void setIteration(float convergence_criterion, float stop_condition);
+		void setIteration(float conv_criterion, float stop_condition);
 		void setIteration(POI2D* POI);
 	};
 
@@ -78,9 +80,7 @@ namespace opencorr
 		Subset2D* tar_subset;
 		Eigen::MatrixXf error_img;
 		Matrix12f hessian, inv_hessian;
-		float*** steepest_descent_img;
-		Deformation2D1 p_initial;
-		Deformation2D2 p_current, p_increment;
+		float*** sd_img;  //steepest descent image
 
 		static ICGN2D2_* allocate(int subset_radius_x, int subset_radius_y);
 		static void release(ICGN2D2_* instance);
@@ -92,24 +92,27 @@ namespace opencorr
 		Interpolation2D* tar_interp;
 		Gradient2D4* ref_gradient;
 
-		float convergence_criterion; // Convergence criterion: Norm of maximum deformation increment in subset
-		float stop_condition; // Stop condition: Max iteration
+		float conv_criterion; //convergence criterion: Norm of maximum deformation increment in subset
+		float stop_condition; //stop condition: Max iteration
 
 		std::vector<ICGN2D2_*> instance_pool;
 		ICGN2D2_* getInstance(int tid);
 
 	public:
-		ICGN2D2();
-		ICGN2D2(int subset_radius_x, int subset_radius_y, float convergence_criterion, float stop_condition);
+		ICGN2D2(int thread_number);
+		ICGN2D2(int subset_radius_x, int subset_radius_y, float conv_criterion, float stop_condition, int thread_number);
 		~ICGN2D2();
 
-		void prepare();
-		void compute(POI2D* POI);
+		void prepareRef(); //calculate gradient maps of ref image
+		void prepareTar(); //calculate interpolation coefficient look_up table of tar image
+		void prepare(); //calculate gradient maps of ref image and interpolation coefficient look_up table of tar image
 
 		void setSubsetRadii(int subset_radius_x, int subset_radius_y);
-		void setIteration(float convergence_criterion, float stop_condition);
+		void setIteration(float conv_criterion, float stop_condition);
 		void setIteration(POI2D* POI);
 
+		void compute(POI2D* POI);
+		void compute(std::vector<POI2D>& POI_queue);
 	};
 
 }//namespace opencorr

@@ -84,34 +84,34 @@ namespace opencorr
 		float x_decimal = location.x - x_integral;
 		float y_decimal = location.y - y_integral;
 
-		float x_decimal_square = x_decimal * x_decimal;
-		float y_decimal_square = y_decimal * y_decimal;
+		float x2_decimal = x_decimal * x_decimal;
+		float y2_decimal = y_decimal * y_decimal;
 
-		float x_decimal_cube = x_decimal_square * x_decimal;
-		float y_decimal_cube = y_decimal_square * y_decimal;
+		float x3_decimal = x2_decimal * x_decimal;
+		float y3_decimal = y2_decimal * y_decimal;
 
 		float value = 0.f;
 		float**& coefficient = this->lookup_table[y_integral][x_integral];
 
 		value += coefficient[0][0];
 		value += coefficient[0][1] * x_decimal;
-		value += coefficient[0][2] * x_decimal_square;
-		value += coefficient[0][3] * x_decimal_cube;
+		value += coefficient[0][2] * x2_decimal;
+		value += coefficient[0][3] * x3_decimal;
 
 		value += coefficient[1][0] * y_decimal;
 		value += coefficient[1][1] * y_decimal * x_decimal;
-		value += coefficient[1][2] * y_decimal * x_decimal_square;
-		value += coefficient[1][3] * y_decimal * x_decimal_cube;
+		value += coefficient[1][2] * y_decimal * x2_decimal;
+		value += coefficient[1][3] * y_decimal * x3_decimal;
 
-		value += coefficient[2][0] * y_decimal_square;
-		value += coefficient[2][1] * y_decimal_square * x_decimal;
-		value += coefficient[2][2] * y_decimal_square * x_decimal_square;
-		value += coefficient[2][3] * y_decimal_square * x_decimal_cube;
+		value += coefficient[2][0] * y2_decimal;
+		value += coefficient[2][1] * y2_decimal * x_decimal;
+		value += coefficient[2][2] * y2_decimal * x2_decimal;
+		value += coefficient[2][3] * y2_decimal * x3_decimal;
 
-		value += coefficient[3][0] * y_decimal_cube;
-		value += coefficient[3][1] * y_decimal_cube * x_decimal;
-		value += coefficient[3][2] * y_decimal_cube * x_decimal_square;
-		value += coefficient[3][3] * y_decimal_cube * x_decimal_cube;
+		value += coefficient[3][0] * y3_decimal;
+		value += coefficient[3][1] * y3_decimal * x_decimal;
+		value += coefficient[3][2] * y3_decimal * x2_decimal;
+		value += coefficient[3][3] * y3_decimal * x3_decimal;
 
 		return value;
 	}

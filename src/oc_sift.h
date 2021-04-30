@@ -46,8 +46,8 @@ namespace opencorr
 		cv::Mat* tar_mat;
 
 	public:
-		std::vector<Point2D> ref_matched_keypoints;
-		std::vector<Point2D> tar_matched_keypoints;
+		std::vector<Point2D> ref_matched_kp; //matched keypoints in ref image
+		std::vector<Point2D> tar_matched_kp; //matched keypoints in tar image
 
 		SIFT2D();
 		~SIFT2D();

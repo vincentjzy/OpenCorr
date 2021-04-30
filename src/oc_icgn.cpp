@@ -26,7 +26,7 @@ namespace opencorr
 		ICGN_instance->ref_subset = new Subset2D(subset_center, subset_radius_x, subset_radius_y);
 		ICGN_instance->tar_subset = new Subset2D(subset_center, subset_radius_x, subset_radius_y);
 		ICGN_instance->error_img = Eigen::MatrixXf::Zero(subset_height, subset_width);
-		ICGN_instance->steepest_descent_img = new3D(subset_height, subset_width, 6);
+		ICGN_instance->sd_img = new3D(subset_height, subset_width, 6);
 
 		return ICGN_instance;
 	}
@@ -34,19 +34,21 @@ namespace opencorr
 	void ICGN2D1_::release(ICGN2D1_* instance) {
 		delete instance->ref_subset;
 		delete instance->tar_subset;
-		delete3D(instance->steepest_descent_img);
+		delete3D(instance->sd_img);
 	}
 
-	ICGN2D1::ICGN2D1() :ref_gradient(nullptr), tar_interp(nullptr) {
-	}
-
-	ICGN2D1::ICGN2D1(int subset_radius_x, int subset_radius_y, float convergence_criterion, float stop_condition)
+	ICGN2D1::ICGN2D1(int subset_radius_x, int subset_radius_y, float conv_criterion, float stop_condition, int thread_number)
 		: ref_gradient(nullptr), tar_interp(nullptr) {
-
 		this->subset_radius_x = subset_radius_x;
 		this->subset_radius_y = subset_radius_y;
-		this->convergence_criterion = convergence_criterion;
+		this->conv_criterion = conv_criterion;
 		this->stop_condition = stop_condition;
+		this->thread_number = thread_number;
+
+		for (int i = 0; i < thread_number; i++) {
+			ICGN2D1_* instance = ICGN2D1_::allocate(this->subset_radius_x, this->subset_radius_y);
+			this->instance_pool.push_back(instance);
+		}
 	}
 
 	ICGN2D1::~ICGN2D1() {
@@ -58,7 +60,6 @@ namespace opencorr
 			delete instance;
 		}
 		this->instance_pool.clear();
-
 	}
 
 	void ICGN2D1::setSubsetRadii(int subset_radius_x, int subset_radius_y) {
@@ -66,13 +67,13 @@ namespace opencorr
 		this->subset_radius_y = subset_radius_y;
 	}
 
-	void ICGN2D1::setIteration(float convergence_criterion, float stop_condition) {
-		this->convergence_criterion = convergence_criterion;
+	void ICGN2D1::setIteration(float conv_criterion, float stop_condition) {
+		this->conv_criterion = conv_criterion;
 		this->stop_condition = stop_condition;
 	}
 
 	void ICGN2D1::setIteration(POI2D* POI) {
-		this->convergence_criterion = POI->result.convergence;
+		this->conv_criterion = POI->result.convergence;
 		this->stop_condition = (int)POI->result.iteration;
 	}
 
@@ -85,28 +86,30 @@ namespace opencorr
 		return this->instance_pool[tid];
 	}
 
-	void ICGN2D1::prepare() {
+	void ICGN2D1::prepareRef() {
 		if (this->ref_gradient != nullptr) {
 			delete this->ref_gradient;
 			this->ref_gradient = nullptr;
-		}
-		if (this->tar_interp != nullptr) {
-			delete this->tar_interp;
-			this->tar_interp = nullptr;
 		}
 
 		this->ref_gradient = new Gradient2D4(*this->ref_img);
 		this->ref_gradient->getGradientX();
 		this->ref_gradient->getGradientY();
+	}
+
+	void ICGN2D1::prepareTar() {
+		if (this->tar_interp != nullptr) {
+			delete this->tar_interp;
+			this->tar_interp = nullptr;
+		}
 
 		this->tar_interp = new BicubicBspline(*this->tar_img);
 		this->tar_interp->prepare();
+	}
 
-		for (int i = 0; i < this->CPU_thread_number; i++) {
-			ICGN2D1_* instance = ICGN2D1_::allocate(this->subset_radius_x, this->subset_radius_y);
-			this->instance_pool.push_back(instance);
-		}
-
+	void ICGN2D1::prepare() {
+		this->prepareRef();
+		this->prepareTar();
 	}
 
 	void ICGN2D1::compute(POI2D* POI) {
@@ -114,15 +117,15 @@ namespace opencorr
 		int subset_height = 2 * this->subset_radius_y + 1;
 
 		//set instance w.r.t. thread id 
-		ICGN2D1_* current_instance = this->getInstance(omp_get_thread_num());
+		ICGN2D1_* cur_instance = this->getInstance(omp_get_thread_num());
 
 		//set reference subset
-		current_instance->ref_subset->center = (Point2D)*POI;
-		current_instance->ref_subset->fill(this->ref_img);
-		float ref_mean_norm = current_instance->ref_subset->zeroMeanNorm();
+		cur_instance->ref_subset->center = (Point2D)*POI;
+		cur_instance->ref_subset->fill(this->ref_img);
+		float ref_mean_norm = cur_instance->ref_subset->zeroMeanNorm();
 
 		//build the hessian matrix
-		current_instance->hessian.setZero();
+		cur_instance->hessian.setZero();
 		for (int r = 0; r < subset_height; r++) {
 			for (int c = 0; c < subset_width; c++) {
 				int x_local = c - this->subset_radius_x;
@@ -132,38 +135,39 @@ namespace opencorr
 				float ref_gradient_x = this->ref_gradient->gradient_x(y_global, x_global);
 				float ref_gradient_y = this->ref_gradient->gradient_y(y_global, x_global);
 
-				current_instance->steepest_descent_img[r][c][0] = ref_gradient_x;
-				current_instance->steepest_descent_img[r][c][1] = ref_gradient_x * x_local;
-				current_instance->steepest_descent_img[r][c][2] = ref_gradient_x * y_local;
-				current_instance->steepest_descent_img[r][c][3] = ref_gradient_y;
-				current_instance->steepest_descent_img[r][c][4] = ref_gradient_y * x_local;
-				current_instance->steepest_descent_img[r][c][5] = ref_gradient_y * y_local;
+				cur_instance->sd_img[r][c][0] = ref_gradient_x;
+				cur_instance->sd_img[r][c][1] = ref_gradient_x * x_local;
+				cur_instance->sd_img[r][c][2] = ref_gradient_x * y_local;
+				cur_instance->sd_img[r][c][3] = ref_gradient_y;
+				cur_instance->sd_img[r][c][4] = ref_gradient_y * x_local;
+				cur_instance->sd_img[r][c][5] = ref_gradient_y * y_local;
 
 				for (int i = 0; i < 6; i++) {
 					float sum = 0;
 					for (int j = 0; j < 6; j++) {
-						sum = current_instance->hessian(i, j) + current_instance->steepest_descent_img[r][c][i] * current_instance->steepest_descent_img[r][c][j];
-						current_instance->hessian(i, j) = sum;
+						sum = cur_instance->hessian(i, j) + cur_instance->sd_img[r][c][i] * cur_instance->sd_img[r][c][j];
+						cur_instance->hessian(i, j) = sum;
 					}
 				}
 			}
 		}
 
 		//compute inversed hessian matrix
-		current_instance->inv_hessian = current_instance->hessian.inverse();
+		cur_instance->inv_hessian = cur_instance->hessian.inverse();
 
 		//set target subset
-		current_instance->tar_subset->center = (Point2D)*POI;
+		cur_instance->tar_subset->center = (Point2D)*POI;
 
 		//get initial guess
-		current_instance->p_initial.setDeformation(POI->deformation.u, POI->deformation.ux, POI->deformation.uy,
+		Deformation2D1 p_initial(POI->deformation.u, POI->deformation.ux, POI->deformation.uy,
 			POI->deformation.v, POI->deformation.vx, POI->deformation.vy);
 
 		//IC-GN iteration
 		int iteration = 0; //initialize iteration counter
-		current_instance->p_current.setDeformation(current_instance->p_initial);
-		float max_deformation_norm, ZNSSD;
-		Point2D local_coordinate, warped_coordinate, global_coordinate;
+		Deformation2D1 p_current, p_increment;
+		p_current.setDeformation(p_initial);
+		float dp_norm_max, ZNSSD;
+		Point2D local_coor, warped_coor, global_coor;
 		do {
 			iteration++;
 			//reconstruct target subset
@@ -171,28 +175,28 @@ namespace opencorr
 				for (int c = 0; c < subset_width; c++) {
 					int x_local = c - this->subset_radius_x;
 					int y_local = r - this->subset_radius_y;
-					local_coordinate.x = x_local;
-					local_coordinate.y = y_local;
-					warped_coordinate = current_instance->p_current.warp(local_coordinate);
-					global_coordinate = (Point2D)*POI + warped_coordinate;
-					current_instance->tar_subset->eg_mat(r, c) = this->tar_interp->compute(global_coordinate);
+					local_coor.x = x_local;
+					local_coor.y = y_local;
+					warped_coor = p_current.warp(local_coor);
+					global_coor = (Point2D)*POI + warped_coor;
+					cur_instance->tar_subset->eg_mat(r, c) = this->tar_interp->compute(global_coor);
 				}
 			}
-			float tar_mean_norm = current_instance->tar_subset->zeroMeanNorm();
+			float tar_mean_norm = cur_instance->tar_subset->zeroMeanNorm();
 
 			//compute error image
-			current_instance->error_img = current_instance->tar_subset->eg_mat * (ref_mean_norm / tar_mean_norm)
-				- (current_instance->ref_subset->eg_mat);
+			cur_instance->error_img = cur_instance->tar_subset->eg_mat * (ref_mean_norm / tar_mean_norm)
+				- (cur_instance->ref_subset->eg_mat);
 
 			//calculate ZNSSD
-			ZNSSD = current_instance->error_img.squaredNorm() / (ref_mean_norm * ref_mean_norm);
+			ZNSSD = cur_instance->error_img.squaredNorm() / (ref_mean_norm * ref_mean_norm);
 
 			//compute numerator
 			float numerator[6] = { 0 };
 			for (int r = 0; r < subset_height; r++) {
 				for (int c = 0; c < subset_width; c++) {
 					for (int i = 0; i < 6; i++) {
-						numerator[i] += current_instance->steepest_descent_img[r][c][i] * current_instance->error_img(r, c);
+						numerator[i] += cur_instance->sd_img[r][c][i] * cur_instance->error_img(r, c);
 					}
 				}
 			}
@@ -201,49 +205,55 @@ namespace opencorr
 			float dp[6] = { 0 };
 			for (int i = 0; i < 6; i++) {
 				for (int j = 0; j < 6; j++) {
-					dp[i] += current_instance->inv_hessian(i, j) * numerator[j];
+					dp[i] += cur_instance->inv_hessian(i, j) * numerator[j];
 				}
 			}
-			current_instance->p_increment.setDeformation(dp);
+			p_increment.setDeformation(dp);
 
 			//update warp
-			current_instance->p_current.warp_matrix = current_instance->p_current.warp_matrix * current_instance->p_increment.warp_matrix.inverse();
+			p_current.warp_matrix = p_current.warp_matrix * p_increment.warp_matrix.inverse();
 
 			//update p
-			current_instance->p_current.setDeformation();
+			p_current.setDeformation();
 
 			//check convergence
 			int subset_radius_x2 = this->subset_radius_x * this->subset_radius_x;
 			int subset_radius_y2 = this->subset_radius_y * this->subset_radius_y;
 
-			max_deformation_norm = 0.f;
-			max_deformation_norm += current_instance->p_increment.u * current_instance->p_increment.u;
-			max_deformation_norm += current_instance->p_increment.ux * current_instance->p_increment.ux * subset_radius_x2;
-			max_deformation_norm += current_instance->p_increment.uy * current_instance->p_increment.uy * subset_radius_y2;
-			max_deformation_norm += current_instance->p_increment.v * current_instance->p_increment.v;
-			max_deformation_norm += current_instance->p_increment.vx * current_instance->p_increment.vx * subset_radius_x2;
-			max_deformation_norm += current_instance->p_increment.vy * current_instance->p_increment.vy * subset_radius_y2;
+			dp_norm_max = 0.f;
+			dp_norm_max += p_increment.u * p_increment.u;
+			dp_norm_max += p_increment.ux * p_increment.ux * subset_radius_x2;
+			dp_norm_max += p_increment.uy * p_increment.uy * subset_radius_y2;
+			dp_norm_max += p_increment.v * p_increment.v;
+			dp_norm_max += p_increment.vx * p_increment.vx * subset_radius_x2;
+			dp_norm_max += p_increment.vy * p_increment.vy * subset_radius_y2;
 
-			max_deformation_norm = sqrtf(max_deformation_norm);
-		} while (iteration < this->stop_condition && max_deformation_norm >= this->convergence_criterion);
+			dp_norm_max = sqrtf(dp_norm_max);
+		} while (iteration < this->stop_condition && dp_norm_max >= this->conv_criterion);
 
 		//store the final result
-		POI->deformation.u = current_instance->p_current.u;
-		POI->deformation.ux = current_instance->p_current.ux;
-		POI->deformation.uy = current_instance->p_current.uy;
-		POI->deformation.v = current_instance->p_current.v;
-		POI->deformation.vx = current_instance->p_current.vx;
-		POI->deformation.vy = current_instance->p_current.vy;
+		POI->deformation.u = p_current.u;
+		POI->deformation.ux = p_current.ux;
+		POI->deformation.uy = p_current.uy;
+		POI->deformation.v = p_current.v;
+		POI->deformation.vx = p_current.vx;
+		POI->deformation.vy = p_current.vy;
 
 		//save the results for output
-		POI->result.u0 = current_instance->p_initial.u;
-		POI->result.v0 = current_instance->p_initial.v;
-		POI->result.u = current_instance->p_current.u;
-		POI->result.v = current_instance->p_current.v;
+		POI->result.u0 = p_initial.u;
+		POI->result.v0 = p_initial.v;
+		POI->result.u = p_current.u;
+		POI->result.v = p_current.v;
 		POI->result.ZNCC = 0.5f * (2 - ZNSSD);
 		POI->result.iteration = (float)iteration;
-		POI->result.convergence = max_deformation_norm;
+		POI->result.convergence = dp_norm_max;
+	}
 
+	void ICGN2D1::compute(std::vector<POI2D>& POI_queue) {
+#pragma omp parallel for
+		for (int i = 0; i < POI_queue.size(); ++i) {
+			this->compute(&POI_queue[i]);
+		}
 	}
 
 
@@ -258,7 +268,7 @@ namespace opencorr
 		ICGN_instance->ref_subset = new Subset2D(subset_center, subset_radius_x, subset_radius_y);
 		ICGN_instance->tar_subset = new Subset2D(subset_center, subset_radius_x, subset_radius_y);
 		ICGN_instance->error_img = Eigen::MatrixXf::Zero(subset_height, subset_width);
-		ICGN_instance->steepest_descent_img = new3D(subset_height, subset_width, 12);
+		ICGN_instance->sd_img = new3D(subset_height, subset_width, 12);
 
 		return ICGN_instance;
 	}
@@ -266,18 +276,29 @@ namespace opencorr
 	void ICGN2D2_::release(ICGN2D2_* instance) {
 		delete instance->ref_subset;
 		delete instance->tar_subset;
-		delete3D(instance->steepest_descent_img);
+		delete3D(instance->sd_img);
 	}
 
-	ICGN2D2::ICGN2D2() :ref_gradient(nullptr), tar_interp(nullptr) {
+	ICGN2D2::ICGN2D2(int thread_number) :ref_gradient(nullptr), tar_interp(nullptr) {
+		this->thread_number = thread_number;
+		for (int i = 0; i < thread_number; i++) {
+			ICGN2D2_* instance = ICGN2D2_::allocate(this->subset_radius_x, this->subset_radius_y);
+			instance_pool.push_back(instance);
+		}
 	}
 
-	ICGN2D2::ICGN2D2(int subset_radius_x, int subset_radius_y, float convergence_criterion, float stop_condition)
+	ICGN2D2::ICGN2D2(int subset_radius_x, int subset_radius_y, float conv_criterion, float stop_condition, int thread_number)
 		: ref_gradient(nullptr), tar_interp(nullptr) {
 		this->subset_radius_x = subset_radius_x;
 		this->subset_radius_y = subset_radius_y;
-		this->convergence_criterion = convergence_criterion;
+		this->conv_criterion = conv_criterion;
 		this->stop_condition = stop_condition;
+		this->thread_number = thread_number;
+
+		for (int i = 0; i < thread_number; i++) {
+			ICGN2D2_* instance = ICGN2D2_::allocate(this->subset_radius_x, this->subset_radius_y);
+			instance_pool.push_back(instance);
+		}
 	}
 
 	ICGN2D2::~ICGN2D2() {
@@ -297,13 +318,13 @@ namespace opencorr
 		this->subset_radius_y = subset_radius_y;
 	}
 
-	void ICGN2D2::setIteration(float convergence_criterion, float stop_condition) {
-		this->convergence_criterion = convergence_criterion;
+	void ICGN2D2::setIteration(float conv_criterion, float stop_condition) {
+		this->conv_criterion = conv_criterion;
 		this->stop_condition = stop_condition;
 	}
 
 	void ICGN2D2::setIteration(POI2D* POI) {
-		this->convergence_criterion = POI->result.convergence;
+		this->conv_criterion = POI->result.convergence;
 		this->stop_condition = POI->result.iteration;
 	}
 
@@ -316,27 +337,30 @@ namespace opencorr
 		return this->instance_pool[tid];
 	}
 
-	void ICGN2D2::prepare() {
+	void ICGN2D2::prepareRef() {
 		if (this->ref_gradient != nullptr) {
 			delete this->ref_gradient;
 			this->ref_gradient = nullptr;
-		}
-		if (this->tar_interp != nullptr) {
-			delete this->tar_interp;
-			this->tar_interp = nullptr;
 		}
 
 		this->ref_gradient = new Gradient2D4(*this->ref_img);
 		this->ref_gradient->getGradientX();
 		this->ref_gradient->getGradientY();
+	}
+
+	void ICGN2D2::prepareTar() {
+		if (this->tar_interp != nullptr) {
+			delete this->tar_interp;
+			this->tar_interp = nullptr;
+		}
 
 		this->tar_interp = new BicubicBspline(*this->tar_img);
 		this->tar_interp->prepare();
+	}
 
-		for (int i = 0; i < this->CPU_thread_number; i++) {
-			ICGN2D2_* instance = ICGN2D2_::allocate(this->subset_radius_x, this->subset_radius_y);
-			instance_pool.push_back(instance);
-		}
+	void ICGN2D2::prepare() {
+		this->prepareRef();
+		this->prepareTar();
 	}
 
 	void ICGN2D2::compute(POI2D* POI) {
@@ -344,15 +368,15 @@ namespace opencorr
 		int subset_height = 2 * this->subset_radius_y + 1;
 
 		//set instance w.r.t. thread id 
-		ICGN2D2_* current_instance = this->getInstance(omp_get_thread_num());
+		ICGN2D2_* cur_instance = this->getInstance(omp_get_thread_num());
 
 		//set reference subset
-		current_instance->ref_subset->center = (Point2D)*POI;
-		current_instance->ref_subset->fill(this->ref_img);
-		float ref_mean_norm = current_instance->ref_subset->zeroMeanNorm();
+		cur_instance->ref_subset->center = (Point2D)*POI;
+		cur_instance->ref_subset->fill(this->ref_img);
+		float ref_mean_norm = cur_instance->ref_subset->zeroMeanNorm();
 
 		//build the hessian matrix
-		current_instance->hessian.setZero();
+		cur_instance->hessian.setZero();
 		for (int r = 0; r < subset_height; r++) {
 			for (int c = 0; c < subset_width; c++) {
 				int x_local = c - this->subset_radius_x;
@@ -365,45 +389,46 @@ namespace opencorr
 				float ref_gradient_x = this->ref_gradient->gradient_x(y_global, x_global);
 				float ref_gradient_y = this->ref_gradient->gradient_y(y_global, x_global);
 
-				current_instance->steepest_descent_img[r][c][0] = ref_gradient_x;
-				current_instance->steepest_descent_img[r][c][1] = ref_gradient_x * x_local;
-				current_instance->steepest_descent_img[r][c][2] = ref_gradient_x * y_local;
-				current_instance->steepest_descent_img[r][c][3] = ref_gradient_x * xx_local;
-				current_instance->steepest_descent_img[r][c][4] = ref_gradient_x * xy_local;
-				current_instance->steepest_descent_img[r][c][5] = ref_gradient_x * yy_local;
+				cur_instance->sd_img[r][c][0] = ref_gradient_x;
+				cur_instance->sd_img[r][c][1] = ref_gradient_x * x_local;
+				cur_instance->sd_img[r][c][2] = ref_gradient_x * y_local;
+				cur_instance->sd_img[r][c][3] = ref_gradient_x * xx_local;
+				cur_instance->sd_img[r][c][4] = ref_gradient_x * xy_local;
+				cur_instance->sd_img[r][c][5] = ref_gradient_x * yy_local;
 
-				current_instance->steepest_descent_img[r][c][6] = ref_gradient_y;
-				current_instance->steepest_descent_img[r][c][7] = ref_gradient_y * x_local;
-				current_instance->steepest_descent_img[r][c][8] = ref_gradient_y * y_local;
-				current_instance->steepest_descent_img[r][c][9] = ref_gradient_y * xx_local;
-				current_instance->steepest_descent_img[r][c][10] = ref_gradient_y * xy_local;
-				current_instance->steepest_descent_img[r][c][11] = ref_gradient_y * yy_local;
+				cur_instance->sd_img[r][c][6] = ref_gradient_y;
+				cur_instance->sd_img[r][c][7] = ref_gradient_y * x_local;
+				cur_instance->sd_img[r][c][8] = ref_gradient_y * y_local;
+				cur_instance->sd_img[r][c][9] = ref_gradient_y * xx_local;
+				cur_instance->sd_img[r][c][10] = ref_gradient_y * xy_local;
+				cur_instance->sd_img[r][c][11] = ref_gradient_y * yy_local;
 
 				for (int i = 0; i < 12; i++) {
 					float sum = 0;
 					for (int j = 0; j < 12; j++) {
-						sum = current_instance->hessian(i, j) + current_instance->steepest_descent_img[r][c][i] * current_instance->steepest_descent_img[r][c][j];
-						current_instance->hessian(i, j) = sum;
+						sum = cur_instance->hessian(i, j) + cur_instance->sd_img[r][c][i] * cur_instance->sd_img[r][c][j];
+						cur_instance->hessian(i, j) = sum;
 					}
 				}
 			}
 		}
 
 		//compute inversed hessian matrix
-		current_instance->inv_hessian = current_instance->hessian.inverse();
+		cur_instance->inv_hessian = cur_instance->hessian.inverse();
 
 		//set target subset
-		current_instance->tar_subset->center = (Point2D)*POI;
+		cur_instance->tar_subset->center = (Point2D)*POI;
 
 		//get initial guess
-		current_instance->p_initial.setDeformation(POI->deformation.u, POI->deformation.ux, POI->deformation.uy,
+		Deformation2D1 p_initial(POI->deformation.u, POI->deformation.ux, POI->deformation.uy,
 			POI->deformation.v, POI->deformation.vx, POI->deformation.vy);
 
 		//IC-GN iteration
 		int iteration = 0; //initialize iteration counter
-		current_instance->p_current.setDeformation(current_instance->p_initial);
-		float max_deformation_norm, ZNSSD;
-		Point2D local_coordinate, warped_coordinate, global_coordinate;
+		Deformation2D2 p_current, p_increment;
+		p_current.setDeformation(p_initial);
+		float dp_norm_max, ZNSSD;
+		Point2D local_coor, warped_coor, global_coor;
 		do {
 			iteration++;
 			//reconstruct target subset
@@ -411,28 +436,28 @@ namespace opencorr
 				for (int c = 0; c < subset_width; c++) {
 					int x_local = c - this->subset_radius_x;
 					int y_local = r - this->subset_radius_y;
-					local_coordinate.x = x_local;
-					local_coordinate.y = y_local;
-					warped_coordinate = current_instance->p_current.warp(local_coordinate);
-					global_coordinate = (Point2D)*POI + warped_coordinate;
-					current_instance->tar_subset->eg_mat(r, c) = this->tar_interp->compute(global_coordinate);
+					local_coor.x = x_local;
+					local_coor.y = y_local;
+					warped_coor = p_current.warp(local_coor);
+					global_coor = (Point2D)*POI + warped_coor;
+					cur_instance->tar_subset->eg_mat(r, c) = this->tar_interp->compute(global_coor);
 				}
 			}
-			float tar_mean_norm = current_instance->tar_subset->zeroMeanNorm();
+			float tar_mean_norm = cur_instance->tar_subset->zeroMeanNorm();
 
 			//compute error image
-			current_instance->error_img = current_instance->tar_subset->eg_mat * (ref_mean_norm / tar_mean_norm)
-				- (current_instance->ref_subset->eg_mat);
+			cur_instance->error_img = cur_instance->tar_subset->eg_mat * (ref_mean_norm / tar_mean_norm)
+				- (cur_instance->ref_subset->eg_mat);
 
 			//calculate ZNSSD
-			ZNSSD = current_instance->error_img.squaredNorm() / (ref_mean_norm * ref_mean_norm);
+			ZNSSD = cur_instance->error_img.squaredNorm() / (ref_mean_norm * ref_mean_norm);
 
 			//compute numerator
 			float numerator[12] = { 0 };
 			for (int r = 0; r < subset_height; r++) {
 				for (int c = 0; c < subset_width; c++) {
 					for (int i = 0; i < 12; i++) {
-						numerator[i] += current_instance->steepest_descent_img[r][c][i] * current_instance->error_img(r, c);
+						numerator[i] += cur_instance->sd_img[r][c][i] * cur_instance->error_img(r, c);
 					}
 				}
 			}
@@ -441,64 +466,70 @@ namespace opencorr
 			float dp[12] = { 0 };
 			for (int i = 0; i < 12; i++) {
 				for (int j = 0; j < 12; j++) {
-					dp[i] += current_instance->inv_hessian(i, j) * numerator[j];
+					dp[i] += cur_instance->inv_hessian(i, j) * numerator[j];
 				}
 			}
-			current_instance->p_increment.setDeformation(dp);
+			p_increment.setDeformation(dp);
 
 			//update warp
-			current_instance->p_current.warp_matrix = current_instance->p_current.warp_matrix * current_instance->p_increment.warp_matrix.inverse();
+			p_current.warp_matrix = p_current.warp_matrix * p_increment.warp_matrix.inverse();
 
 			//update p
-			current_instance->p_current.setDeformation();
+			p_current.setDeformation();
 
 			//check convergence
 			int subset_radius_x2 = this->subset_radius_x * this->subset_radius_x;
 			int subset_radius_y2 = this->subset_radius_y * this->subset_radius_y;
 			int subset_radius_xy = subset_radius_x2 * subset_radius_y2;
 
-			max_deformation_norm = 0.f;
-			max_deformation_norm += current_instance->p_increment.u * current_instance->p_increment.u;
-			max_deformation_norm += current_instance->p_increment.ux * current_instance->p_increment.ux * subset_radius_x2;
-			max_deformation_norm += current_instance->p_increment.uy * current_instance->p_increment.uy * subset_radius_y2;
-			max_deformation_norm += current_instance->p_increment.uxx * current_instance->p_increment.uxx * subset_radius_x2 * subset_radius_x2 / 4.f;
-			max_deformation_norm += current_instance->p_increment.uyy * current_instance->p_increment.uyy * subset_radius_y2 * subset_radius_y2 / 4.f;
-			max_deformation_norm += current_instance->p_increment.uxy * current_instance->p_increment.uxy * subset_radius_xy;
+			dp_norm_max = 0.f;
+			dp_norm_max += p_increment.u * p_increment.u;
+			dp_norm_max += p_increment.ux * p_increment.ux * subset_radius_x2;
+			dp_norm_max += p_increment.uy * p_increment.uy * subset_radius_y2;
+			dp_norm_max += p_increment.uxx * p_increment.uxx * subset_radius_x2 * subset_radius_x2 / 4.f;
+			dp_norm_max += p_increment.uyy * p_increment.uyy * subset_radius_y2 * subset_radius_y2 / 4.f;
+			dp_norm_max += p_increment.uxy * p_increment.uxy * subset_radius_xy;
 
-			max_deformation_norm += current_instance->p_increment.v * current_instance->p_increment.v;
-			max_deformation_norm += current_instance->p_increment.vx * current_instance->p_increment.vx * subset_radius_x2;
-			max_deformation_norm += current_instance->p_increment.vy * current_instance->p_increment.vy * subset_radius_y2;
-			max_deformation_norm += current_instance->p_increment.vxx * current_instance->p_increment.vxx * subset_radius_x2 * subset_radius_x2 / 4.f;
-			max_deformation_norm += current_instance->p_increment.vyy * current_instance->p_increment.vyy * subset_radius_y2 * subset_radius_y2 / 4.f;
-			max_deformation_norm += current_instance->p_increment.vxy * current_instance->p_increment.vxy * subset_radius_xy;
+			dp_norm_max += p_increment.v * p_increment.v;
+			dp_norm_max += p_increment.vx * p_increment.vx * subset_radius_x2;
+			dp_norm_max += p_increment.vy * p_increment.vy * subset_radius_y2;
+			dp_norm_max += p_increment.vxx * p_increment.vxx * subset_radius_x2 * subset_radius_x2 / 4.f;
+			dp_norm_max += p_increment.vyy * p_increment.vyy * subset_radius_y2 * subset_radius_y2 / 4.f;
+			dp_norm_max += p_increment.vxy * p_increment.vxy * subset_radius_xy;
 
-			max_deformation_norm = sqrtf(max_deformation_norm);
-		} while (iteration < this->stop_condition && max_deformation_norm >= this->convergence_criterion);
+			dp_norm_max = sqrtf(dp_norm_max);
+		} while (iteration < this->stop_condition && dp_norm_max >= this->conv_criterion);
 
 		//store the final result
-		POI->deformation.u = current_instance->p_current.u;
-		POI->deformation.ux = current_instance->p_current.ux;
-		POI->deformation.uy = current_instance->p_current.uy;
-		POI->deformation.uxx = current_instance->p_current.uxx;
-		POI->deformation.uyy = current_instance->p_current.uyy;
-		POI->deformation.uxy = current_instance->p_current.uxy;
+		POI->deformation.u = p_current.u;
+		POI->deformation.ux = p_current.ux;
+		POI->deformation.uy = p_current.uy;
+		POI->deformation.uxx = p_current.uxx;
+		POI->deformation.uyy = p_current.uyy;
+		POI->deformation.uxy = p_current.uxy;
 
-		POI->deformation.v = current_instance->p_current.v;
-		POI->deformation.vx = current_instance->p_current.vx;
-		POI->deformation.vy = current_instance->p_current.vy;
-		POI->deformation.vxx = current_instance->p_current.vxx;
-		POI->deformation.vyy = current_instance->p_current.vyy;
-		POI->deformation.vxy = current_instance->p_current.vxy;
+		POI->deformation.v = p_current.v;
+		POI->deformation.vx = p_current.vx;
+		POI->deformation.vy = p_current.vy;
+		POI->deformation.vxx = p_current.vxx;
+		POI->deformation.vyy = p_current.vyy;
+		POI->deformation.vxy = p_current.vxy;
 
 		//save the results for output
-		POI->result.u0 = current_instance->p_initial.u;
-		POI->result.v0 = current_instance->p_initial.v;
-		POI->result.u = current_instance->p_current.u;
-		POI->result.v = current_instance->p_current.v;
+		POI->result.u0 = p_initial.u;
+		POI->result.v0 = p_initial.v;
+		POI->result.u = p_current.u;
+		POI->result.v = p_current.v;
 		POI->result.ZNCC = 0.5f * (2 - ZNSSD);
 		POI->result.iteration = (float)iteration;
-		POI->result.convergence = max_deformation_norm;
+		POI->result.convergence = dp_norm_max;
+	}
 
+	void ICGN2D2::compute(std::vector<POI2D>& POI_queue) {
+#pragma omp parallel for
+		for (int i = 0; i < POI_queue.size(); ++i) {
+			this->compute(&POI_queue[i]);
+		}
 	}
 
 }//namespace opencorr

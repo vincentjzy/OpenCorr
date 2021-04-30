@@ -46,7 +46,7 @@ namespace opencorr
 	class Image3D
 	{
 	public:
-		int dim_x, dimy, dim_z;
+		int dim_x, dim_y, dim_z;
 		string file_path;
 	};
 

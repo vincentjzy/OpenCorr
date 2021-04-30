@@ -53,9 +53,15 @@ namespace opencorr {
 		fftwf_destroy_plan(instance->ZNCC_plan);
 	}
 
-	FFTCC2D::FFTCC2D(int subset_radius_x, int subset_radius_y) {
+	FFTCC2D::FFTCC2D(int subset_radius_x, int subset_radius_y, int thread_number) {
 		this->subset_radius_x = subset_radius_x;
 		this->subset_radius_y = subset_radius_y;
+		this->thread_number = thread_number;
+
+		for (int i = 0; i < thread_number; i++) {
+			FFTW* instance = FFTW::allocate(this->subset_radius_x, this->subset_radius_y);
+			this->instance_pool.push_back(instance);
+		}
 	}
 
 	FFTCC2D::~FFTCC2D() {
@@ -72,18 +78,11 @@ namespace opencorr {
 	}
 
 	FFTW* FFTCC2D::getInstance(int tid) {
-		if (tid >= (int)this->instance_pool.size()){
+		if (tid >= (int)this->instance_pool.size()) {
 			throw std::exception(std::string("CPU thread ID over limit").data());
 		}
 
 		return this->instance_pool[tid];
-	}
-
-	void FFTCC2D::prepare() {
-		for (int i = 0; i < this->CPU_thread_number; i++) {
-			FFTW* instance = FFTW::allocate(this->subset_radius_x, this->subset_radius_y);
-			this->instance_pool.push_back(instance);
-		}
 	}
 
 	void FFTCC2D::compute(POI2D* POI) {
@@ -167,6 +166,13 @@ namespace opencorr {
 		POI->result.u = displacement_u;
 		POI->result.v = displacement_v;
 		POI->result.ZNCC = max_ZNCC / (sqrtf(ref_norm * tar_norm) * subset_size);
+	}
+
+	void FFTCC2D::compute(std::vector<POI2D>& POI_queue) {
+#pragma omp parallel for
+		for (int i = 0; i < POI_queue.size(); ++i) {
+			this->compute(&POI_queue[i]);
+		}
 	}
 
 }//namespace opencorr

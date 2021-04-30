@@ -18,15 +18,11 @@
 
 namespace opencorr
 {
+	Calibration::Calibration() {
+	}
 
 	Calibration::Calibration(CameraIntrinsics& intrinsics, CameraExtrinsics& extrinsics) {
-		this->intrinsics = intrinsics;
-		this->extrinsics = extrinsics;
-
-		this->setIntrinsicMatrix();
-		this->setRotationMatrix();
-		this->setTranslationVector();
-		this->setProjectionMatrix();
+		updateCalibration(intrinsics, extrinsics);
 
 		this->convergence = 0.001f;
 		this->iteration = 10;
@@ -35,7 +31,7 @@ namespace opencorr
 	Calibration::~Calibration() {
 	}
 
-	void Calibration::setIntrinsicMatrix() {
+	void Calibration::updateIntrinsicMatrix() {
 		this->intrinsic_matrix.setIdentity();
 		this->intrinsic_matrix(0, 0) = this->intrinsics.fx;
 		this->intrinsic_matrix(0, 1) = this->intrinsics.fs;
@@ -47,26 +43,36 @@ namespace opencorr
 		}
 	}
 
-	void Calibration::setRotationMatrix() {
+	void Calibration::updateRotationMatrix() {
 		cv::Mat cv_rotation_matrix;
 		cv::Mat cv_rotation_vector = (cv::Mat_<float>(3, 1) << this->extrinsics.pitch, this->extrinsics.roll, this->extrinsics.yaw);
 		cv::Rodrigues(cv_rotation_vector, cv_rotation_matrix);
 		cv::cv2eigen(cv_rotation_matrix, this->rotation_matrix);
 	}
 
-	void Calibration::setTranslationVector() {
+	void Calibration::updateTranslationVector() {
 		this->translation_vector(0) = this->extrinsics.tx;
 		this->translation_vector(1) = this->extrinsics.ty;
 		this->translation_vector(2) = this->extrinsics.tz;
 	}
 
-	void Calibration::setProjectionMatrix() {
+	void Calibration::updateProjectionMatrix() {
 		Eigen::MatrixXf RT_mat(3, 4);
 
 		RT_mat.block(0, 0, 3, 3) << this->rotation_matrix;
 		RT_mat.col(3) << this->translation_vector;
 
 		this->projection_matrix = this->intrinsic_matrix * RT_mat;
+	}
+
+	void Calibration::updateCalibration(CameraIntrinsics& intrinsics, CameraExtrinsics& extrinsics) {
+		this->intrinsics = intrinsics;
+		this->extrinsics = extrinsics;
+
+		this->updateIntrinsicMatrix();
+		this->updateRotationMatrix();
+		this->updateTranslationVector();
+		this->updateProjectionMatrix();
 	}
 
 	Point2D Calibration::distort(Point2D& point) {

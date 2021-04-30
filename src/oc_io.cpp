@@ -101,7 +101,7 @@ namespace opencorr
 		return POI_queue;
 	}
 
-	void IO2D::saveTable2D(vector<POI2D> POI_queue) {
+	void IO2D::saveTable2D(vector<POI2D>& POI_queue) {
 		std::ofstream file_out(this->file_path);
 		file_out.setf(std::ios::fixed);
 		file_out << std::setprecision(8);
@@ -137,7 +137,7 @@ namespace opencorr
 		file_out.close();
 	}
 
-	void IO2D::saveDeformationTable2D(vector<POI2D> POI_queue) {
+	void IO2D::saveDeformationTable2D(vector<POI2D>& POI_queue) {
 		std::ofstream file_out(this->file_path);
 		file_out.setf(std::ios::fixed);
 		file_out << std::setprecision(8);
@@ -173,7 +173,7 @@ namespace opencorr
 		file_out.close();
 	}
 
-	void IO2D::saveMap2D(vector<POI2D> POI_queue, int variable) {
+	void IO2D::saveMap2D(vector<POI2D>& POI_queue, int variable) {
 		int height = this->getHeight();
 		int width = this->getWidth();
 		Eigen::MatrixXf output_map = Eigen::MatrixXf::Zero(height, width);

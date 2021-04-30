@@ -17,16 +17,11 @@
 namespace opencorr
 {
 	DIC::DIC() {
-		this->CPU_thread_number = 1;
 	}
 
 	void DIC::setImages(Image2D& ref_img, Image2D& tar_img) {
 		this->ref_img = &ref_img;
 		this->tar_img = &tar_img;
-	}
-
-	void DIC::setThreadNumber(int CPU_thread_number) {
-		this->CPU_thread_number = CPU_thread_number;
 	}
 
 	void DIC::prepare() {

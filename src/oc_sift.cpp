@@ -40,7 +40,7 @@ namespace opencorr
 
 	void SIFT2D::compute() {
 		//initialization, refer to opencv document for details
-		std::vector<cv::KeyPoint> ref_keypoints;
+		std::vector<cv::KeyPoint> ref_kp;
 		cv::Mat ref_descriptor;
 		cv::Ptr<cv::Feature2D> ref_SIFT = cv::xfeatures2d::SIFT::create(
 			this->SIFT_parameters.n_features,
@@ -49,7 +49,7 @@ namespace opencorr
 			this->SIFT_parameters.edge_threshold,
 			this->SIFT_parameters.sigma);
 
-		std::vector<cv::KeyPoint> tar_keypoints;
+		std::vector<cv::KeyPoint> tar_kp;
 		cv::Mat tar_descriptor;
 		cv::Ptr<cv::Feature2D> tar_SIFT = cv::xfeatures2d::SIFT::create(
 			this->SIFT_parameters.n_features,
@@ -63,13 +63,13 @@ namespace opencorr
 		{
 #pragma omp section
 			{
-				ref_SIFT->detect(*this->ref_mat, ref_keypoints);
-				ref_SIFT->compute(*this->ref_mat, ref_keypoints, ref_descriptor);
+				ref_SIFT->detect(*this->ref_mat, ref_kp);
+				ref_SIFT->compute(*this->ref_mat, ref_kp, ref_descriptor);
 			}
 #pragma omp section
 			{
-				tar_SIFT->detect(*this->tar_mat, tar_keypoints);
-				tar_SIFT->compute(*this->tar_mat, tar_keypoints, tar_descriptor);
+				tar_SIFT->detect(*this->tar_mat, tar_kp);
+				tar_SIFT->compute(*this->tar_mat, tar_kp, tar_descriptor);
 			}
 		}
 		//match the keypoints in the reference image and the target image
@@ -79,10 +79,10 @@ namespace opencorr
 		matcher.knnMatch(ref_descriptor, tar_descriptor, matches, 2);
 		for (int i = 0; i < matches.size(); ++i) {
 			if (matches[i][0].distance < this->match_ratio * matches[i][1].distance) {
-				Point2D ref_candidate(ref_keypoints[i].pt.x, ref_keypoints[i].pt.y);
-				this->ref_matched_keypoints.push_back(ref_candidate);
-				Point2D tar_candidate(tar_keypoints[matches[i][0].trainIdx].pt.x, tar_keypoints[matches[i][0].trainIdx].pt.y);
-				this->tar_matched_keypoints.push_back(tar_candidate);
+				Point2D ref_candidate(ref_kp[i].pt.x, ref_kp[i].pt.y);
+				this->ref_matched_kp.push_back(ref_candidate);
+				Point2D tar_candidate(tar_kp[matches[i][0].trainIdx].pt.x, tar_kp[matches[i][0].trainIdx].pt.y);
+				this->tar_matched_kp.push_back(tar_candidate);
 			}
 		}
 	}

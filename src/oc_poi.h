@@ -58,7 +58,7 @@ namespace opencorr {
 
 		void clean(); //reset data except the location
 		//set convergence criterion and stop condition for iterative procedure at a specific POI
-		void setIterationCriteria(float convergence_criterion, float stop_condition, float neighbor_essential);
+		void setIterationCriteria(float conv_criterion, float stop_condition, float neighbor_essential);
 	};
 
 	union DeformationVector3D {

@@ -31,35 +31,37 @@
 namespace opencorr
 {
 	struct RANSACconfig {
-		int trial_number; // maximum number of trials in RANSAC
-		int sample_mumber; // number of samples in every trial
+		int trial_number; //maximum number of trials in RANSAC
+		int sample_mumber; //number of samples in every trial
 		float error_threshold; //error threshold in RANSAC
 	};
 
 	class FeatureAffine2D : public DIC
 	{
 	protected:
-		float neighbor_search_radius; // seaching radius for mached keypoints around a POI
-		int essential_neighbor_number; // minimum number of neighbors required by RANSAC
+		float neighbor_search_radius; //seaching radius for mached keypoints around a POI
+		int min_neighbor_num; //minimum number of neighbors required by RANSAC
 		RANSACconfig RANSAC_parameters;
 		Eigen::Matrix3f affine_matrix;
 
 	public:
-		std::vector<Point2D> ref_keypoints;
-		std::vector<Point2D> tar_keypoints;
+		std::vector<Point2D> ref_kp; //matched keypoints in ref image
+		std::vector<Point2D> tar_kp; //matched keypoints in tar image
 
 		FeatureAffine2D(int subset_radius_x, int subset_radius_y);
 		~FeatureAffine2D();
 
-		void setKeypointPair(std::vector<Point2D>& ref_keypoints, std::vector<Point2D>& tar_keypoints);
+		void setKeypointPair(std::vector<Point2D>& ref_kp, std::vector<Point2D>& tar_kp);
 		void prepare();
 		void compute(POI2D* POI);
+		void compute(std::vector<POI2D>& POI_queue);
 
 		RANSACconfig getRANSACparameters() const;
 		float getSearchRadius() const;
-		int getEssentialNeighborNumber() const;
+		int getMinimumNeighborNumber() const;
+
 		void setSubsetRadii(int subset_radius_x, int subset_radius_y);
-		void setSearchParameters(float neighbor_search_radius, int essential_neighbor_number);
+		void setSearchParameters(float neighbor_search_radius, int min_neighbor_num);
 		void setRANSAC(RANSACconfig RANSAC_parameters);
 	};
 

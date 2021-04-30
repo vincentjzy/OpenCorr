@@ -38,7 +38,7 @@ namespace opencorr
 		void setDeformation(); // set deformation according to warp_matrix
 		void setDeformation(float u, float ux, float uy, float v, float vx, float vy);
 		void setDeformation(float p[6]);
-		void setDeformation(Deformation2D1& anotherDeformation);
+		void setDeformation(Deformation2D1& another_deformation);
 
 		void setWarp(); //update warp_matrix according to deformation
 		Point2D warp(Point2D& point);

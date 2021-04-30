@@ -32,7 +32,7 @@ namespace opencorr
 		return this->grid_space;
 	}
 
-	void Strain2D::setSubregionRadius(int subresionRadius) {
+	void Strain2D::setSubregionRadius(int subresion_radius) {
 		this->subregion_radius = subregion_radius;
 	}
 

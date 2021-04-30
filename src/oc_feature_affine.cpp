@@ -25,7 +25,7 @@ namespace opencorr
 		this->subset_radius_x = subset_radius_x;
 		this->subset_radius_y = subset_radius_y;
 		this->neighbor_search_radius = sqrtf(float(subset_radius_x * subset_radius_x + subset_radius_y * subset_radius_y));
-		this->essential_neighbor_number = 14;
+		this->min_neighbor_num = 14;
 		this->RANSAC_parameters.error_threshold = 1.5f;
 		this->RANSAC_parameters.sample_mumber = 5;
 		this->RANSAC_parameters.trial_number = 10;
@@ -40,11 +40,11 @@ namespace opencorr
 	void FeatureAffine2D::compute(POI2D* POI) {
 		//brutal force search for neighbor keypoints
 		std::vector<Point2D> tar_candidates, ref_candidates;
-		for (int i = 0; i < this->tar_keypoints.size(); ++i) {
-			Point2D distance = this->tar_keypoints[i] - (Point2D)*POI;
+		for (int i = 0; i < this->tar_kp.size(); ++i) {
+			Point2D distance = this->tar_kp[i] - (Point2D)*POI;
 			if (distance.vectorNorm() < this->neighbor_search_radius) {
-				tar_candidates.push_back(this->tar_keypoints[i]);
-				ref_candidates.push_back(this->ref_keypoints[i]);
+				tar_candidates.push_back(this->tar_kp[i]);
+				ref_candidates.push_back(this->ref_kp[i]);
 			}
 		}
 
@@ -112,8 +112,8 @@ namespace opencorr
 			trial_number++;
 			location_mean_error /= trial_set.size();
 		} while (trial_number < this->RANSAC_parameters.trial_number
-			&& (max_set.size() < this->essential_neighbor_number
-				|| location_mean_error > this->RANSAC_parameters.error_threshold / this->essential_neighbor_number));
+			&& (max_set.size() < this->min_neighbor_num
+				|| location_mean_error > this->RANSAC_parameters.error_threshold / this->min_neighbor_num));
 
 		//calculate affine matrix according to the results of concensus
 		int max_set_size = (int)max_set.size();
@@ -148,6 +148,13 @@ namespace opencorr
 		POI->result.feature = (float)max_set_size;
 	}
 
+	void FeatureAffine2D::compute(std::vector<POI2D>& POI_queue) {
+#pragma omp parallel for
+		for (int i = 0; i < POI_queue.size(); ++i) {
+			this->compute(&POI_queue[i]);
+		}
+	}
+
 
 	RANSACconfig FeatureAffine2D::getRANSACparameters() const {
 		return this->RANSAC_parameters;
@@ -157,8 +164,8 @@ namespace opencorr
 		return this->neighbor_search_radius;
 	}
 
-	int FeatureAffine2D::getEssentialNeighborNumber() const {
-		return this->essential_neighbor_number;
+	int FeatureAffine2D::getMinimumNeighborNumber() const {
+		return this->min_neighbor_num;
 	}
 
 	void FeatureAffine2D::setSubsetRadii(int subset_radius_x, int subset_radius_y) {
@@ -166,18 +173,18 @@ namespace opencorr
 		this->subset_radius_y = subset_radius_y;
 	}
 
-	void FeatureAffine2D::setSearchParameters(float neighbor_search_radius, int essential_neighbor_number) {
+	void FeatureAffine2D::setSearchParameters(float neighbor_search_radius, int min_neighbor_num) {
 		this->neighbor_search_radius = neighbor_search_radius;
-		this->essential_neighbor_number = essential_neighbor_number;
+		this->min_neighbor_num = min_neighbor_num;
 	}
 
 	void FeatureAffine2D::setRANSAC(RANSACconfig RANSAC_parameters) {
 		this->RANSAC_parameters = RANSAC_parameters;
 	}
 
-	void FeatureAffine2D::setKeypointPair(std::vector<Point2D>& ref_keypoints, std::vector<Point2D>& tar_keypoints) {
-		this->ref_keypoints = ref_keypoints;
-		this->tar_keypoints = tar_keypoints;
+	void FeatureAffine2D::setKeypointPair(std::vector<Point2D>& ref_kp, std::vector<Point2D>& tar_kp) {
+		this->ref_kp = ref_kp;
+		this->tar_kp = tar_kp;
 	}
 
 }//namespace opencorr

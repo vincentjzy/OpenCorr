@@ -52,11 +52,11 @@ namespace opencorr {
 		FFTW* getInstance(int tid);
 
 	public:
-		FFTCC2D(int subset_radius_x, int subset_radius_y);
+		FFTCC2D(int subset_radius_x, int subset_radius_y, int thread_number);
 		~FFTCC2D();
 
-		void prepare();
 		void compute(POI2D* POI);
+		void compute(std::vector<POI2D>& POI_queue);
 
 		void setSubsetRadii(int subset_radius_x, int subset_radius_y);
 	};

@@ -37,8 +37,8 @@ namespace opencorr
 		std::fill(std::begin(this->result.r), std::end(this->result.r), 0.f);
 	}
 
-	void POI2D::setIterationCriteria(float convergence_criterion, float stop_condition, float neighbor_essential) {
-		this->result.convergence = convergence_criterion;
+	void POI2D::setIterationCriteria(float conv_criterion, float stop_condition, float neighbor_essential) {
+		this->result.convergence = conv_criterion;
 		this->result.iteration = (float)stop_condition;
 		this->result.feature = (float)neighbor_essential;
 	}

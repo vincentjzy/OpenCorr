@@ -55,13 +55,16 @@ namespace opencorr
 		Eigen::Vector3f translation_vector; //camera translation matrix of camera
 		Eigen::MatrixXf projection_matrix; //projection matrix of camera
 
+		Calibration();
 		Calibration(CameraIntrinsics& intrinsics, CameraExtrinsics& extrinsics);
 		~Calibration();
 
-		void setIntrinsicMatrix();
-		void setRotationMatrix();
-		void setTranslationVector();
-		void setProjectionMatrix();
+		void updateIntrinsicMatrix();
+		void updateRotationMatrix();
+		void updateTranslationVector();
+		void updateProjectionMatrix();
+		void updateCalibration(CameraIntrinsics& intrinsics, CameraExtrinsics& extrinsics);
+
 		void setCorrection(float convergence, int iteration);
 		Point2D distort(Point2D& point);
 		Point2D correct(Point2D& point);

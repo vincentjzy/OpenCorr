@@ -49,11 +49,14 @@ namespace opencorr
 		void setDelimiter(string delimiter);
 		void setWidth(int width);
 		void setHeight(int height);
-		vector<POI2D> loadTable2D();
-		void saveTable2D(vector<POI2D> POI_queue);
-		void saveDeformationTable2D(vector<POI2D> POI_queue);
-		void saveMap2D(vector<POI2D> POI_queue, int variable); //variable is the index of r[11] in Result2D
+
+		vector<POI2D> loadTable2D(); //load deformation of POIs from saved date table
+
+		void saveTable2D(vector<POI2D>& POI_queue);
+		void saveDeformationTable2D(vector<POI2D>& POI_queue);
+		void saveMap2D(vector<POI2D>& POI_queue, int variable); //variable is the index of r[11] in Result2D
 	};
+
 }//namespace opencorr
 
 #endif //_OUTPUT_H_
