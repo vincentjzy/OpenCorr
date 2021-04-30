@@ -3,7 +3,7 @@ OpenCorr is an open source C++ library for development of 2D, 3D/stereo, and vol
 
 OpenCorr is under construction. More functions, including the GPU accelerated modules will be released soon. Thus, update of both codes and webpages will be frequent in the following months until we reach a stable version with relatively complete documentation.
 
-Comments and sugestions are most welcome. You may reach us via
+Comments and suggestions are most welcome. You may reach us via
 1. Email: jiangzhenyu (at) opencorr.com;
 2. Discussion here (at GitHub);
 3. QQ group: 597895040
@@ -13,7 +13,7 @@ Comments and sugestions are most welcome. You may reach us via
 
 # Get started
 
-OpenCorr is developed and tested in Microsoft Visual Studio 2019 (community version) on Windows 10. The codes follow the standard of ISO C++ 14, theoretically it can be compiled on other OS like Linux. The building environment requires three freeware libraries:
+OpenCorr is developed and tested in Microsoft Visual Studio 2019 (VS, community version) on Windows 10. The codes follow the standard of ISO C++ 14, theoretically it can be compiled on other OS like Linux. To use this library, the users are supposed to have basic knowledge and skill about integrated development environment like VS. The building environment requires three freeware libraries:
 
 - Eigen 3.3.9 ([eigen.tuxfamily.org](eigen.tuxfamily.org)), used for basic operations of matrix.
 - OpenCV 3.4.5 ([opencv.org](opencv.org)), used to read images, and inthe  modules related with image feature and stereovision.
@@ -21,13 +21,16 @@ OpenCorr is developed and tested in Microsoft Visual Studio 2019 (community vers
 
 These libraries provide good instructions for installation. The main procedure can be summarized as the following steps:
 
-1. Download the source files (e.g. .h or .cpp) and static library files (.lib) from the websites;
-2. Place them into proper directories in your computer;
-3. Set the paths of source files and static library files in integrated development environment, as illustrated in Figure 1;
-![image](https://github.com/vincentjzy/OpenCorr/blob/main/img/configuration_path_vs.png)
-*Figure 1. Illustration of setting paths in Visual Studio 2019*
+1. Download the source files (e.g. .h or .cpp), static library files (.lib), and dynamic link library files (.dll) from the websites;
+2. Place them into proper directories in your computer. For example, I created a solution in VS with name of OpenCorr and a project with same name. The source codes are stored in folder "D:\OpenCorr\OpenCorr\", the files of source codes and static libraries of the three libraries are also placed in folder "D\OpenCorr\", as shown in Figure 1;
+![image](https://github.com/vincentjzy/OpenCorr/blob/main/img/opencorr_folder_list.png)
+*Figure 1. An example of directory structure
 
-4. Place the dynamic link library files (.dll) into the directory where the executable programs are built or the directories listed in system PATH.
+3. Set the paths of source files and static library files in VS, as illustrated in Figure 2;
+![image](https://github.com/vincentjzy/OpenCorr/blob/main/img/configuration_path_vs.png)
+*Figure 2. Illustration of setting paths in Visual Studio 2019*
+
+4. Place the dynamic link library files (.dll) into the folder where the executable programs are built (e.g. "D\OpenCorx64\Debug\"), or the directories listed in system Path.
 
 To facilitate the configuration for beginners, we made a zip package of the three libraries and share it on [pan.baidu.com](https://pan.baidu.com/s/17qdAhXJZPLWydYiowwEzig) (code: vyfy). Users may download it, unzip it and set the paths according to the instructions mentioned above.
 
