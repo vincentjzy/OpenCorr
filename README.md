@@ -25,8 +25,7 @@ These libraries provide good instructions for installation. The main procedure c
 2. Place them into proper directories in your computer. For example, I created a solution in VS with name of OpenCorr and a project with same name. The source codes are stored in folder "D:\OpenCorr\OpenCorr\", the files of source codes and static libraries of the three libraries are also placed in folder "D\OpenCorr\", as shown in Figure 1;
 
 ![image](https://github.com/vincentjzy/OpenCorr/blob/main/img/opencorr_folder_list.png)
-
-*Figure 1. An example of directory structure
+*Figure 1. An example of directory structure*
 
 3. Set the paths of source files and static library files in VS, as illustrated in Figure 2;
 ![image](https://github.com/vincentjzy/OpenCorr/blob/main/img/configuration_path_vs.png)
@@ -42,9 +41,9 @@ There are some examples in folder "samples", which demonstrate how we use the mo
 - SIFT-aided DIC: Estimation of 1st order deformation
 - Inverse compositional Gaussian-Newton (ICGN) algorithm: high accuracy estimation of deformation. Two versions are implemented, one for the 1st order shape function and the other for the 2nd order shape function.
 
-Figure 2 shows the framework of OpenCorr, which gives a guide to understand the structure of OpenCorr.
+Figure 3 shows the framework of OpenCorr, which gives a guide to understand the structure of OpenCorr.
 ![image](https://github.com/vincentjzy/OpenCorr/blob/main/img/framework.png)
-*Figure 2. Framework of OpenCorr*
+*Figure 3. Framework of OpenCorr*
 
 # References
 Users may refer to our papers for the details of the principle of the algorithms provided in OpenCorr.
