@@ -9,7 +9,8 @@ Comments and suggestions are most welcome. You may reach us via
 3. QQ group: 597895040
 
 ># Important updates
->2021.04.30, 
+>2021.04.23, OpenCorr is released to public
+>2021.04.30, Modify structure of DIC module and stereovision module
 
 # Get started
 
