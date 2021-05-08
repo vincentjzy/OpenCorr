@@ -176,7 +176,7 @@ It is noteworthy that the methods in derive classes are designed for path-indepe
 
 (2) FeatureAffine2D (oc_feature_affine.h and oc_feature_affine.cpp), feature aided affine estimation. Figure 16 shows the parameters and methods included in this object. The method estimate the affine matrix according to the keypoints around a POI in order to get the deformation at the POI. User may refer to our paper (Yang et al. Opt Laser Eng, 2020, 127:105964) for details of principle and implementation.
 
-![image](https://github.com/vincentjzy/OpenCorr/blob/main/img/oc_featureaffine.png)
+![image](https://github.com/vincentjzy/OpenCorr/blob/main/img/oc_feature_affine.png)
 *Figure 16. Parameters and methods included in FeatureAffine2D object*
 
 (3) ICGN2D1 (ICGN algorithm with 1st-order shape function) and ICGN2D2 (ICGN algorithm with 2nd-order shape function), codes are stored in oc_icgn.h and oc_icgn.cpp. Figure 17 and Figure 18 show the parameters and methods included in the two objects. The principle and implementation of ICGN2D1 can be found in our paper (Jiang et al. Opt Laser Eng, 2015, 65:93-102). User may refer to the paper by Professor ZHANG Qingchuan's group (Gao et al. Opt Laser Eng, 2015, 65:73-80) for detailed information. Auxiliary classes ICGN2D1_ and ICGN2D2_ are made for parallel processing because the procedures also require a lot of dynamically allocated memory blocks. The implementation and usage are similar to the one in FFTCC2D.
