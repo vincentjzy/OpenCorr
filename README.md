@@ -50,6 +50,9 @@ Figure 3 shows the framework of OpenCorr, which gives a guide to understand the 
 ![image](https://github.com/vincentjzy/OpenCorr/blob/main/img/framework.png)
 *Figure 3. Framework of OpenCorr*
 
+-Basic data objects:
+(1) Point (oc_point.h and oc_point.cpp). Figure 4 shows the parameters and methods inculded in this object. The main parameter of point is its coordinate. It can also regarded as a vector, indicating the offset between two points. Thus, a function (vectorNorm()) is provided to calculate the length of the vector.  Moreover, operator "+" and "-" are overloaded to denote the superimposition of an offset on the coordinate of a point. Operator "*" and "/" for the coordinate of a point multiplied or divided by a scalar. Operator "<<" is also overloaded to out the coordinate of a point, in the form of  "x,y" (Point2D) or "x,y,z" (Point3D).
+
 # References
 Users may refer to our papers for the details of the principle of the algorithms provided in OpenCorr.
 
