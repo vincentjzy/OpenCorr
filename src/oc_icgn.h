@@ -67,7 +67,6 @@ namespace opencorr
 		void compute(POI2D* POI);
 		void compute(std::vector<POI2D>& POI_queue);
 
-		void setSubsetRadii(int subset_radius_x, int subset_radius_y);
 		void setIteration(float conv_criterion, float stop_condition);
 		void setIteration(POI2D* POI);
 	};
@@ -107,12 +106,11 @@ namespace opencorr
 		void prepareTar(); //calculate interpolation coefficient look_up table of tar image
 		void prepare(); //calculate gradient maps of ref image and interpolation coefficient look_up table of tar image
 
-		void setSubsetRadii(int subset_radius_x, int subset_radius_y);
-		void setIteration(float conv_criterion, float stop_condition);
-		void setIteration(POI2D* POI);
-
 		void compute(POI2D* POI);
 		void compute(std::vector<POI2D>& POI_queue);
+
+		void setIteration(float conv_criterion, float stop_condition);
+		void setIteration(POI2D* POI);
 	};
 
 }//namespace opencorr

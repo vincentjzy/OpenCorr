@@ -29,19 +29,20 @@ namespace opencorr{
 	class Strain2D
 	{
 	protected:
-		Point2D topleft_point;
-		int subregion_radius;
-		int grid_space;
+		Point2D topleft_point; //topleft corner of ROI
+		int subregion_radius; //radius of subregion
+		int grid_space; //grid space of POIs
 
 	public:
-		Eigen::MatrixXf u_map;
-		Eigen::MatrixXf v_map;
+		Eigen::MatrixXf u_map; //map of u-component
+		Eigen::MatrixXf v_map; ////map of v-component
 
 		Strain2D(int subregion_radius, int grid_space);
 		~Strain2D();
 
 		int getSubregionRadius() const;
 		int getGridSpace() const;
+
 		void setSubregionRadius(int subregion_radius);
 		void setGridSpace(int grid_space);
 		void setDisplacement(std::vector<POI2D>& POI_queue);
@@ -60,6 +61,7 @@ namespace opencorr{
 		SGFilter(int radius, int grid);
 		~SGFilter();
 		void compute(POI2D* POI);
+		void compute(std::vector<POI2D>& POI_queue);
 	};
 
 	//regional least square fitting based method
@@ -69,6 +71,7 @@ namespace opencorr{
 		LSFitting(int radius, int grid);
 		~LSFitting();
 		void compute(POI2D* POI);
+		void compute(std::vector<POI2D>& POI_queue);
 	};
 
 }//namespace opencorr

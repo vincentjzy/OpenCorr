@@ -47,8 +47,8 @@ namespace opencorr
 	public:
 		CameraIntrinsics intrinsics;
 		CameraExtrinsics extrinsics;
-		float convergence;
-		int iteration;
+		float convergence; //convergence criterion of iterative correction
+		int iteration; //stop condition of iterative correction
 
 		Eigen::Matrix3f intrinsic_matrix; //camera intrinsic matrix of camera
 		Eigen::Matrix3f rotation_matrix; //camera rotation matrix of camera

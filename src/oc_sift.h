@@ -20,6 +20,7 @@
 #include <opencv2/opencv.hpp>
 #include <opencv2/xfeatures2d.hpp>
 
+#include "oc_feature.h"
 #include "oc_dic.h"
 #include "oc_image.h"
 #include "oc_poi.h"
@@ -36,14 +37,14 @@ namespace opencorr
 		float sigma; // sigma of the Gaussian applied to the input image at the octave #0
 	};
 
-	class SIFT2D
+	class SIFT2D : public Feature2D
 	{
 	protected:
-		SIFTconfig SIFT_parameters;
-		float match_ratio; // ratio of the shortest distance to the second shortest distance
+		cv::Mat* ref_mat = nullptr;
+		cv::Mat* tar_mat = nullptr;
 
-		cv::Mat* ref_mat;
-		cv::Mat* tar_mat;
+		SIFTconfig SIFT_config;
+		float match_ratio; // ratio of the shortest distance to the second shortest distance
 
 	public:
 		std::vector<Point2D> ref_matched_kp; //matched keypoints in ref image
@@ -52,12 +53,12 @@ namespace opencorr
 		SIFT2D();
 		~SIFT2D();
 
-		void setImages(Image2D& ref_img, Image2D& tar_img);
+		void prepare();
 		void compute();
 
-		SIFTconfig getSIFTparameters() const;
+		SIFTconfig getSIFTconfig() const;
 		float getMatchRatio() const;
-		void setExtraction(SIFTconfig SIFT_parameters);
+		void setExtraction(SIFTconfig SIFT_config);
 		void setMatch(float match_ratio);
 	};
 

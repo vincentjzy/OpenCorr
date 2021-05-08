@@ -43,6 +43,7 @@ namespace opencorr
 
 	public:
 		ICGN2D1* icgn1;
+
 		EpipolarSearch(Calibration& left_cam, Calibration& right_cam, int thread_number);
 		~EpipolarSearch();
 

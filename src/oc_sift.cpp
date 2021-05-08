@@ -21,21 +21,21 @@
 namespace opencorr
 {
 
-	SIFT2D::SIFT2D() :ref_mat(nullptr), tar_mat(nullptr) {
-		this->SIFT_parameters.n_features = 0;
-		this->SIFT_parameters.n_octave_layers = 3;
-		this->SIFT_parameters.contrast_threshold = 0.04f;
-		this->SIFT_parameters.edge_threshold = 10.f;
-		this->SIFT_parameters.sigma = 1.6f;
+	SIFT2D::SIFT2D() {
+		this->SIFT_config.n_features = 0;
+		this->SIFT_config.n_octave_layers = 3;
+		this->SIFT_config.contrast_threshold = 0.04f;
+		this->SIFT_config.edge_threshold = 10.f;
+		this->SIFT_config.sigma = 1.6f;
 		this->match_ratio = 0.8f;
 	}
 
 	SIFT2D::~SIFT2D() {
 	}
 
-	void SIFT2D::setImages(Image2D& ref_img, Image2D& tar_img) {
-		this->ref_mat = &ref_img.cv_mat;
-		this->tar_mat = &tar_img.cv_mat;
+	void SIFT2D::prepare() {
+		this->ref_mat = &this->ref_img->cv_mat;
+		this->tar_mat = &this->tar_img->cv_mat;
 	}
 
 	void SIFT2D::compute() {
@@ -43,20 +43,20 @@ namespace opencorr
 		std::vector<cv::KeyPoint> ref_kp;
 		cv::Mat ref_descriptor;
 		cv::Ptr<cv::Feature2D> ref_SIFT = cv::xfeatures2d::SIFT::create(
-			this->SIFT_parameters.n_features,
-			this->SIFT_parameters.n_octave_layers,
-			this->SIFT_parameters.contrast_threshold,
-			this->SIFT_parameters.edge_threshold,
-			this->SIFT_parameters.sigma);
+			this->SIFT_config.n_features,
+			this->SIFT_config.n_octave_layers,
+			this->SIFT_config.contrast_threshold,
+			this->SIFT_config.edge_threshold,
+			this->SIFT_config.sigma);
 
 		std::vector<cv::KeyPoint> tar_kp;
 		cv::Mat tar_descriptor;
 		cv::Ptr<cv::Feature2D> tar_SIFT = cv::xfeatures2d::SIFT::create(
-			this->SIFT_parameters.n_features,
-			this->SIFT_parameters.n_octave_layers,
-			this->SIFT_parameters.contrast_threshold,
-			this->SIFT_parameters.edge_threshold,
-			this->SIFT_parameters.sigma);
+			this->SIFT_config.n_features,
+			this->SIFT_config.n_octave_layers,
+			this->SIFT_config.contrast_threshold,
+			this->SIFT_config.edge_threshold,
+			this->SIFT_config.sigma);
 
 		//extract features and construct their descriptor
 #pragma omp parallel sections
@@ -87,17 +87,17 @@ namespace opencorr
 		}
 	}
 
-	SIFTconfig SIFT2D::getSIFTparameters() const {
-		return this->SIFT_parameters;
+	SIFTconfig SIFT2D::getSIFTconfig() const {
+		return this->SIFT_config;
 	}
 
 	float SIFT2D::getMatchRatio() const {
 		return this->match_ratio;
 	}
 
-	void SIFT2D::setExtraction(SIFTconfig SIFT_parameters) {
+	void SIFT2D::setExtraction(SIFTconfig SIFT_config) {
 		//refer to opencv document for detailed information
-		this->SIFT_parameters = SIFT_parameters;
+		this->SIFT_config = SIFT_config;
 	}
 
 	void SIFT2D::setMatch(float match_ratio) {

@@ -12,23 +12,15 @@
  * More information about OpenCorr can be found at https://www.opencorr.org/
  */
 
-#include "oc_dic.h"
+#include "oc_feature.h"
+#include <opencv2/opencv.hpp>
+#include <opencv2/xfeatures2d.hpp>
 
 namespace opencorr
 {
-	DIC::DIC() {
-	}
-
-	void DIC::setImages(Image2D& ref_img, Image2D& tar_img) {
+	void Feature2D::setImages(Image2D& ref_img, Image2D& tar_img) {
 		this->ref_img = &ref_img;
 		this->tar_img = &tar_img;
 	}
 
-	void DIC::setSubsetRadii(int subset_radius_x, int subset_radius_y) {
-		this->subset_radius_x = subset_radius_x;
-		this->subset_radius_y = subset_radius_y;
-	}
-
-	void DIC::prepare() {
-	}
-}
+}//namespace opencorr

@@ -11,55 +11,38 @@
  *
  * More information about OpenCorr can be found at https://www.opencorr.org/
  */
-
 #pragma once
 
-#ifndef _DIC_H_
-#define _DIC_H_
+#ifndef _FEATURE_H_
+#define _FEATURE_H_
+#include "opencv2/imgproc/imgproc.hpp"
+#include <opencv2/opencv.hpp>
+#include <opencv2/xfeatures2d.hpp>
 
-#include "oc_array.h"
+#include "oc_dic.h"
 #include "oc_image.h"
 #include "oc_poi.h"
+#include "oc_point.h"
 #include "oc_subset.h"
 
 namespace opencorr
 {
-	class DIC
+	class Feature2D
 	{
 	protected:
 		Image2D* ref_img = nullptr;
 		Image2D* tar_img = nullptr;
 
 	public:
-		int subset_radius_x, subset_radius_y;
-		int thread_number; //OpenMP thread number
-
-		DIC();
-		virtual ~DIC() = default;
+		virtual ~Feature2D() = default;
 
 		void setImages(Image2D& ref_img, Image2D& tar_img);
-		void setSubsetRadii(int subset_radius_x, int subset_radius_y);
+		virtual void prepare() = 0;
+		virtual void compute() = 0;
 
-		virtual void prepare();
-		virtual void compute(POI2D* POI) = 0;
-		virtual void compute(std::vector<POI2D>& POI_queue) = 0;
-
-	};
-
-	class DVC
-	{
-	protected:
-		Image3D* ref_img;
-		Image3D* tar_img;
-
-	public:
-		int subvolume_radius_x, subvolume_radius_y, subvolume_radius_z;
-		//		virtual void setImages(image3d& ref_img, image3d& tar_img) = 0;
-		//		virtual void prepare() = 0;
-		//		virtual void compute(POI3d* POI) = 0;
-		//		virtual ~DVC() = default;
 	};
 
 }//namespace opencorr
 
-#endif //_DIC_H_
+#endif //_FEATURE_H_
+

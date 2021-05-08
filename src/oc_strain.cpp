@@ -137,6 +137,13 @@ namespace opencorr
 
 	}
 
+	void SGFilter::compute(std::vector<POI2D>& POI_queue) {
+#pragma omp parallel for
+		for (int i = 0; i < POI_queue.size(); ++i) {
+			this->compute(&POI_queue[i]);
+		}
+	}
+
 	LSFitting::LSFitting(int radius, int grid) :Strain2D(radius, grid) {
 	}
 
@@ -205,6 +212,13 @@ namespace opencorr
 		POI->result.eyy = vy + 0.5f * (uy * uy + vy * vy);
 		POI->result.exy = 0.5f * (uy + vx + ux * uy + vx * vy);
 
+	}
+
+	void LSFitting::compute(std::vector<POI2D>& POI_queue) {
+#pragma omp parallel for
+		for (int i = 0; i < POI_queue.size(); ++i) {
+			this->compute(&POI_queue[i]);
+		}
 	}
 
 	bool sortByX(const POI2D& p1, const POI2D& p2) {

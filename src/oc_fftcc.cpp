@@ -72,11 +72,6 @@ namespace opencorr {
 		this->instance_pool.clear();
 	}
 
-	void FFTCC2D::setSubsetRadii(int subset_radius_x, int subset_radius_y) {
-		this->subset_radius_x = subset_radius_x;
-		this->subset_radius_y = subset_radius_y;
-	}
-
 	FFTW* FFTCC2D::getInstance(int tid) {
 		if (tid >= (int)this->instance_pool.size()) {
 			throw std::exception(std::string("CPU thread ID over limit").data());

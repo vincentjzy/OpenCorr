@@ -41,7 +41,7 @@ namespace opencorr
 	protected:
 		float neighbor_search_radius; //seaching radius for mached keypoints around a POI
 		int min_neighbor_num; //minimum number of neighbors required by RANSAC
-		RANSACconfig RANSAC_parameters;
+		RANSACconfig RANSAC_config;
 		Eigen::Matrix3f affine_matrix;
 
 	public:
@@ -56,13 +56,12 @@ namespace opencorr
 		void compute(POI2D* POI);
 		void compute(std::vector<POI2D>& POI_queue);
 
-		RANSACconfig getRANSACparameters() const;
+		RANSACconfig getRANSAC() const;
 		float getSearchRadius() const;
 		int getMinimumNeighborNumber() const;
 
-		void setSubsetRadii(int subset_radius_x, int subset_radius_y);
 		void setSearchParameters(float neighbor_search_radius, int min_neighbor_num);
-		void setRANSAC(RANSACconfig RANSAC_parameters);
+		void setRANSAC(RANSACconfig RANSAC_config);
 	};
 
 }//namespace opencorr

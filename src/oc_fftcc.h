@@ -57,8 +57,6 @@ namespace opencorr {
 
 		void compute(POI2D* POI);
 		void compute(std::vector<POI2D>& POI_queue);
-
-		void setSubsetRadii(int subset_radius_x, int subset_radius_y);
 	};
 
 }//namespace opencorr

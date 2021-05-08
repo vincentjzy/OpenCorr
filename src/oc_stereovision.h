@@ -34,7 +34,7 @@ namespace opencorr
 	protected:
 		Calibration left_cam; //intrinsics and extrinsics of left camera
 		Calibration right_cam; //intrinsics and extrinsics of right camera
-		int thread_number; //openmp thread number
+		int thread_number; //OpenMP thread number
 
 	public:
 		Point2D left_2d_pt; //2D point in left view
@@ -45,15 +45,11 @@ namespace opencorr
 		~Stereovision();
 
 		void updateCameraParameters(Calibration& left_cam, Calibration& right_cam);
-
 		void setPointPair(Point2D& left_point, Point2D& right_point);
-
 		void prepare();
 
-		Point2D epipolarMatch(POI2D& left_POI);
 		Point3D reconstruct(Point2D& left_point, Point2D& right_point);
-	};
-	bool sortByZNCC(const POI2D& p1, const POI2D& p2);
 
+	};
 }//namespace opencorr
 #endif //_STEREOVISION_H_

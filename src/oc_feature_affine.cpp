@@ -26,9 +26,9 @@ namespace opencorr
 		this->subset_radius_y = subset_radius_y;
 		this->neighbor_search_radius = sqrtf(float(subset_radius_x * subset_radius_x + subset_radius_y * subset_radius_y));
 		this->min_neighbor_num = 14;
-		this->RANSAC_parameters.error_threshold = 1.5f;
-		this->RANSAC_parameters.sample_mumber = 5;
-		this->RANSAC_parameters.trial_number = 10;
+		this->RANSAC_config.error_threshold = 1.5f;
+		this->RANSAC_config.sample_mumber = 5;
+		this->RANSAC_config.trial_number = 10;
 	}
 
 	FeatureAffine2D::~FeatureAffine2D() {
@@ -49,7 +49,7 @@ namespace opencorr
 		}
 
 		int candidate_number = (int)tar_candidates.size();
-		if (candidate_number < RANSAC_parameters.sample_mumber) {
+		if (candidate_number < RANSAC_config.sample_mumber) {
 			std::cerr << "Insufficient neighbor keypoints around: " << (Point2D)*POI << std::endl;
 			return;
 		}
@@ -72,12 +72,12 @@ namespace opencorr
 			for (int j = 0; j < candidate_number; j++) {
 				candidate_index[j] = j;
 			}
-			for (int j = 0; j < this->RANSAC_parameters.sample_mumber; j++) {
+			for (int j = 0; j < this->RANSAC_config.sample_mumber; j++) {
 				std::swap<int>(candidate_index[j], candidate_index[rand_index(rde)]);
 			}
-			Eigen::MatrixXf tar_neighbors(this->RANSAC_parameters.sample_mumber, 3);
-			Eigen::MatrixXf ref_neighbors(this->RANSAC_parameters.sample_mumber, 3);
-			for (int j = 0; j < this->RANSAC_parameters.sample_mumber; j++) {
+			Eigen::MatrixXf tar_neighbors(this->RANSAC_config.sample_mumber, 3);
+			Eigen::MatrixXf ref_neighbors(this->RANSAC_config.sample_mumber, 3);
+			for (int j = 0; j < this->RANSAC_config.sample_mumber; j++) {
 				tar_neighbors(j, 0) = tar_candidates[candidate_index[j]].x;
 				tar_neighbors(j, 1) = tar_candidates[candidate_index[j]].y;
 				tar_neighbors(j, 2) = 1.f;
@@ -101,7 +101,7 @@ namespace opencorr
 					- tar_candidates[candidate_index[j]].y;
 				Point2D point(px, py);
 				estimated_error = point.vectorNorm();
-				if (estimated_error < this->RANSAC_parameters.error_threshold) {
+				if (estimated_error < this->RANSAC_config.error_threshold) {
 					trial_set.push_back(j);
 					location_mean_error += estimated_error;
 				}
@@ -111,9 +111,9 @@ namespace opencorr
 			}
 			trial_number++;
 			location_mean_error /= trial_set.size();
-		} while (trial_number < this->RANSAC_parameters.trial_number
+		} while (trial_number < this->RANSAC_config.trial_number
 			&& (max_set.size() < this->min_neighbor_num
-				|| location_mean_error > this->RANSAC_parameters.error_threshold / this->min_neighbor_num));
+				|| location_mean_error > this->RANSAC_config.error_threshold / this->min_neighbor_num));
 
 		//calculate affine matrix according to the results of concensus
 		int max_set_size = (int)max_set.size();
@@ -156,8 +156,8 @@ namespace opencorr
 	}
 
 
-	RANSACconfig FeatureAffine2D::getRANSACparameters() const {
-		return this->RANSAC_parameters;
+	RANSACconfig FeatureAffine2D::getRANSAC() const {
+		return this->RANSAC_config;
 	}
 
 	float FeatureAffine2D::getSearchRadius() const {
@@ -168,18 +168,13 @@ namespace opencorr
 		return this->min_neighbor_num;
 	}
 
-	void FeatureAffine2D::setSubsetRadii(int subset_radius_x, int subset_radius_y) {
-		this->subset_radius_x = subset_radius_x;
-		this->subset_radius_y = subset_radius_y;
-	}
-
 	void FeatureAffine2D::setSearchParameters(float neighbor_search_radius, int min_neighbor_num) {
 		this->neighbor_search_radius = neighbor_search_radius;
 		this->min_neighbor_num = min_neighbor_num;
 	}
 
-	void FeatureAffine2D::setRANSAC(RANSACconfig RANSAC_parameters) {
-		this->RANSAC_parameters = RANSAC_parameters;
+	void FeatureAffine2D::setRANSAC(RANSACconfig RANSAC_config) {
+		this->RANSAC_config = RANSAC_config;
 	}
 
 	void FeatureAffine2D::setKeypointPair(std::vector<Point2D>& ref_kp, std::vector<Point2D>& tar_kp) {

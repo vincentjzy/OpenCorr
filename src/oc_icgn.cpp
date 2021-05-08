@@ -62,11 +62,6 @@ namespace opencorr
 		this->instance_pool.clear();
 	}
 
-	void ICGN2D1::setSubsetRadii(int subset_radius_x, int subset_radius_y) {
-		this->subset_radius_x = subset_radius_x;
-		this->subset_radius_y = subset_radius_y;
-	}
-
 	void ICGN2D1::setIteration(float conv_criterion, float stop_condition) {
 		this->conv_criterion = conv_criterion;
 		this->stop_condition = stop_condition;
@@ -311,11 +306,6 @@ namespace opencorr
 		}
 		instance_pool.clear();
 
-	}
-
-	void ICGN2D2::setSubsetRadii(int subset_radius_x, int subset_radius_y) {
-		this->subset_radius_x = subset_radius_x;
-		this->subset_radius_y = subset_radius_y;
 	}
 
 	void ICGN2D2::setIteration(float conv_criterion, float stop_condition) {
