@@ -15,8 +15,6 @@
 #include "oc_sift.h"
 #include <random>
 #include <omp.h>
-#include <opencv2/opencv.hpp>
-#include <opencv2/xfeatures2d.hpp>
 
 namespace opencorr
 {
@@ -72,6 +70,7 @@ namespace opencorr
 				tar_SIFT->compute(*this->tar_mat, tar_kp, tar_descriptor);
 			}
 		}
+
 		//match the keypoints in the reference image and the target image
 		//refer to Yang et al. Opt Laser Eng (2020), 127, 105964 for details
 		cv::FlannBasedMatcher matcher;

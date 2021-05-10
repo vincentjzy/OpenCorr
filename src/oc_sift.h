@@ -15,7 +15,6 @@
 
 #ifndef _SIFT_H_
 #define _SIFT_H_
-#include <omp.h>
 #include "opencv2/imgproc/imgproc.hpp"
 #include <opencv2/opencv.hpp>
 #include <opencv2/xfeatures2d.hpp>
