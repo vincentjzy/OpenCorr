@@ -32,15 +32,15 @@ These libraries provide excellent instructions for installation. The main proced
 
 ![image](https://github.com/vincentjzy/OpenCorr/blob/main/img/opencorr_folder_list.png)
 
-*Figure 1. An example of directory structure*
+*Figure 1.1. An example of directory structure*
 
-3. Set the paths of source files and static library files in VS, as illustrated in Figure 2;
+3. Set the paths of source files and static library files in VS, as illustrated in Figure 1.2;
 ![image](https://github.com/vincentjzy/OpenCorr/blob/main/img/configuration_path_vs.png)
-*Figure 2. Illustration of setting paths in Visual Studio 2019*
+*Figure 1.2. Illustration of setting paths in Visual Studio 2019*
 
 4. Open the dialog of dependence item, as shown in Figure 1.3. 
 ![image](https://github.com/vincentjzy/OpenCorr/blob/main/img/vs_lib.png)
-*Figure 2. Illustration of setting paths in Visual Studio 2019*
+*Figure 1.3. Illustration of setting dependence item in visual Studio 2019*
 
 Then add the name list of static labrary files into the editbox. Beware that the file names end with "d" in Debug mode.
 >libfftw3-3.lib
@@ -98,11 +98,11 @@ To facilitate the configuration for beginners, we made a zip package of the thre
 There are a few examples in the folder "samples" along with images, which demonstrate how to make a DIC processing program using the modules in OpenCorr. Before building the executables, make sure that the file paths in the codes are correctly set. 
 
 # Framework
-Figure 3 shows the framework of OpenCorr, which consists of four parts: (1) basic data objects; (2) DIC data objects; (3) basic processing methods; (4) DIC processing methods.
+Figure 1.4 shows the framework of OpenCorr, which consists of four parts: (1) basic data objects; (2) DIC data objects; (3) basic processing methods; (4) DIC processing methods.
 
-Figure 3 shows the framework of OpenCorr, which gives a guide to understand the structure of OpenCorr.
+Figure 1.4 shows the framework of OpenCorr, which gives a guide to understand the structure of OpenCorr.
 ![image](https://github.com/vincentjzy/OpenCorr/blob/main/img/framework.png)
-*Figure 3. Framework of OpenCorr*
+*Figure 1.4. Framework of OpenCorr*
 
 ### Basic data objects:
 
