@@ -14,6 +14,7 @@ Users can also access the information of OpenCorr via website [opencorr.org](ope
 >2021.04.23, OpenCorr is released to public.
 >
 >2021.04.30, Modify structure of DIC module and stereovision module.
+>
 >2021.05.08, A brief instruction of framework is released.
 
 # Get started
