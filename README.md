@@ -42,7 +42,7 @@ These libraries provide excellent instructions for installation. The main proced
 ![image](https://github.com/vincentjzy/OpenCorr/blob/main/img/vs_lib.png)
 *Figure 1.3. Illustration of setting additional dependencies in visual Studio 2019*
 
-Then add the name list of static labrary files into the editbox. Beware that the file names end with "d" in Debug mode.
+Then add the name list of static library files into the editbox. Beware that the file names end with "d" in Debug mode.
 >libfftw3-3.lib
 >libfftw3f-3.lib
 >libfftw3l-3.lib
@@ -91,13 +91,13 @@ Then add the name list of static labrary files into the editbox. Beware that the
 >opencv_xobjdetect345.lib
 >opencv_xphoto345.lib
 
-6. Place the dynamic link library files (.dll) into the folder where the executable programs are built (e.g. "D\OpenCorx64\Debug\"), or the directories listed in system Path.
+5. Place the dynamic link library files (.dll) into the folder where the executable programs are built (e.g. "D\OpenCorx64\Debug\"), or the directories listed in system Path.
 
 To facilitate the configuration for beginners, we made a zip package of the three libraries and share it on [pan.baidu.com](https://pan.baidu.com/s/17qdAhXJZPLWydYiowwEzig) (code: vyfy). Users may download it, unzip it and set the paths according to the instructions mentioned above.
 
 There are a few examples in the folder "samples" along with images, which demonstrate how to make a DIC processing program using the modules in OpenCorr. Before building the executables, make sure that the file paths in the codes are correctly set. 
 
-# Framework
+# 2. Framework
 Figure 1.4 shows the framework of OpenCorr, which consists of four parts: (1) basic data objects; (2) DIC data objects; (3) basic processing methods; (4) DIC processing methods.
 
 Figure 1.4 shows the framework of OpenCorr, which gives a guide to understand the structure of OpenCorr.
