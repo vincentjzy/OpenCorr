@@ -8,7 +8,7 @@ Comments and suggestions are most welcome. You may reach us via
 2. Discussion here;
 3. QQ group: 597895040
 
-Users can also access the information of OpenCorr via website [opencorr.org](opencorr.org) .
+Users can also access the information of OpenCorr (in Chinese) via website [opencorr.org](opencorr.org) .
 
 ># Important updates
 >2021.04.23, OpenCorr is released to public.
