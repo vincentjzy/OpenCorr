@@ -17,7 +17,7 @@ Users can also access the information of OpenCorr (in Chinese) via website [open
 >
 >2021.05.08, A brief instruction of framework is released.
 
-# Get started
+# 1. Get started
 
 OpenCorr is developed and tested in Microsoft Visual Studio 2019 (VS, community version) on Windows 10. The codes follow the standard of ISO C++ 14, theoretically it can be compiled on other OS like Linux. To use this library, the users are supposed to have basic knowledge and skill about integrated development environment like VS. The building environment requires three freeware libraries:
 
@@ -38,7 +38,60 @@ These libraries provide excellent instructions for installation. The main proced
 ![image](https://github.com/vincentjzy/OpenCorr/blob/main/img/configuration_path_vs.png)
 *Figure 2. Illustration of setting paths in Visual Studio 2019*
 
-4. Place the dynamic link library files (.dll) into the folder where the executable programs are built (e.g. "D\OpenCorx64\Debug\"), or the directories listed in system Path.
+4. Open the dialog of dependence item, as shown in Figure 1.3. 
+![image](https://github.com/vincentjzy/OpenCorr/blob/main/img/vs_lib.png)
+*Figure 2. Illustration of setting paths in Visual Studio 2019*
+
+Then add the name list of static labrary files into the editbox. Beware that the file names end with "d" in Debug mode.
+>libfftw3-3.lib
+>libfftw3f-3.lib
+>libfftw3l-3.lib
+>opencv_aruco345.lib
+>opencv_bgsegm345.lib
+>opencv_bioinspired345.lib
+>opencv_calib3d345.lib
+>opencv_ccalib345.lib
+>opencv_core345.lib
+>opencv_datasets345.lib
+>opencv_dnn_objdetect345.lib
+>opencv_dnn345.lib
+>opencv_dpm345.lib
+>opencv_face345.lib
+>opencv_features2d345.lib
+>opencv_flann345.lib
+>opencv_fuzzy345.lib
+>opencv_hfs345.lib
+>opencv_highgui345.lib
+>opencv_img_hash345.lib
+>opencv_imgcodecs345.lib
+>opencv_imgproc345.lib
+>opencv_line_descriptor345.lib
+>opencv_ml345.lib
+>opencv_objdetect345.lib
+>opencv_optflow345.lib
+>opencv_phase_unwrapping345.lib
+>opencv_photo345.lib
+>opencv_plot345.lib
+>opencv_reg345.lib
+>opencv_rgbd345.lib
+>opencv_saliency345.lib
+>opencv_shape345.lib
+>opencv_stereo345.lib
+>opencv_stitching345.lib
+>opencv_structured_light345.lib
+>opencv_superres345.lib
+>opencv_surface_matching345.lib
+>opencv_text345.lib
+>opencv_tracking345.lib
+>opencv_video345.lib
+>opencv_videoio345.lib
+>opencv_videostab345.lib
+>opencv_xfeatures2d345.lib
+>opencv_ximgproc345.lib
+>opencv_xobjdetect345.lib
+>opencv_xphoto345.lib
+
+6. Place the dynamic link library files (.dll) into the folder where the executable programs are built (e.g. "D\OpenCorx64\Debug\"), or the directories listed in system Path.
 
 To facilitate the configuration for beginners, we made a zip package of the three libraries and share it on [pan.baidu.com](https://pan.baidu.com/s/17qdAhXJZPLWydYiowwEzig) (code: vyfy). Users may download it, unzip it and set the paths according to the instructions mentioned above.
 
