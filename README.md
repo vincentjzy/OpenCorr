@@ -106,29 +106,29 @@ Figure 2.1 shows the framework of OpenCorr, which gives a guide to understand th
 
 ### Basic data objects:
 
-(1) Point (oc_point.h and oc_point.cpp). Figure 4 shows the parameters and methods included in this object. The main parameter of point is its coordinate. It can also regarded as a vector, indicating the offset between two points. Thus, a function (vectorNorm()) is provided to calculate the length of the vector.  Moreover, operator "+" and "-" are overloaded to denote the superimposition of an offset on the coordinate of a point. Operator "*" and "/" for the coordinate of a point multiplied or divided by a scalar. Operator "<<" is also overloaded to out the coordinate of a point, in the form of  "x,y" (Point2D) or "x,y,z" (Point3D).
+(1) Point (oc_point.h and oc_point.cpp). Figure 2.2 shows the parameters and methods included in this object. The main parameter of point is its coordinate. It can also regarded as a vector, indicating the offset between two points. Thus, a function (vectorNorm()) is provided to calculate the length of the vector.  Moreover, operator "+" and "-" are overloaded to denote the superimposition of an offset on the coordinate of a point. Operator "*" and "/" for the coordinate of a point multiplied or divided by a scalar. Operator "<<" is also overloaded to out the coordinate of a point, in the form of  "x,y" (Point2D) or "x,y,z" (Point3D).
 
 ![image](https://github.com/vincentjzy/OpenCorr/blob/main/img/oc_point.png)
-*Figure 4. Parameters and methods included in Point object*
+*Figure 2.2. Parameters and methods included in Point object*
 
-(2) Array/matrix (oc_array.h and oc_array.cpp). Figure 5 shows the parameters and methods included in this object. The object is simple, as the operations of matrix in this library call the functions of Eigen. It contains the functions of create and delete two dimension, three dimension and four dimension arrays, as well as specifically defined Eigen matrices.
+(2) Array/matrix (oc_array.h and oc_array.cpp). Figure 2.3 shows the parameters and methods included in this object. The object is simple, as the operations of matrix in this library call the functions of Eigen. It contains the functions of create and delete two dimension, three dimension and four dimension arrays, as well as specifically defined Eigen matrices.
 
 ![image](https://github.com/vincentjzy/OpenCorr/blob/main/img/oc_array.png)
-*Figure 5. Parameters and methods included in Array object*
+*Figure 2.3. Parameters and methods included in Array object*
 
-(3) Image (oc_image.h and oc_image.cpp). Figure 6 shows the parameters and methods included in this object. In this object, OpenCV functions is called to read image file and get its dimension, as well as store the data into the Eigen matrices with same size. Caution: The users using OpenCV 4 may need to modify the codes of this object, as some basic functions in OpenCV 4 are different from the ones in OpenCV 3.
+(3) Image (oc_image.h and oc_image.cpp). Figure 2.4 shows the parameters and methods included in this object. In this object, OpenCV functions is called to read image file and get its dimension, as well as store the data into the Eigen matrices with same size. Caution: The users using OpenCV 4 may need to modify the codes of this object, as some basic functions in OpenCV 4 are different from the ones in OpenCV 3.
 
 ![image](https://github.com/vincentjzy/OpenCorr/blob/main/img/oc_image.png)
-*Figure 6. Parameters and methods included in Image object*
+*Figure 2.4. Parameters and methods included in Image object*
 
 ### DIC data objects:
 
-(1) Subset (oc_subset.h and oc_subset.cpp). Figure 7 shows the parameters and methods included in this object. Subset can be regarded as a special matrix with its center located at a specific point. It height and width equals to two times of corresponding radius plus one. The constructor of this object sets the parameters mentioned above and initialize the Eigen matrix. Its menber function fill(Image2D* image) can be used to read grayscale data in specific region from an Image object and store the data into its Eigen matrix. Function zeroMeanNorm() performs the zero mean normalization of grayscale value at every point in a subset and return the normalization factor.
+(1) Subset (oc_subset.h and oc_subset.cpp). Figure 2.5 shows the parameters and methods included in this object. Subset can be regarded as a special matrix with its center located at a specific point. It height and width equals to two times of corresponding radius plus one. The constructor of this object sets the parameters mentioned above and initialize the Eigen matrix. Its menber function fill(Image2D* image) can be used to read grayscale data in specific region from an Image object and store the data into its Eigen matrix. Function zeroMeanNorm() performs the zero mean normalization of grayscale value at every point in a subset and return the normalization factor.
 
 ![image](https://github.com/vincentjzy/OpenCorr/blob/main/img/oc_subset.png)
-*Figure 7. Parameters and methods included in Subset object*
+*Figure 2.5. Parameters and methods included in Subset object*
 
-(2) Deformation (oc_deformation.h and oc_deformation.cpp). Figure 8 shows the parameters and methods included in this object. Deformation includes two dimensional one and three dimensional one, which can be described using the first order shape function and the second shape function. In 2D case, the 1st order shape function contains 6 elements (displacement u and v, as well as their gradients along x- and y-axis), its warp_matrix is a 3x3 matrix. The 2nd order shape function contains 12 elements (displacement u and v, as well as their first and second order gradients along x- and y-axis), its warp_matrix is a 6x6 matrix. Member functions include:
+(2) Deformation (oc_deformation.h and oc_deformation.cpp). Figure 2.6 shows the parameters and methods included in this object. Deformation includes two dimensional one and three dimensional one, which can be described using the first order shape function and the second shape function. In 2D case, the 1st order shape function contains 6 elements (displacement u and v, as well as their gradients along x- and y-axis), its warp_matrix is a 3x3 matrix. The 2nd order shape function contains 12 elements (displacement u and v, as well as their first and second order gradients along x- and y-axis), its warp_matrix is a 6x6 matrix. Member functions include:
 
 - setDeformation() without input, set the deformation elements according current warp_matrix;
 - setDeformation() with input, set the deformation elements and update warp_matrix, according the input;
@@ -137,29 +137,29 @@ Figure 2.1 shows the framework of OpenCorr, which gives a guide to understand th
 - Point2D warp(Point2D& point), Calculate the coordinates of a point after experiencing the deformation.
 
 ![image](https://github.com/vincentjzy/OpenCorr/blob/main/img/oc_deformation.png)
-*Figure 8. Parameters and methods included in Deformation object*
+*Figure 2.6. Parameters and methods included in Deformation object*
 
-(3) POI (Point of interest, oc_poi.h and oc_poi.cpp). Figure 9 shows the parameters and methods included in this object. POI inherit the properties and methods from Point. In addition, it contains a deformation vector and a result vector. the former is used in DIC processsing, and the latter is used for output results. Its constructor set the coordinate, and clear the deformation vector and result vector meanwhile. Member functions include:
+(3) POI (Point of interest, oc_poi.h and oc_poi.cpp). Figure 2.7 shows the parameters and methods included in this object. POI inherit the properties and methods from Point. In addition, it contains a deformation vector and a result vector. the former is used in DIC processsing, and the latter is used for output results. Its constructor set the coordinate, and clear the deformation vector and result vector meanwhile. Member functions include:
 
 - clean(), set all the elements in deformation vector and result vector as zero;
 - setIterationCriteria(float conv_criterion, float stop_condition, float neighbor_essential), set the convergence criterion and stop condition of iterative DIC methods and the minimum number required in the neighbor keypoints search when processing the POI.
 
 ![image](https://github.com/vincentjzy/OpenCorr/blob/main/img/oc_poi.png)
-*Figure 9. Parameters and methods included in POI object*
+*Figure 2.7. Parameters and methods included in POI object*
 
 ### Basic processing methods:
 
-(1) Gradient (oc_gradient.h and oc_gradient.cpp). Figure 10 shows the parameters and methods included in this object. OpenCorr provides only one gradient calculation method, i.e. 4th-order central difference, which may be the most popular one. grad_img, points to the Image2D object to process, is initialized in constructor function. Member functions getGradientX() and getGradientY() are made to calculate the 1st-order gradient map along x and y direction, respectively. getGradientXY() calculates the mixed 2nd-order gradient map. The gradient maps are stored in Eigen matrices gradient_x, gradient_y, and gradient_xy, respectively.
+(1) Gradient (oc_gradient.h and oc_gradient.cpp). Figure 2.8 shows the parameters and methods included in this object. OpenCorr provides only one gradient calculation method, i.e. 4th-order central difference, which may be the most popular one. grad_img, points to the Image2D object to process, is initialized in constructor function. Member functions getGradientX() and getGradientY() are made to calculate the 1st-order gradient map along x and y direction, respectively. getGradientXY() calculates the mixed 2nd-order gradient map. The gradient maps are stored in Eigen matrices gradient_x, gradient_y, and gradient_xy, respectively.
 
 ![image](https://github.com/vincentjzy/OpenCorr/blob/main/img/oc_gradient.png)
-*Figure 10. Parameters and methods included in Gradient object*
+*Figure 2.8. Parameters and methods included in Gradient object*
 
-(2) Interpolation (oc_interpolation.h and oc_interpolation.cpp). Figure 11 shows the parameters and methods included in this object. Interpolation is a base class which contains essential parameter interp_img pointing to the Image2D object to process. The derived class BicubicBspline (oc_bicubic_bspline.h and oc_bicubic_bspline.cpp) implemented the popular bicubic B-spline interpolation method. Our study indicates that the bicubic B-spline method show significantly improved accuracy and precision compared with bicubic method, at trial computational cost (Pan et al. Theo Appl Mech Lett, 2016, 6(3):126-130). Member function prepare() calculates the global lookup-table of interpolation coefficients of interp_image, while computer(Point2D& location) estimates the grayscale value at the input location according to the lookup-table.
+(2) Interpolation (oc_interpolation.h and oc_interpolation.cpp). Figure 2.9 shows the parameters and methods included in this object. Interpolation is a base class which contains essential parameter interp_img pointing to the Image2D object to process. The derived class BicubicBspline (oc_bicubic_bspline.h and oc_bicubic_bspline.cpp) implemented the popular bicubic B-spline interpolation method. Our study indicates that the bicubic B-spline method show significantly improved accuracy and precision compared with bicubic method, at trial computational cost (Pan et al. Theo Appl Mech Lett, 2016, 6(3):126-130). Member function prepare() calculates the global lookup-table of interpolation coefficients of interp_image, while computer(Point2D& location) estimates the grayscale value at the input location according to the lookup-table.
 
 ![image](https://github.com/vincentjzy/OpenCorr/blob/main/img/oc_interpolation.png)
-*Figure 11. Parameters and methods included in Interpolation object*
+*Figure 2.9. Parameters and methods included in Interpolation object*
 
-(3) Feature (oc_feature.h and oc_feature.cpp). Figure 12 shows the parameters and methods included in this object. Feature is a base class which contains essential parameters ref_img and tar_img pointing to the Image2D objects (reference image and target image). Member function setImages(Image2D& ref_img, Image2D& tar_img) is used to update ref_img and tar_img. The derived class SIFT2D (oc_sift.h and oc_sift.cpp) provides the method to extract and match the SIFT features in the two images. Structure SIFT_config contains the main paramters in feature extraction. Users may refer to the relevent documents of OpenCV for their meanings. Parameter match_ratio is the threshold of ratio of the shortest distance betweeen the descriptors of reference feature and the target feature to the second shortest distance. The details of this parameter can be found in Lowe's famous paper (Lowe, Int J Comput Vis, 2004, 60(2):91-110). The extracted keypoints, after matching, are stored in vector ref_matched_kp and tar_matched_kp. The member functions include:
+(3) Feature (oc_feature.h and oc_feature.cpp). Figure 2.10 shows the parameters and methods included in this object. Feature is a base class which contains essential parameters ref_img and tar_img pointing to the Image2D objects (reference image and target image). Member function setImages(Image2D& ref_img, Image2D& tar_img) is used to update ref_img and tar_img. The derived class SIFT2D (oc_sift.h and oc_sift.cpp) provides the method to extract and match the SIFT features in the two images. Structure SIFT_config contains the main paramters in feature extraction. Users may refer to the relevent documents of OpenCV for their meanings. Parameter match_ratio is the threshold of ratio of the shortest distance betweeen the descriptors of reference feature and the target feature to the second shortest distance. The details of this parameter can be found in Lowe's famous paper (Lowe, Int J Comput Vis, 2004, 60(2):91-110). The extracted keypoints, after matching, are stored in vector ref_matched_kp and tar_matched_kp. The member functions include:
 
 - prepare(), assign the address of matrices in ref_img and tar_img to OpenCV matrices ref_mat and tar_mat;
 - compute(), extract the features in reference image and target image, and then match then;
@@ -169,9 +169,9 @@ Figure 2.1 shows the framework of OpenCorr, which gives a guide to understand th
 - setMatch(float match_ratio), set ratio threshold of feature matching.
 
 ![image](https://github.com/vincentjzy/OpenCorr/blob/main/img/oc_feature.png)
-*Figure 12. Parameters and methods included in Feature object*
+*Figure 2.10. Parameters and methods included in Feature object*
 
-(4) Calibration (oc_calibration.h and oc_calibration.cpp). Figure 13 shows the parameters and methods included in this object. The main parameters are
+(4) Calibration (oc_calibration.h and oc_calibration.cpp). Figure 2.11 shows the parameters and methods included in this object. The main parameters are
 
 - Camera intrinsics, including fx, fy, fs, cx, cy, k1, k2, k3, k4, k5, k6, p1, p2;
 - Camera extrinsics, including tx, ty, tz, pitch, roll, yaw;
@@ -192,9 +192,9 @@ Member functions are
 - correct(Point2D& point), correct the coordinate of input point through an iterative procedure.
 
 ![image](https://github.com/vincentjzy/OpenCorr/blob/main/img/oc_calibration.png)
-*Figure 13. Parameters and methods included in Calibration object*
+*Figure 2.11. Parameters and methods included in Calibration object*
 
-(5) Stereovision (oc_stereovision.h and oc_stereovision.cpp). Figure 14 shows the parameters and methods included in this object. It helps to reconstruct the 3D coordinate of a point based on the two matched 2D points in left view and right view. The main parameters include:
+(5) Stereovision (oc_stereovision.h and oc_stereovision.cpp). Figure 2.12 shows the parameters and methods included in this object. It helps to reconstruct the 3D coordinate of a point based on the two matched 2D points in left view and right view. The main parameters include:
 
 - Intrinsics and extrinsics of left camera and right camera: left_cam 和 right_cam;
 - Number of CPU threads in parallel processing: thread_number;
@@ -209,7 +209,7 @@ Member functions include:
 - reconstruct(Point2D& left_point, Point2D& right_point), reconstruct the coordinate of 3D point based on the 2D points in left view and right view.
 
 ![image](https://github.com/vincentjzy/OpenCorr/blob/main/img/oc_stereovision.png)
-*Figure 14. Parameters and methods included in Stereovision object*
+*Figure 2.12. Parameters and methods included in Stereovision object*
 
 ### DIC processing methods:
 
@@ -223,23 +223,23 @@ Member function setImages(Image2D& ref_img, Image2D& tar_img) is used to set the
 
 It is noteworthy that the methods in derive classes are designed for path-independent DIC, but they can also be used to realize the DIC methods with initial guess transfer mechanisms. For example, the popular reliability-guided DIC can be readily implemented by combining C++ vector and its sort functions with the DIC methods listed below.
 
-(1) FFTCC2D (oc_fftcc.h and oc_fftcc.cpp), fast Fourier transform based cross correlation. Figure 15 shows the parameters and methods included in this object. The method calls FFTW library to perform FFT and inverse FFT calculation. Its principle can be found in our paper (Jiang et al. Opt Laser Eng, 2015, 65:93-102). An auxiliary class FFTW is made to facilitate parallel processing, as the procedure need allocate quite a lot of memory blocks dynamically. During the initialization of FFTCC2D, a few FFTW instances are created according to the set thread_number. Afterwards, they are called in compute(POI2D* POI) through getInstance(int tid). The POIs stored in container vector can be processed by compute(std::vector& POI_queue).
+(1) FFTCC2D (oc_fftcc.h and oc_fftcc.cpp), fast Fourier transform based cross correlation. Figure 2.13 shows the parameters and methods included in this object. The method calls FFTW library to perform FFT and inverse FFT calculation. Its principle can be found in our paper (Jiang et al. Opt Laser Eng, 2015, 65:93-102). An auxiliary class FFTW is made to facilitate parallel processing, as the procedure need allocate quite a lot of memory blocks dynamically. During the initialization of FFTCC2D, a few FFTW instances are created according to the set thread_number. Afterwards, they are called in compute(POI2D* POI) through getInstance(int tid). The POIs stored in container vector can be processed by compute(std::vector& POI_queue).
 
 ![image](https://github.com/vincentjzy/OpenCorr/blob/main/img/oc_fftcc.png)
-*Figure 15. Parameters and methods included in FFTCC2D object*
+*Figure 2.13. Parameters and methods included in FFTCC2D object*
 
-(2) FeatureAffine2D (oc_feature_affine.h and oc_feature_affine.cpp), feature aided affine estimation. Figure 16 shows the parameters and methods included in this object. The method estimate the affine matrix according to the keypoints around a POI in order to get the deformation at the POI. User may refer to our paper (Yang et al. Opt Laser Eng, 2020, 127:105964) for details of principle and implementation.
+(2) FeatureAffine2D (oc_feature_affine.h and oc_feature_affine.cpp), feature aided affine estimation. Figure 2.14 shows the parameters and methods included in this object. The method estimate the affine matrix according to the keypoints around a POI in order to get the deformation at the POI. User may refer to our paper (Yang et al. Opt Laser Eng, 2020, 127:105964) for details of principle and implementation.
 
 ![image](https://github.com/vincentjzy/OpenCorr/blob/main/img/oc_feature_affine.png)
-*Figure 16. Parameters and methods included in FeatureAffine2D object*
+*Figure 2.14. Parameters and methods included in FeatureAffine2D object*
 
-(3) ICGN2D1 (ICGN algorithm with 1st-order shape function) and ICGN2D2 (ICGN algorithm with 2nd-order shape function), codes are stored in oc_icgn.h and oc_icgn.cpp. Figure 17 and Figure 18 show the parameters and methods included in the two objects. The principle and implementation of ICGN2D1 can be found in our paper (Jiang et al. Opt Laser Eng, 2015, 65:93-102). User may refer to the paper by Professor ZHANG Qingchuan's group (Gao et al. Opt Laser Eng, 2015, 65:73-80) for detailed information. Auxiliary classes ICGN2D1_ and ICGN2D2_ are made for parallel processing because the procedures also require a lot of dynamically allocated memory blocks. The implementation and usage are similar to the one in FFTCC2D.
+(3) ICGN2D1 (ICGN algorithm with 1st-order shape function) and ICGN2D2 (ICGN algorithm with 2nd-order shape function), codes are stored in oc_icgn.h and oc_icgn.cpp. Figure 2.15 and Figure 2.16 show the parameters and methods included in the two objects. The principle and implementation of ICGN2D1 can be found in our paper (Jiang et al. Opt Laser Eng, 2015, 65:93-102). User may refer to the paper by Professor ZHANG Qingchuan's group (Gao et al. Opt Laser Eng, 2015, 65:73-80) for detailed information. Auxiliary classes ICGN2D1_ and ICGN2D2_ are made for parallel processing because the procedures also require a lot of dynamically allocated memory blocks. The implementation and usage are similar to the one in FFTCC2D.
 
 ![image](https://github.com/vincentjzy/OpenCorr/blob/main/img/oc_icgn1.png)
-*Figure 17. Parameters and methods included in ICGN2D1 object*
+*Figure 2.15. Parameters and methods included in ICGN2D1 object*
 
 ![image](https://github.com/vincentjzy/OpenCorr/blob/main/img/oc_icgn2.png)
-*Figure 18. Parameters and methods included in ICGN2D2 object*
+*Figure 2.16. Parameters and methods included in ICGN2D2 object*
 
 # Acknowledgements
 
