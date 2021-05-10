@@ -98,11 +98,11 @@ To facilitate the configuration for beginners, we made a zip package of the thre
 There are a few examples in the folder "samples" along with images, which demonstrate how to make a DIC processing program using the modules in OpenCorr. Before building the executables, make sure that the file paths in the codes are correctly set. 
 
 # 2. Framework
-Figure 1.4 shows the framework of OpenCorr, which consists of four parts: (1) basic data objects; (2) DIC data objects; (3) basic processing methods; (4) DIC processing methods.
+Figure 2.1 shows the framework of OpenCorr, which consists of four parts: (1) basic data objects; (2) DIC data objects; (3) basic processing methods; (4) DIC processing methods.
 
-Figure 1.4 shows the framework of OpenCorr, which gives a guide to understand the structure of OpenCorr.
+Figure 2.1 shows the framework of OpenCorr, which gives a guide to understand the structure of OpenCorr.
 ![image](https://github.com/vincentjzy/OpenCorr/blob/main/img/framework.png)
-*Figure 1.4. Framework of OpenCorr*
+*Figure 2.1. Framework of OpenCorr*
 
 ### Basic data objects:
 
