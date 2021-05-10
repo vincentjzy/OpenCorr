@@ -41,7 +41,7 @@ These libraries provide excellent instructions for installation. The main proced
 4. Open the dialog of additional dependencies, as shown in Figure 1.3. 
 ![image](https://github.com/vincentjzy/OpenCorr/blob/main/img/vs_lib.png)
 
-*Figure 1.3. Illustration of setting additional dependencies in visual Studio 2019*
+*Figure 1.3. Illustration of setting additional dependencies in Visual Studio 2019*
 
 Then add the name list of static library files into the editbox. Beware that the file names end with "d" in Debug mode.
 >libfftw3-3.lib
