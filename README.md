@@ -28,7 +28,7 @@ OpenCorr is developed and tested in Microsoft Visual Studio 2019 (VS, community 
 These libraries provide excellent instructions for installation. The main procedure can be summarized as the following steps:
 
 1. Download the source files (e.g. .h or .cpp), static library files (.lib), and dynamic link library files (.dll) from the websites;
-2. Place them into proper directories in your computer. For example, I created a solution in VS with name of OpenCorr and a project with same name. The source codes are stored in folder "D:\OpenCorr\OpenCorr\", the files of source codes and static libraries of the three libraries are also placed in folder "D\OpenCorr\", as shown in Figure 1;
+2. Place them into proper directories in your computer. For example, I created a solution in VS with name of OpenCorr and a project with same name. The source codes are stored in folder "D:\OpenCorr\OpenCorr\", the files of source codes and static libraries of the three libraries are also placed in folder "D:\OpenCorr\", as shown in Figure 1.1;
 
 ![image](https://github.com/vincentjzy/OpenCorr/blob/main/img/opencorr_folder_list.png)
 
