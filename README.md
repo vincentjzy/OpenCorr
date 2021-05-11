@@ -35,11 +35,11 @@ These libraries provide excellent instructions for installation. The main proced
 *Figure 1.1. An example of directory structure*
 
 3. Set the paths of source files and static library files in VS, as illustrated in Figure 1.2;
-![image](https://github.com/vincentjzy/OpenCorr/blob/main/img/configuration_path_vs.png)
+![image](https://github.com/vincentjzy/OpenCorr/blob/main/img/vs_path_en.png)
 *Figure 1.2. Illustration of setting paths in Visual Studio 2019*
 
 4. Open the dialog of additional dependencies, as shown in Figure 1.3. 
-![image](https://github.com/vincentjzy/OpenCorr/blob/main/img/vs_lib.png)
+![image](https://github.com/vincentjzy/OpenCorr/blob/main/img/vs_lib_en.png)
 
 *Figure 1.3. Illustration of setting additional dependencies in Visual Studio 2019*
 
@@ -92,7 +92,7 @@ Then add the name list of static library files into the editbox. Beware that the
 >opencv_xobjdetect345.lib
 >opencv_xphoto345.lib
 
-5. Place the dynamic link library files (.dll) into the folder where the executable programs are built (e.g. "D\OpenCorx64\Debug\"), or the directories listed in system Path.
+5. Place the dynamic link library files (.dll) into the folder where the executable programs are built (e.g. "D:\OpenCorr\x64\Debug\", as shown in Figure 1.1), or the directories listed in system Path.
 
 To facilitate the configuration for beginners, we made a zip package of the three libraries and share it on [pan.baidu.com](https://pan.baidu.com/s/17qdAhXJZPLWydYiowwEzig) (code: vyfy). Users may download it, unzip it and set the paths according to the instructions mentioned above.
 
