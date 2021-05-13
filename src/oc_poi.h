@@ -28,7 +28,7 @@ namespace opencorr {
 			float u, ux, uy, uxx, uxy, uyy;
 			float v, vx, vy, vxx, vxy, vyy;
 		};
-		float p[12]; //content: u ux uy uxx uyy uxy v vx vy vxx vyy vxy
+		float p[12]; //content: u ux uy uxx uxy uyy v vx vy vxx vxy vyy
 	};
 
 	union StrainVector2D {
@@ -67,7 +67,7 @@ namespace opencorr {
 			float v, vx, vy, vz;
 			float w, wx, wy, wz;
 		};
-		float p[12]; //content: u ux uy uxx uyy uxy v vx vy vxx vyy vxy
+		float p[12]; //content: u ux uy uz v vx vy vz w wx wy wz
 	};
 
 	union StrainVector3D {
