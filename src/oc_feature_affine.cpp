@@ -73,7 +73,7 @@ namespace opencorr
 				candidate_index[j] = j;
 			}
 			for (int j = 0; j < this->RANSAC_config.sample_mumber; j++) {
-				std::swap<int>(candidate_index[j], candidate_index[rand_index(rde)]);
+				std::swap(candidate_index[j], candidate_index[rand_index(rde)]);
 			}
 			Eigen::MatrixXf tar_neighbors(this->RANSAC_config.sample_mumber, 3);
 			Eigen::MatrixXf ref_neighbors(this->RANSAC_config.sample_mumber, 3);
