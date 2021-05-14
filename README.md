@@ -8,7 +8,7 @@ Comments and suggestions are most welcome. You may reach us via
 2. Discussion here;
 3. QQ group: 597895040
 
-Users can also access the information of OpenCorr (in Chinese) via website [opencorr.org](opencorr.org) .
+Users can also access the information of OpenCorr (in Chinese) via website [opencorr.org](http://opencorr.org) .
 
 ># Important updates
 >2021.04.23, OpenCorr is released to public.
@@ -21,9 +21,9 @@ Users can also access the information of OpenCorr (in Chinese) via website [open
 
 OpenCorr is developed and tested in Microsoft Visual Studio 2019 (VS, community version) on Windows 10. The codes follow the standard of ISO C++ 14, theoretically it can be compiled on other OS like Linux. To use this library, the users are supposed to have basic knowledge and skill about integrated development environment like VS. The building environment requires three freeware libraries:
 
-- Eigen 3.3.9 ([eigen.tuxfamily.org](eigen.tuxfamily.org)), used for basic operations of matrix.
-- OpenCV 3.4.5 ([opencv.org](opencv.org)), used to read images, and inthe  modules related with image feature and stereovision.
-- FFTW 3.3.9 ([fftw.org](fftw.org)), used for cross correlation.
+- Eigen 3.3.9 ([eigen.tuxfamily.org](http://eigen.tuxfamily.org)), used for basic operations of matrix.
+- OpenCV 3.4.5 ([opencv.org](http://opencv.org)), used to read images, and inthe  modules related with image feature and stereovision.
+- FFTW 3.3.9 ([fftw.org](http://fftw.org)), used for cross correlation.
 
 These libraries provide excellent instructions for installation. The main procedure can be summarized as the following steps:
 
