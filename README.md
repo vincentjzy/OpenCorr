@@ -95,7 +95,7 @@ Then add the name list of static library files into the editbox. Beware that the
 5. Place the dynamic link library files (.dll) into the folder where the executable programs are built (e.g. "D:\OpenCorr\x64\Debug\", as shown in Figure 1.1), or the directories listed in system Path.
 
 6. Set Open MP support to enable the acceleration on multi-core CPU, as shown in Figure 1.4.
-![image](https://github.com/vincentjzy/OpenCorr/blob/main/img/oc_openmp_en.png)
+![image](https://github.com/vincentjzy/OpenCorr/blob/main/img/vs_openmp_en.png)
 *Figure 1.4. Illustration of setting OpenMP support in Visual Studio 2019*
 
 To facilitate the configuration for beginners, we made a zip package of the three libraries and share it on [pan.baidu.com](https://pan.baidu.com/s/17qdAhXJZPLWydYiowwEzig) (code: vyfy). Users may download it, unzip it and set the paths according to the instructions mentioned above.
