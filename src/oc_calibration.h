@@ -39,7 +39,7 @@ namespace opencorr
 			float tx, ty, tz;
 			float pitch, roll, yaw;
 		};
-		float cam_e[5];
+		float cam_e[6];
 	};
 
 	class Calibration
