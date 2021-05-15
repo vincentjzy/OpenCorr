@@ -250,8 +250,9 @@ It is noteworthy that the methods in derive classes are designed for path-indepe
 
 OpenCorr demonstrates our exploration of DIC/DVC methods in recent years, which got financial support from National Natural Science Foundation of China. I would like to give my special thanks to two collaborators for their continuous and strong supports: Professor QIAN Kemao at Nanyang Technological University and Professor DONG Shoubin at South China University of Technology.
 
-Developers of DIC/DVC methods in OpenCorr include:
+# Developers
 
+- Dr JIANG Zhenyu, Professor, South China University of Technology
 - Mr ZHANG Lingqi, PhD candidate, Tokyo Institute of Technology
 - Dr WANG Tianyi, PostDoc, BrookHaven Natinoal Lab
 - Dr CHEN Wei, Research Engineer, Midea
@@ -259,7 +260,7 @@ Developers of DIC/DVC methods in OpenCorr include:
 - Mr YANG Junrong, , Software engineer, Tencent
 - Mr LIN Aoyu, Master student, South China University of Technology
 
-# References
+# Related publication
 
 Users may refer to our papers for the details of the principle of the algorithms provided in OpenCorr.
 
