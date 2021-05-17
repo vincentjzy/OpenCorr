@@ -75,7 +75,7 @@ namespace opencorr
 	ICGN2D1_* ICGN2D1::getInstance(int tid)
 	{
 		if (tid >= (int)this->instance_pool.size()) {
-			throw std::exception(std::string("CPU thread ID over limit").data());
+			throw std::string("CPU thread ID over limit");
 		}
 
 		return this->instance_pool[tid];
@@ -321,7 +321,7 @@ namespace opencorr
 	ICGN2D2_* ICGN2D2::getInstance(int tid)
 	{
 		if (tid >= (int)this->instance_pool.size()) {
-			throw std::exception(std::string("CPU thread ID over limit").data());
+			throw std::string("CPU thread ID over limit");
 		}
 
 		return this->instance_pool[tid];

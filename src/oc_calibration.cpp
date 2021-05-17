@@ -13,7 +13,7 @@
  */
 
 #include <cmath>
-#include <opencv2\calib3d.hpp>
+#include <opencv2/calib3d.hpp>
 #include "oc_calibration.h"
 
 namespace opencorr
@@ -39,7 +39,7 @@ namespace opencorr
 		this->intrinsic_matrix(1, 1) = this->intrinsics.fy;
 		this->intrinsic_matrix(1, 2) = this->intrinsics.cy;
 		if (this->intrinsic_matrix.isIdentity()) {
-			throw std::exception(std::string("Null intrinsics matrix").data());
+			throw std::string("Null intrinsics matrix");
 		}
 	}
 

@@ -27,7 +27,7 @@ namespace opencorr
 		this->cv_mat = cv::imread(file_path, CV_LOAD_IMAGE_GRAYSCALE);
 
 		if (!this->cv_mat.data) {
-			throw std::exception((string("Fail to load file: ") + file_path).data());
+			throw std::string("Fail to load file: " + file_path);
 		}
 
 		this->file_path = file_path;
@@ -42,7 +42,7 @@ namespace opencorr
 		this->cv_mat = cv::imread(file_path, CV_LOAD_IMAGE_GRAYSCALE);
 
 		if (!this->cv_mat.data) {
-			throw std::exception((string("Fail to load file: ") + file_path).data());
+			throw std::string("Fail to load file: " + file_path);
 		}
 
 		this->file_path = file_path;

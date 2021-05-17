@@ -22,7 +22,7 @@ namespace opencorr
 {
 	Subset2D::Subset2D(Point2D center, int radius_x, int radius_y) {
 		if (radius_x < 1 || radius_y < 1) {
-			throw std::exception((string("Wrong radius")).data());
+			throw std::string("Wrong radius");
 		}
 
 		this->center = center;
@@ -36,7 +36,7 @@ namespace opencorr
 
 	void Subset2D::fill(Image2D* image) {
 		if (this->center.y - this->radius_y < 0 || this->center.x - this->radius_x < 0) {
-			throw std::exception((string("Too close to boundary")).data());
+			throw std::string("Too close to boundary");
 		}
 		Point2D topleft_point(this->center.x - this->radius_x, this->center.y - this->radius_y);
 		this->eg_mat << image->eg_mat.block(topleft_point.y, topleft_point.x, this->height, this->width);
