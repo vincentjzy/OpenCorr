@@ -1,3 +1,4 @@
+![image](https://github.com/vincentjzy/OpenCorr/blob/main/img/title_figure_green.png)
 # OpenCorr
 OpenCorr is an open source C++ library for development of 2D, 3D/stereo, and volumetric digital image correlation. It aims to provide a developer-friendly, lightweight, and efficient kit to the users who are willing to study the state-of-the-art DIC/DVC algorithms or to create DIC/DVC programs for their specific applications.
 
