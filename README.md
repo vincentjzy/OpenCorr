@@ -17,6 +17,8 @@ Users can also access the information of OpenCorr (in Chinese) via website [open
 >2021.04.30, Modify structure of DIC module and stereovision module.
 >
 >2021.05.08, A brief instruction of framework is released.
+>
+>2021.05.17, Improve the adapbility for Linux and release a cool title figure.
 
 # 1. Get started
 
