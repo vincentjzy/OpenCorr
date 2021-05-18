@@ -9,11 +9,11 @@
 using namespace opencorr;
 using namespace std;
 
-int main() {
+int mainx() {
 
 	//set files to process
-	string ref_image_path = "./samples/oht_cfrp_0.bmp";
-	string tar_image_path = "./samples/oht_cfrp_4.bmp";
+	string ref_image_path = "../samples/oht_cfrp_0.bmp";
+	string tar_image_path = "../samples/oht_cfrp_4.bmp";
 	Image2D ref_img(ref_image_path);
 	Image2D tar_img(tar_image_path);
 
