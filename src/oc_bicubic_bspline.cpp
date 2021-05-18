@@ -80,7 +80,7 @@ namespace opencorr
 	float BicubicBspline::compute(Point2D& location) {
 
 		if (location.x < 0 || location.y < 0 || location.x >= this->interp_img->width || location.y >= this->interp_img->height) {
-			throw std::string("Location out of boundary");
+			//throw std::string("Location out of boundary");
 			return 0.f;
 		}
 
