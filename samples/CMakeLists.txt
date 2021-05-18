@@ -1,5 +1,5 @@
 # cmake version requirement
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.9)
 
 # project name
 project(opencoor_samples)
