@@ -37,7 +37,7 @@ namespace opencorr
 	union CameraExtrinsics {
 		struct {
 			float tx, ty, tz;
-			float pitch, roll, yaw;
+			float rx, ry, rz;
 		};
 		float cam_e[6];
 	};

@@ -45,7 +45,7 @@ namespace opencorr
 
 	void Calibration::updateRotationMatrix() {
 		cv::Mat cv_rotation_matrix;
-		cv::Mat cv_rotation_vector = (cv::Mat_<float>(3, 1) << this->extrinsics.pitch, this->extrinsics.roll, this->extrinsics.yaw);
+		cv::Mat cv_rotation_vector = (cv::Mat_<float>(3, 1) << this->extrinsics.rx, this->extrinsics.ry, this->extrinsics.rz);
 		cv::Rodrigues(cv_rotation_vector, cv_rotation_matrix);
 		cv::cv2eigen(cv_rotation_matrix, this->rotation_matrix);
 	}
