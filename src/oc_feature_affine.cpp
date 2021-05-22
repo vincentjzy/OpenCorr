@@ -102,7 +102,7 @@ namespace opencorr
 				Point2D point(px, py);
 				estimated_error = point.vectorNorm();
 				if (estimated_error < this->RANSAC_config.error_threshold) {
-					trial_set.push_back(j);
+					trial_set.push_back(candidate_index[j]);
 					location_mean_error += estimated_error;
 				}
 			}
