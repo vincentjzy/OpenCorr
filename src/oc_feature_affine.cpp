@@ -40,15 +40,15 @@ namespace opencorr
 	void FeatureAffine2D::compute(POI2D* POI) {
 		//brutal force search for neighbor keypoints
 		std::vector<Point2D> tar_candidates, ref_candidates;
-		for (int i = 0; i < this->tar_kp.size(); ++i) {
-			Point2D distance = this->tar_kp[i] - (Point2D)*POI;
+		for (int i = 0; i < this->ref_kp.size(); ++i) {
+			Point2D distance = this->ref_kp[i] - (Point2D)*POI;
 			if (distance.vectorNorm() < this->neighbor_search_radius) {
 				tar_candidates.push_back(this->tar_kp[i]);
 				ref_candidates.push_back(this->ref_kp[i]);
 			}
 		}
 
-		int candidate_number = (int)tar_candidates.size();
+		int candidate_number = (int)ref_candidates.size();
 		if (candidate_number < RANSAC_config.sample_mumber) {
 			std::cerr << "Insufficient neighbor keypoints around: " << (Point2D)*POI << std::endl;
 			return;
