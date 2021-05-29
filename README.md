@@ -258,7 +258,7 @@ OpenCorr demonstrates our exploration of DIC/DVC methods in recent years, which 
 - Dr JIANG Zhenyu, Professor, South China University of Technology
 - Mr ZHANG Lingqi, PhD candidate, Tokyo Institute of Technology
 - Dr WANG Tianyi, PostDoc, BrookHaven Natinoal Lab
-- Dr CHEN Wei, Research Engineer, Midea
+- Dr CHEN Wei, Research engineer, Midea
 - Mr HUANG Jianwen, Software engineer, SenseTime
 - Mr YANG Junrong, , Software engineer, Tencent
 - Mr LIN Aoyu, Master student, South China University of Technology
@@ -273,7 +273,7 @@ Users may refer to our papers for the details of the principle of the algorithms
 
 [3] T. Wang, Z. Jiang, Q. Kemao, F. Lin, S.H. Soon, GPU accelerated digital volume correlation, Experimental Mechanics, 56 (2016) 297-309.
 
-[4]. Z. Pan, W. Chen, Z. Jiang, L. Tang, Y. Liu, Z. Liu, Performance of global look-up table strategy in digital image correlation with cubic B-spline interpolation and bicubic interpolation, Theoretical and Applied Mechanics Letters, 6(3) 126-130.
+[4]. Z. Pan, W. Chen, Z. Jiang, L. Tang, Y. Liu, Z. Liu, Performance of global look-up table strategy in digital image correlation with cubic B-spline interpolation and bicubic interpolation, Theoretical and Applied Mechanics Letters, 6 (3) 126-130.
 
 [5] W. Chen, Z. Jiang, L. Tang, Y. Liu, Z. Liu, Equal noise resistance of two mainstream iterative sub-pixel registration algorithms in digital image correlation, Experimental Mechanics, 57 (2017) 979-996.
 
