@@ -42,7 +42,6 @@ namespace opencorr
 		float neighbor_search_radius; //seaching radius for mached keypoints around a POI
 		int min_neighbor_num; //minimum number of neighbors required by RANSAC
 		RANSACconfig RANSAC_config;
-		Eigen::Matrix3f affine_matrix;
 
 	public:
 		std::vector<Point2D> ref_kp; //matched keypoints in ref image

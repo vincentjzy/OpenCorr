@@ -17,6 +17,7 @@
 #include <omp.h>
 #include <opencv2/opencv.hpp>
 #include <opencv2/xfeatures2d.hpp>
+#include <numeric>
 
 namespace opencorr
 {
@@ -61,20 +62,17 @@ namespace opencorr
 		}
 
 		//RANSAC procedure, refer to Yang et al. Opt Laser Eng (2020), 127, 105964 for details
-		int* candidate_index = new int[candidate_number];
+
+		std::vector<int> candidate_index(candidate_number);
+		std::iota(candidate_index.begin(), candidate_index.end(), 0);
+
 		int trial_number = 0;
 		float location_mean_error;
-		std::default_random_engine rde(std::random_device{}()); //get the seed for random machine
-		std::uniform_int_distribution<int> rand_index(0, candidate_number - 1); //set the range of generated random number
 		std::vector<int> max_set;
 		do {
 			//randomly select samples
-			for (int j = 0; j < candidate_number; j++) {
-				candidate_index[j] = j;
-			}
-			for (int j = 0; j < this->RANSAC_config.sample_mumber; j++) {
-				std::swap(candidate_index[j], candidate_index[rand_index(rde)]);
-			}
+			std::random_shuffle(candidate_index.begin(), candidate_index.end());
+
 			Eigen::MatrixXf tar_neighbors(this->RANSAC_config.sample_mumber, 3);
 			Eigen::MatrixXf ref_neighbors(this->RANSAC_config.sample_mumber, 3);
 			for (int j = 0; j < this->RANSAC_config.sample_mumber; j++) {
@@ -86,7 +84,7 @@ namespace opencorr
 				ref_neighbors(j, 1) = ref_candidates[candidate_index[j]].y;
 				ref_neighbors(j, 2) = 1.f;
 			}
-			affine_matrix = ref_neighbors.colPivHouseholderQr().solve(tar_neighbors);
+			Eigen::Matrix3f affine_matrix = ref_neighbors.colPivHouseholderQr().solve(tar_neighbors);
 
 			//concensus
 			std::vector<int> trial_set;
@@ -129,7 +127,8 @@ namespace opencorr
 			tar_neighbors(i, 1) = tar_candidates[max_set[i]].y;
 			tar_neighbors(i, 2) = 1.f;
 		}
-		affine_matrix = ref_neighbors.colPivHouseholderQr().solve(tar_neighbors);
+
+		Eigen::Matrix3f affine_matrix = ref_neighbors.colPivHouseholderQr().solve(tar_neighbors);
 
 		//calculate the 1st order deformation according to the equivalence between affine matrix and 1st order shape function
 		POI->deformation.u = affine_matrix(2, 0);
