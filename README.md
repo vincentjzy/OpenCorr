@@ -19,6 +19,8 @@ Users can also access the information of OpenCorr (in Chinese) via website [open
 >2021.05.08, A brief instruction of framework is released.
 >
 >2021.05.17, Improve the adapbility for Linux and release a cool title figure.
+>
+>2021.06.12, Release an sample to demonstrate the calculation of strains according to the DIC results.
 
 # 1. Get started
 
