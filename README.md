@@ -251,6 +251,23 @@ It is noteworthy that the methods in derive classes are designed for path-indepe
 ![image](https://github.com/vincentjzy/OpenCorr/blob/main/img/oc_icgn2.png)
 *Figure 2.16. Parameters and methods included in ICGN2D2 object*
 
+(4) Strain2D (oc_strain.h and oc_strain.cpp), calculation of strains based on the DIC results. Figure 2.17 shows the parameters and methods included in this objects. The method first create local profiles of displacement components in POI-centered subregion through polynomial fitting, and then calculate the strains according to the first order derivatives of the profile. User may refer to the paper by Professor PAN Bing (Pan et al. Opt Eng, 2007, 46:033601) for the details of the principle. The main parameters include:
+
+- Topleft corner of ROI: topleft_point
+- Radius of subregion: subregion_radius
+- Space between adjacent POIs: grid_space
+- 2D matrices of displacement components: u_map, v_map
+
+Main member functions include:
+
+- setSubregionRadius(int subregion_radius), set the radius of the POI-centerd subregion for fitting of local displacement profiles
+- setGridSpace(int grid_space), set space between the adjacent POIs, which should be identical to the value set in DIC computation
+- setDisplacement(std::vector& POI_queue), create u_map and v_map according to the result of POI
+- compute(POI2D* POI), calculate the strains at the POI
+
+![image](https://github.com/vincentjzy/OpenCorr/blob/main/img/oc_strain.png)
+*Figure 2.17. Parameters and methods included in Strain2D object*
+
 # Acknowledgements
 
 OpenCorr demonstrates our exploration of DIC/DVC methods in recent years, which got financial support from National Natural Science Foundation of China. I would like to give my special thanks to two collaborators for their continuous and strong supports: Professor QIAN Kemao at Nanyang Technological University and Professor DONG Shoubin at South China University of Technology.
