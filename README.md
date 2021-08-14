@@ -21,6 +21,8 @@ Users can also access the information of OpenCorr (in Chinese) via website [open
 >2021.05.17, Improve the adapbility for Linux and release a cool title figure.
 >
 >2021.06.12, Release an sample to demonstrate the calculation of strains, update the documentation.
+>
+>2021.08.14, Release the GPU accelerated module of ICGN algorithm and an example, instruction can be found in Section 3 (3. GPU accelerated modules).
 
 # 1. Get started
 
@@ -268,6 +270,31 @@ Main member functions include:
 ![image](https://github.com/vincentjzy/OpenCorr/blob/main/img/oc_strain.png)
 *Figure 2.17. Parameters and methods included in Strain2D object*
 
+# 3. GPU accelerated modules
+
+GPU accelerated modules currently include a module of ICGN algorithm with shape functions of the 1st and the 2nd order. Developers can use them through calling dynamic link libraries.
+Requirements:
+- Hardware: NVIDIA graphics card with memory greater than 2GB
+- Software: Windows OS, CUDA ToolKit 11.4
+
+GPU accelerated ICGN module consists of three files: head (opencorr_gpu.h), static link library (OpenCorrGPULib.lib), and dynamic link library (OpenCorrGPULib.dll). The configuration of IDE is similar to the one of FFTW, which can be summarized as four steps:
+
+1. Put opencorr_gpu.h into the folder where opencorr.h is, as shown in Figure 3.1;
+![image](https://github.com/vincentjzy/OpenCorr/blob/main/img/gpu_head_en.png)
+*Figure 3.1. Opencorr_gpu.h is placed in the same folder of opencorr.h*
+
+2. Set the path of static library file in VS (for example, OpenCorrGPULib.lib is in folder opencorrGPU\lib in Figure 1.1), as illustrated in Figure 3.2;
+![image](https://github.com/vincentjzy/OpenCorr/blob/main/img/vs_gpu_path_en.png)
+*Figure 3.2. Setting path of library in Visual Studio 2019*
+
+3. Add OpenCorrGPULib.lib as the additional dependencies, as illustrated in Figure 3.3;
+![image](https://github.com/vincentjzy/OpenCorr/blob/main/img/vs_gpu_lib_en.png)
+*Figure 3.3. Setting additional dependencies of library in Visual Studio 2019*
+
+4. Let OpenCorrGPULib.dll be in the same folder of the built executable program (.exe).
+
+test_2d_dic_icgn_gpu.cpp in folder /samples demonstrates how to use the module. The data structures in this module are a little different from those in OpenCorr (CPU version) to achieve high computation efficiency. Thus, the reference image and the target image need to be converted to 1D arrays. An additional POI queue is generated and assigned with the location and initial guess for each POI. After the processing, the obtained results need to be transferred back to the original POI queue for the convenience of output by calling the OpenCorr functions.
+
 # Acknowledgements
 
 OpenCorr demonstrates our exploration of DIC/DVC methods in recent years, which got financial support from National Natural Science Foundation of China. I would like to give my special thanks to two collaborators for their continuous and strong supports: Professor QIAN Kemao at Nanyang Technological University and Professor DONG Shoubin at South China University of Technology.
@@ -301,3 +328,5 @@ Users may refer to our papers for the details of the principle of the algorithms
 [7] J. Yang, J. Huang, Z. Jiang, S. Dong, L. Tang, Y. Liu, Z. Liu, L. Zhou, SIFT-aided path-independent digital image correlation accelerated by parallel computing, Optics and Lasers in Engineering, 127 (2020) 105964.
 
 [8] J. Yang, J. Huang, Z. Jiang, S. Dong, L. Tang, Y. Liu, Z. Liu, L. Zhou, 3D SIFT aided path independent digital volume correlation and its GPU acceleration, Optics and Lasers in Engineering, 136 (2021) 106323.
+
+[9] A. Lin, R. Li, Z. Jiang, S. Dong, Y. Liu, Z. Liu, L. Zhou, L. Tang, Path independent stereo digital image correlation with high speed and analysis resolution, Under review.
