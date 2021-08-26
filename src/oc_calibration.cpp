@@ -135,7 +135,7 @@ namespace opencorr
 			float distortion_r6 = distortion_r2 * distrotion_r4;
 
 			//undistort the coordinates
-			float radial_factor = (1 + this->intrinsics.k4 * distortion_r2 + this->intrinsics.k5 * distrotion_r4 + this->intrinsics.k5 * distortion_r6)
+			float radial_factor = (1 + this->intrinsics.k4 * distortion_r2 + this->intrinsics.k5 * distrotion_r4 + this->intrinsics.k6 * distortion_r6)
 				/ (1 + this->intrinsics.k1 * distortion_r2 + this->intrinsics.k2 * distrotion_r4 + this->intrinsics.k3 * distortion_r6);
 			float tangential_y = this->intrinsics.p1 * (distortion_r2 + 2 * physical_yy) + 2 * this->intrinsics.p2 * physical_xy;
 			float tangential_x = 2 * this->intrinsics.p1 * physical_xy + this->intrinsics.p2 * (distortion_r2 + 2 * physical_xx);
