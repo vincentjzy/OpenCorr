@@ -304,7 +304,7 @@ OpenCorr demonstrates our exploration of DIC/DVC methods in recent years, which 
 - Dr JIANG Zhenyu, Professor, South China University of Technology
 - Mr ZHANG Lingqi, PhD candidate, Tokyo Institute of Technology
 - Dr WANG Tianyi, PostDoc, BrookHaven Natinoal Lab
-- Dr CHEN Wei, Research engineer, Midea
+- Dr CHEN Wei, Chief research engineer, Midea
 - Mr HUANG Jianwen, Software engineer, SenseTime
 - Mr YANG Junrong, , Software engineer, Tencent
 - Mr LIN Aoyu, Master student, South China University of Technology
