@@ -1,6 +1,6 @@
 ![image](https://github.com/vincentjzy/OpenCorr/blob/main/img/title_figure.png)
 # OpenCorr
-OpenCorr is an open source C++ library for development of 2D, 3D/stereo, and volumetric digital image correlation. It aims to provide a developer-friendly, lightweight, and efficient kit to the users who are willing to study the state-of-the-art DIC/DVC algorithms or to create DIC/DVC programs for their specific applications.
+OpenCorr is an open source C++ library for development of 2D, 3D/stereo, and volumetric digital image correlation. It aims to provide a developer-friendly, lightweight, and efficient kit to the users who are willing to study the state-of-the-art DIC/DVC algorithms or to create the DIC/DVC programs for their specific applications.
 
 OpenCorr is under construction. More functions, including the GPU accelerated modules will be released soon. Thus, update of both codes and webpages will be frequent in the following months until we reach a stable version with relatively complete documentation.
 
@@ -26,7 +26,7 @@ Users can also access the information of OpenCorr (in Chinese) via website [open
 
 # 1. Get started
 
-OpenCorr is developed and tested in Microsoft Visual Studio 2019 (VS, community version) on Windows 10. The codes follow the standard of ISO C++ 14, theoretically it can be compiled on other OS like Linux. To use this library, the users are supposed to have basic knowledge and skill about integrated development environment like VS. The building environment requires three freeware libraries:
+OpenCorr is developed and tested in Microsoft Visual Studio 2019 (VS, community version) on Windows 10. The codes follow the standard of ISO C++ 14, theoretically it can be compiled on other OS like Linux. Developers working in Linux or Unix may refer to a sample of CMake script (/samples/CMakeLists.txt). To use this library, the users are supposed to have basic knowledge and skill about integrated development environment like VS. The building environment requires three freeware libraries:
 
 - Eigen 3.3.9 ([eigen.tuxfamily.org](http://eigen.tuxfamily.org)), used for basic operations of matrix.
 - OpenCV 3.4.5 ([opencv.org](http://opencv.org)), used to read images, and inthe  modules related with image feature and stereovision.
@@ -37,7 +37,7 @@ These libraries provide excellent instructions for installation. The main proced
 1. Download the source files (e.g. .h or .cpp), static library files (.lib), and dynamic link library files (.dll) from the websites;
 2. Place them into proper directories in your computer. For example, I created a solution in VS with name of OpenCorr and a project with same name. The source codes are stored in folder "D:\OpenCorr\OpenCorr\", the files of source codes and static libraries of the three libraries are also placed in folder "D:\OpenCorr\", as shown in Figure 1.1;
 
-![image](https://github.com/vincentjzy/OpenCorr/blob/main/img/opencorr_folder_list.png)
+![image](./img/opencorr_folder_list.png)
 
 *Figure 1.1. An example of directory structure*
 
@@ -110,9 +110,7 @@ To facilitate the configuration for beginners, we made a zip package of the thre
 There are a few examples in the folder "samples" along with images, which demonstrate how to make a DIC processing program using the modules in OpenCorr. Before building the executables, make sure that the file paths in the codes are correctly set. 
 
 # 2. Framework
-Figure 2.1 shows the framework of OpenCorr, which consists of four parts: (1) basic data objects; (2) DIC data objects; (3) basic processing methods; (4) DIC processing methods.
-
-Figure 2.1 shows the framework of OpenCorr, which gives a guide to understand the structure of OpenCorr.
+OpenCorr consists of four parts: (1) basic data objects; (2) DIC data objects; (3) basic processing methods; (4) DIC processing methods. Figure 2.1 shows the framework of OpenCorr, which gives a guide to understand the structure of library.
 ![image](https://github.com/vincentjzy/OpenCorr/blob/main/img/framework.png)
 *Figure 2.1. Framework of OpenCorr*
 
