@@ -5,9 +5,9 @@
  *
  * Copyright (C) 2021, Zhenyu Jiang <zhenyujiang@scut.edu.cn>
  *
- * This Source Code Form is subject to the terms of the Mozilla
- * Public License v. 2.0. If a copy of the MPL was not distributed
- * with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
  * More information about OpenCorr can be found at https://www.opencorr.org/
  */
@@ -35,7 +35,7 @@ namespace opencorr{
 
 	public:
 		Eigen::MatrixXf u_map; //map of u-component
-		Eigen::MatrixXf v_map; ////map of v-component
+		Eigen::MatrixXf v_map; //map of v-component
 
 		Strain2D(int subregion_radius, int grid_space);
 		~Strain2D();
@@ -60,8 +60,8 @@ namespace opencorr{
 	public:
 		SGFilter(int radius, int grid);
 		~SGFilter();
-		void compute(POI2D* POI);
-		void compute(std::vector<POI2D>& POI_queue);
+		void compute(POI2D* poi);
+		void compute(std::vector<POI2D>& poi_queue);
 	};
 
 	//regional least square fitting based method
@@ -70,8 +70,8 @@ namespace opencorr{
 	public:
 		LSFitting(int radius, int grid);
 		~LSFitting();
-		void compute(POI2D* POI);
-		void compute(std::vector<POI2D>& POI_queue);
+		void compute(POI2D* poi);
+		void compute(std::vector<POI2D>& poi_queue);
 	};
 
 }//namespace opencorr

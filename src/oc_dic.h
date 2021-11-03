@@ -5,9 +5,9 @@
  *
  * Copyright (C) 2021, Zhenyu Jiang <zhenyujiang@scut.edu.cn>
  *
- * This Source Code Form is subject to the terms of the Mozilla
- * Public License v. 2.0. If a copy of the MPL was not distributed
- * with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
  * More information about OpenCorr can be found at https://www.opencorr.org/
  */
@@ -26,11 +26,10 @@ namespace opencorr
 {
 	class DIC
 	{
-	protected:
+	public:
 		Image2D* ref_img = nullptr;
 		Image2D* tar_img = nullptr;
 
-	public:
 		int subset_radius_x, subset_radius_y;
 		int thread_number; //OpenMP thread number
 
@@ -41,16 +40,16 @@ namespace opencorr
 		void setSubsetRadii(int subset_radius_x, int subset_radius_y);
 
 		virtual void prepare();
-		virtual void compute(POI2D* POI) = 0;
-		virtual void compute(std::vector<POI2D>& POI_queue) = 0;
+		virtual void compute(POI2D* poi) = 0;
+		virtual void compute(std::vector<POI2D>& poi_queue) = 0;
 
 	};
 
 	class DVC
 	{
 	protected:
-		Image3D* ref_img;
-		Image3D* tar_img;
+		Image3D* ref_img = nullptr;
+		Image3D* tar_img = nullptr;
 
 	public:
 		int subvolume_radius_x, subvolume_radius_y, subvolume_radius_z;

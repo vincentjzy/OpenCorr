@@ -5,9 +5,9 @@
  *
  * Copyright (C) 2021, Zhenyu Jiang <zhenyujiang@scut.edu.cn>
  *
- * This Source Code Form is subject to the terms of the Mozilla
- * Public License v. 2.0. If a copy of the MPL was not distributed
- * with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
  * More information about OpenCorr can be found at https://www.opencorr.org/
  */
@@ -25,11 +25,11 @@ namespace opencorr
 	FeatureAffine2D::FeatureAffine2D(int subset_radius_x, int subset_radius_y) {
 		this->subset_radius_x = subset_radius_x;
 		this->subset_radius_y = subset_radius_y;
-		this->neighbor_search_radius = sqrtf(float(subset_radius_x * subset_radius_x + subset_radius_y * subset_radius_y));
-		this->min_neighbor_num = 14;
-		this->RANSAC_config.error_threshold = 1.5f;
-		this->RANSAC_config.sample_mumber = 5;
-		this->RANSAC_config.trial_number = 10;
+		neighbor_search_radius = sqrtf(float(subset_radius_x * subset_radius_x + subset_radius_y * subset_radius_y));
+		min_neighbor_num = 14;
+		ransac_config.error_threshold = 1.5f;
+		ransac_config.sample_mumber = 5;
+		ransac_config.trial_number = 10;
 	}
 
 	FeatureAffine2D::~FeatureAffine2D() {
@@ -38,31 +38,39 @@ namespace opencorr
 	void FeatureAffine2D::prepare() {
 	}
 
-	void FeatureAffine2D::compute(POI2D* POI) {
+	void FeatureAffine2D::compute(POI2D* poi) {
 		//brutal force search for neighbor keypoints
+		std::vector<KeypointIndex> ref_sorted_index;
 		std::vector<Point2D> tar_candidates, ref_candidates;
-		for (int i = 0; i < this->ref_kp.size(); ++i) {
-			Point2D distance = this->ref_kp[i] - (Point2D)*POI;
-			if (distance.vectorNorm() < this->neighbor_search_radius) {
-				tar_candidates.push_back(this->tar_kp[i]);
-				ref_candidates.push_back(this->ref_kp[i]);
-			}
+
+		//sort the kp queue in a descendent order of distance to the POI
+		int queue_size = (int)ref_kp.size();
+		for (int i = 0; i < queue_size; ++i) {
+			Point2D distance = ref_kp[i] - (Point2D)*poi;
+			KeypointIndex current_kp_idx;
+			current_kp_idx.index_in_queue = i;
+			current_kp_idx.distance_to_poi = distance.vectorNorm();
+			ref_sorted_index.push_back(current_kp_idx);
 		}
 
-		int candidate_number = (int)ref_candidates.size();
-		if (candidate_number < RANSAC_config.sample_mumber) {
-			std::cerr << "Insufficient neighbor keypoints around: " << (Point2D)*POI << std::endl;
-			return;
+		std::sort(ref_sorted_index.begin(), ref_sorted_index.end(), sortByDistance);
+
+		//pick the keypoints for RANSAC procedure
+		int i = 0;
+		while (ref_sorted_index[i].distance_to_poi < neighbor_search_radius || ref_candidates.size() <= min_neighbor_num) {
+			tar_candidates.push_back(tar_kp[ref_sorted_index[i].index_in_queue]);
+			ref_candidates.push_back(ref_kp[ref_sorted_index[i].index_in_queue]);
+			i++;
 		}
 
 		//convert global coordinates to the POI-centered local coordinates
+		int candidate_number = (int)ref_candidates.size();
 		for (int i = 0; i < candidate_number; ++i) {
-			tar_candidates[i] = tar_candidates[i] - (Point2D)*POI;
-			ref_candidates[i] = ref_candidates[i] - (Point2D)*POI;
+			tar_candidates[i] = tar_candidates[i] - (Point2D)*poi;
+			ref_candidates[i] = ref_candidates[i] - (Point2D)*poi;
 		}
 
 		//RANSAC procedure, refer to Yang et al. Opt Laser Eng (2020), 127, 105964 for details
-
 		std::vector<int> candidate_index(candidate_number);
 		std::iota(candidate_index.begin(), candidate_index.end(), 0);
 
@@ -73,9 +81,9 @@ namespace opencorr
 			//randomly select samples
 			std::random_shuffle(candidate_index.begin(), candidate_index.end());
 
-			Eigen::MatrixXf tar_neighbors(this->RANSAC_config.sample_mumber, 3);
-			Eigen::MatrixXf ref_neighbors(this->RANSAC_config.sample_mumber, 3);
-			for (int j = 0; j < this->RANSAC_config.sample_mumber; j++) {
+			Eigen::MatrixXf tar_neighbors(ransac_config.sample_mumber, 3);
+			Eigen::MatrixXf ref_neighbors(ransac_config.sample_mumber, 3);
+			for (int j = 0; j < ransac_config.sample_mumber; j++) {
 				tar_neighbors(j, 0) = tar_candidates[candidate_index[j]].x;
 				tar_neighbors(j, 1) = tar_candidates[candidate_index[j]].y;
 				tar_neighbors(j, 2) = 1.f;
@@ -99,7 +107,7 @@ namespace opencorr
 					- tar_candidates[candidate_index[j]].y;
 				Point2D point(px, py);
 				estimated_error = point.vectorNorm();
-				if (estimated_error < this->RANSAC_config.error_threshold) {
+				if (estimated_error < ransac_config.error_threshold) {
 					trial_set.push_back(candidate_index[j]);
 					location_mean_error += estimated_error;
 				}
@@ -109,12 +117,17 @@ namespace opencorr
 			}
 			trial_number++;
 			location_mean_error /= trial_set.size();
-		} while (trial_number < this->RANSAC_config.trial_number
-			&& (max_set.size() < this->min_neighbor_num
-				|| location_mean_error > this->RANSAC_config.error_threshold / this->min_neighbor_num));
+		} while (trial_number < ransac_config.trial_number
+			&& (max_set.size() < min_neighbor_num
+				|| location_mean_error > ransac_config.error_threshold / min_neighbor_num));
 
 		//calculate affine matrix according to the results of concensus
 		int max_set_size = (int)max_set.size();
+		if (max_set_size < 3) {
+			std::cerr << "Insufficient available neighbor keypoints around: " << (Point2D)*poi << std::endl;
+			poi->result.zncc = 0;
+		}
+
 		Eigen::MatrixXf tar_neighbors(max_set_size, 3);
 		Eigen::MatrixXf ref_neighbors(max_set_size, 3);
 
@@ -127,44 +140,38 @@ namespace opencorr
 			tar_neighbors(i, 1) = tar_candidates[max_set[i]].y;
 			tar_neighbors(i, 2) = 1.f;
 		}
-
 		Eigen::Matrix3f affine_matrix = ref_neighbors.colPivHouseholderQr().solve(tar_neighbors);
 
 		//calculate the 1st order deformation according to the equivalence between affine matrix and 1st order shape function
-		POI->deformation.u = affine_matrix(2, 0);
-		POI->deformation.ux = affine_matrix(0, 0) - 1.f;
-		POI->deformation.uy = affine_matrix(1, 0);
-		POI->deformation.v = affine_matrix(2, 1);
-		POI->deformation.vx = affine_matrix(0, 1);
-		POI->deformation.vy = affine_matrix(1, 1) - 1.f;
-
-		//save the results for output
-		POI->result.u = POI->deformation.u;
-		POI->result.v = POI->deformation.v;
+		poi->deformation.u = affine_matrix(2, 0);
+		poi->deformation.ux = affine_matrix(0, 0) - 1.f;
+		poi->deformation.uy = affine_matrix(1, 0);
+		poi->deformation.v = affine_matrix(2, 1);
+		poi->deformation.vx = affine_matrix(0, 1);
+		poi->deformation.vy = affine_matrix(1, 1) - 1.f;
 
 		//store results of RANSAC procedure
-		POI->result.iteration = (float)trial_number;
-		POI->result.feature = (float)max_set_size;
+		poi->result.iteration = (float)trial_number;
+		poi->result.feature = (float)max_set_size;
 	}
 
-	void FeatureAffine2D::compute(std::vector<POI2D>& POI_queue) {
+	void FeatureAffine2D::compute(std::vector<POI2D>& poi_queue) {
 #pragma omp parallel for
-		for (int i = 0; i < POI_queue.size(); ++i) {
-			this->compute(&POI_queue[i]);
+		for (int i = 0; i < poi_queue.size(); ++i) {
+			compute(&poi_queue[i]);
 		}
 	}
 
-
 	RANSACconfig FeatureAffine2D::getRANSAC() const {
-		return this->RANSAC_config;
+		return ransac_config;
 	}
 
 	float FeatureAffine2D::getSearchRadius() const {
-		return this->neighbor_search_radius;
+		return neighbor_search_radius;
 	}
 
 	int FeatureAffine2D::getMinimumNeighborNumber() const {
-		return this->min_neighbor_num;
+		return min_neighbor_num;
 	}
 
 	void FeatureAffine2D::setSearchParameters(float neighbor_search_radius, int min_neighbor_num) {
@@ -172,13 +179,17 @@ namespace opencorr
 		this->min_neighbor_num = min_neighbor_num;
 	}
 
-	void FeatureAffine2D::setRANSAC(RANSACconfig RANSAC_config) {
-		this->RANSAC_config = RANSAC_config;
+	void FeatureAffine2D::setRANSAC(RANSACconfig ransac_config) {
+		this->ransac_config = ransac_config;
 	}
 
 	void FeatureAffine2D::setKeypointPair(std::vector<Point2D>& ref_kp, std::vector<Point2D>& tar_kp) {
 		this->ref_kp = ref_kp;
 		this->tar_kp = tar_kp;
+	}
+
+	bool sortByDistance(const KeypointIndex& kp1, const KeypointIndex& kp2) {
+		return kp1.distance_to_poi < kp2.distance_to_poi;
 	}
 
 }//namespace opencorr

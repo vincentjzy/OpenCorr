@@ -5,17 +5,17 @@
  *
  * Copyright (C) 2021, Zhenyu Jiang <zhenyujiang@scut.edu.cn>
  *
- * This Source Code Form is subject to the terms of the Mozilla
- * Public License v. 2.0. If a copy of the MPL was not distributed
- * with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
  * More information about OpenCorr can be found at https://www.opencorr.org/
  */
 
 #pragma once
 
-#ifndef  _OUTPUT_H_
-#define  _OUTPUT_H_
+#ifndef  _IO_H_
+#define  _IO_H_
 
 #include <vector>
 #include <string>
@@ -33,9 +33,9 @@ namespace opencorr
 {
 	class IO2D {
 	private:
-		string file_path, delimiter;
-		int width;
-		int height;
+		string file_path;
+		string delimiter;
+		int width, height;
 
 	public:
 		IO2D();
@@ -50,13 +50,21 @@ namespace opencorr
 		void setWidth(int width);
 		void setHeight(int height);
 
-		vector<POI2D> loadTable2D(); //load deformation of POIs from saved date table
+		//load deformation of POIs from saved date table
+		vector<POI2D> loadTable2D();
 
-		void saveTable2D(vector<POI2D>& POI_queue);
-		void saveDeformationTable2D(vector<POI2D>& POI_queue);
-		void saveMap2D(vector<POI2D>& POI_queue, int variable); //variable is the index of r[11] in Result2D
+		//load locations of POIs from csv table
+		vector<Point2D> loadPOI2D();
+
+		void saveTable2D(vector<POI2D>& poi_queue);
+		void saveDeformationTable2D(vector<POI2D>& poi_queue);
+		//variable: 'u', 'v', 'z'(zncc), 'c'(convergence), 'i'(iteration), 'f'(feature), 'x' (exx), 'y' (eyy), 'g' (exy)
+		void saveMap2D(vector<POI2D>& poi_queue, char variable);
+
+		void saveTable2DS(vector<POI2DS>& poi_queue);
+
 	};
 
 }//namespace opencorr
 
-#endif //_OUTPUT_H_
+#endif //_IO_H_

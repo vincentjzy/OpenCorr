@@ -5,9 +5,9 @@
  *
  * Copyright (C) 2021, Zhenyu Jiang <zhenyujiang@scut.edu.cn>
  *
- * This Source Code Form is subject to the terms of the Mozilla
- * Public License v. 2.0. If a copy of the MPL was not distributed
- * with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
  * More information about OpenCorr can be found at https://www.opencorr.org/
  */
@@ -16,7 +16,6 @@
 
 #ifndef _FEATURE_AFFINE_H_
 #define _FEATURE_AFFINE_H_
-#include <omp.h>
 #include "opencv2/imgproc/imgproc.hpp"
 #include <opencv2/opencv.hpp>
 #include <opencv2/xfeatures2d.hpp>
@@ -36,12 +35,17 @@ namespace opencorr
 		float error_threshold; //error threshold in RANSAC
 	};
 
+	struct KeypointIndex {
+		int index_in_queue; //index in the keypoint queue
+		float distance_to_poi; //Euclidean distance to the processed POI
+	};
+
 	class FeatureAffine2D : public DIC
 	{
 	protected:
 		float neighbor_search_radius; //seaching radius for mached keypoints around a POI
 		int min_neighbor_num; //minimum number of neighbors required by RANSAC
-		RANSACconfig RANSAC_config;
+		RANSACconfig ransac_config;
 
 	public:
 		std::vector<Point2D> ref_kp; //matched keypoints in ref image
@@ -52,16 +56,18 @@ namespace opencorr
 
 		void setKeypointPair(std::vector<Point2D>& ref_kp, std::vector<Point2D>& tar_kp);
 		void prepare();
-		void compute(POI2D* POI);
-		void compute(std::vector<POI2D>& POI_queue);
+		void compute(POI2D* poi);
+		void compute(std::vector<POI2D>& poi_queue);
 
 		RANSACconfig getRANSAC() const;
 		float getSearchRadius() const;
 		int getMinimumNeighborNumber() const;
 
 		void setSearchParameters(float neighbor_search_radius, int min_neighbor_num);
-		void setRANSAC(RANSACconfig RANSAC_config);
+		void setRANSAC(RANSACconfig ransac_config);
 	};
+
+	bool sortByDistance(const KeypointIndex& kp1, const KeypointIndex& kp2);
 
 }//namespace opencorr
 

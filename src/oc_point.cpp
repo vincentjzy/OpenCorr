@@ -5,9 +5,9 @@
  *
  * Copyright (C) 2021, Zhenyu Jiang <zhenyujiang@scut.edu.cn>
  *
- * This Source Code Form is subject to the terms of the Mozilla
- * Public License v. 2.0. If a copy of the MPL was not distributed
- * with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
  * More information about OpenCorr can be found at https://www.opencorr.org/
  */
@@ -18,8 +18,8 @@ namespace opencorr
 {
 	//Point2D
 	Point2D::Point2D() {
-		this->x = 0.f;
-		this->y = 0.f;
+		x = 0.f;
+		y = 0.f;
 	}
 
 	Point2D::Point2D(float x, float y) {
@@ -36,7 +36,7 @@ namespace opencorr
 	}
 
 	float Point2D::vectorNorm() const {
-		return sqrtf(this->x * this->x + this->y * this->y);
+		return sqrtf(x * x + y * y);
 	}
 
 	std::ostream& operator<<(std::ostream& output, const Point2D& point) {
@@ -46,9 +46,9 @@ namespace opencorr
 
 	//Point3D
 	Point3D::Point3D() {
-		this->x = 0.f;
-		this->y = 0.f;
-		this->z = 0.f;
+		x = 0.f;
+		y = 0.f;
+		z = 0.f;
 	}
 
 	Point3D::Point3D(float x, float y, float z) {
@@ -67,7 +67,7 @@ namespace opencorr
 	}
 
 	float Point3D::vectorNorm() const {
-		return sqrtf(this->x * this->x + this->y * this->y + this->z * this->z);
+		return sqrtf(x * x + y * y + z * z);
 	}
 
 	std::ostream& operator<<(std::ostream& output, const Point3D& point) {

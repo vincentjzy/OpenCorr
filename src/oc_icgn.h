@@ -5,9 +5,9 @@
  *
  * Copyright (C) 2021, Zhenyu Jiang <zhenyujiang@scut.edu.cn>
  *
- * This Source Code Form is subject to the terms of the Mozilla
- * Public License v. 2.0. If a copy of the MPL was not distributed
- * with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
  * More information about OpenCorr can be found at https://www.opencorr.org/
  */
@@ -30,7 +30,7 @@
 
 namespace opencorr
 {
-	//1st shape function
+	//the 1st shape function
 	class ICGN2D1_
 	{
 	public:
@@ -50,8 +50,8 @@ namespace opencorr
 		Interpolation2D* tar_interp;
 		Gradient2D4* ref_gradient;
 
-		float conv_criterion; //convergence criterion: Norm of maximum deformation increment in subset
-		float stop_condition; //stop condition: Max iteration
+		float conv_criterion; //convergence criterion: norm of maximum deformation increment in subset
+		float stop_condition; //stop condition: max iteration
 
 		std::vector<ICGN2D1_*> instance_pool;
 		ICGN2D1_* getInstance(int tid);
@@ -71,7 +71,7 @@ namespace opencorr
 		void setIteration(POI2D* POI);
 	};
 
-	//2nd shape function/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	//the 2nd shape function------------------------------------------------------
 	class ICGN2D2_
 	{
 	public:
@@ -91,8 +91,8 @@ namespace opencorr
 		Interpolation2D* tar_interp;
 		Gradient2D4* ref_gradient;
 
-		float conv_criterion; //convergence criterion: Norm of maximum deformation increment in subset
-		float stop_condition; //stop condition: Max iteration
+		float conv_criterion; //convergence criterion: norm of maximum deformation increment in subset
+		float stop_condition; //stop condition: max iteration
 
 		std::vector<ICGN2D2_*> instance_pool;
 		ICGN2D2_* getInstance(int tid);
@@ -106,11 +106,11 @@ namespace opencorr
 		void prepareTar(); //calculate interpolation coefficient look_up table of tar image
 		void prepare(); //calculate gradient maps of ref image and interpolation coefficient look_up table of tar image
 
-		void compute(POI2D* POI);
-		void compute(std::vector<POI2D>& POI_queue);
+		void compute(POI2D* poi);
+		void compute(std::vector<POI2D>& poi_queue);
 
 		void setIteration(float conv_criterion, float stop_condition);
-		void setIteration(POI2D* POI);
+		void setIteration(POI2D* poi);
 	};
 
 }//namespace opencorr

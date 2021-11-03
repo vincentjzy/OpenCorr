@@ -5,9 +5,9 @@
  *
  * Copyright (C) 2021, Zhenyu Jiang <zhenyujiang@scut.edu.cn>
  *
- * This Source Code Form is subject to the terms of the Mozilla
- * Public License v. 2.0. If a copy of the MPL was not distributed
- * with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
  * More information about OpenCorr can be found at https://www.opencorr.org/
  */
@@ -18,21 +18,21 @@
 namespace opencorr
 {
 	BicubicBspline::BicubicBspline(Image2D& image) :lookup_table(nullptr) {
-		this->interp_img = &image;
+		interp_img = &image;
 	}
 
 	BicubicBspline::~BicubicBspline() {
-		if (this->lookup_table != nullptr)
-			delete4D(this->lookup_table);
+		if (lookup_table != nullptr)
+			delete4D(lookup_table);
 	}
 
 	void BicubicBspline::prepare() {
-		if (this->lookup_table != nullptr) {
-			delete4D(this->lookup_table);
+		if (lookup_table != nullptr) {
+			delete4D(lookup_table);
 		}
-		int height = this->interp_img->height;
-		int width = this->interp_img->width;
-		this->lookup_table = new4D(height, width, 4, 4);
+		int height = interp_img->height;
+		int width = interp_img->width;
+		lookup_table = new4D(height, width, 4, 4);
 
 #pragma omp parallel for
 		for (int r = 1; r < height - 2; r++) {
@@ -41,7 +41,7 @@ namespace opencorr
 				float matrix_b[4][4] = { 0 };
 				for (int i = 0; i < 4; i++) {
 					for (int j = 0; j < 4; j++) {
-						matrix_g[i][j] = this->interp_img->eg_mat(r - 1 + i, c - 1 + j);
+						matrix_g[i][j] = interp_img->eg_mat(r - 1 + i, c - 1 + j);
 					}
 				}
 
@@ -49,7 +49,7 @@ namespace opencorr
 					for (int l = 0; l < 4; l++) {
 						for (int m = 0; m < 4; m++) {
 							for (int n = 0; n < 4; n++) {
-								matrix_b[k][l] += this->CONTROL_MATRIX[k][m] * this->CONTROL_MATRIX[l][n] * matrix_g[n][m];
+								matrix_b[k][l] += CONTROL_MATRIX[k][m] * CONTROL_MATRIX[l][n] * matrix_g[n][m];
 							}
 						}
 					}
@@ -57,10 +57,10 @@ namespace opencorr
 
 				for (int k = 0; k < 4; k++) {
 					for (int l = 0; l < 4; l++) {
-						this->lookup_table[r][c][k][l] = 0;
+						lookup_table[r][c][k][l] = 0;
 						for (int m = 0; m < 4; m++) {
 							for (int n = 0; n < 4; n++) {
-								this->lookup_table[r][c][k][l] += this->FUNCTION_MATRIX[k][m] * this->FUNCTION_MATRIX[l][n] * matrix_b[n][m];
+								lookup_table[r][c][k][l] += FUNCTION_MATRIX[k][m] * FUNCTION_MATRIX[l][n] * matrix_b[n][m];
 							}
 						}
 					}
@@ -69,8 +69,8 @@ namespace opencorr
 				for (int k = 0; k < 2; k++) {
 					for (int l = 0; l < 4; l++) {
 						float buffer = lookup_table[r][c][k][l];
-						this->lookup_table[r][c][k][l] = lookup_table[r][c][3 - k][3 - l];
-						this->lookup_table[r][c][3 - k][3 - l] = buffer;
+						lookup_table[r][c][k][l] = lookup_table[r][c][3 - k][3 - l];
+						lookup_table[r][c][3 - k][3 - l] = buffer;
 					}
 				}
 			}
@@ -79,8 +79,7 @@ namespace opencorr
 
 	float BicubicBspline::compute(Point2D& location) {
 
-		if (location.x < 0 || location.y < 0 || location.x >= this->interp_img->width || location.y >= this->interp_img->height) {
-			//throw std::string("Location out of boundary");
+		if (location.x < 0 || location.y < 0 || location.x >= interp_img->width || location.y >= interp_img->height) {
 			return 0.f;
 		}
 
@@ -97,7 +96,7 @@ namespace opencorr
 		float y3_decimal = y2_decimal * y_decimal;
 
 		float value = 0.f;
-		float**& coefficient = this->lookup_table[y_integral][x_integral];
+		float**& coefficient = lookup_table[y_integral][x_integral];
 
 		value += coefficient[0][0];
 		value += coefficient[0][1] * x_decimal;

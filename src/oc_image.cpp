@@ -5,9 +5,9 @@
  *
  * Copyright (C) 2021, Zhenyu Jiang <zhenyujiang@scut.edu.cn>
  *
- * This Source Code Form is subject to the terms of the Mozilla
- * Public License v. 2.0. If a copy of the MPL was not distributed
- * with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
  * More information about OpenCorr can be found at https://www.opencorr.org/
  */
@@ -18,41 +18,41 @@ namespace opencorr
 {
 
 	Image2D::Image2D(int width, int height) {
-		this->eg_mat = Eigen::MatrixXf::Zero(height, width);
+		eg_mat = Eigen::MatrixXf::Zero(height, width);
 		this->width = width;
 		this->height = height;
 	}
 
 	Image2D::Image2D(string file_path) {
-		this->cv_mat = cv::imread(file_path, CV_LOAD_IMAGE_GRAYSCALE);
+		cv_mat = cv::imread(file_path, CV_LOAD_IMAGE_GRAYSCALE);
 
-		if (!this->cv_mat.data) {
+		if (!cv_mat.data) {
 			throw std::string("Fail to load file: " + file_path);
 		}
 
 		this->file_path = file_path;
-		this->width = this->cv_mat.cols;
-		this->height = this->cv_mat.rows;
-		this->eg_mat.resize(height, width);
+		width = cv_mat.cols;
+		height = cv_mat.rows;
+		eg_mat.resize(height, width);
 
-		cv::cv2eigen(this->cv_mat, this->eg_mat);
+		cv::cv2eigen(cv_mat, eg_mat);
 	}
 
 	void Image2D::load(string file_path) {
-		this->cv_mat = cv::imread(file_path, CV_LOAD_IMAGE_GRAYSCALE);
+		cv_mat = cv::imread(file_path, CV_LOAD_IMAGE_GRAYSCALE);
 
-		if (!this->cv_mat.data) {
+		if (!cv_mat.data) {
 			throw std::string("Fail to load file: " + file_path);
 		}
 
 		this->file_path = file_path;
-		if (this->width != this->cv_mat.cols || this->height != this->cv_mat.rows) {
-			this->width = this->cv_mat.cols;
-			this->height = this->cv_mat.rows;
-			this->eg_mat.resize(height, width);
+		if (width != cv_mat.cols || height != cv_mat.rows) {
+			width = cv_mat.cols;
+			height = cv_mat.rows;
+			eg_mat.resize(height, width);
 		}
 
-		cv::cv2eigen(this->cv_mat, this->eg_mat);
+		cv::cv2eigen(cv_mat, eg_mat);
 	}
 
 }//namespace opencorr

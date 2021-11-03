@@ -5,12 +5,13 @@
  *
  * Copyright (C) 2021, Zhenyu Jiang <zhenyujiang@scut.edu.cn>
  *
- * This Source Code Form is subject to the terms of the Mozilla
- * Public License v. 2.0. If a copy of the MPL was not distributed
- * with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
  * More information about OpenCorr can be found at https://www.opencorr.org/
  */
+
 #pragma once
 
 #ifndef _SIFT_H_
@@ -42,8 +43,8 @@ namespace opencorr
 		cv::Mat* ref_mat = nullptr;
 		cv::Mat* tar_mat = nullptr;
 
-		SIFTconfig SIFT_config;
-		float match_ratio; // ratio of the shortest distance to the second shortest distance
+		SIFTconfig sift_config;
+		float matching_ratio; // ratio of the shortest distance to the second shortest distance
 
 	public:
 		std::vector<Point2D> ref_matched_kp; //matched keypoints in ref image
@@ -52,13 +53,13 @@ namespace opencorr
 		SIFT2D();
 		~SIFT2D();
 
+		SIFTconfig getSIFTconfig() const;
+		float getMatchingRatio() const;
+		void setExtraction(SIFTconfig sift_config);
+		void setMatching(float matching_ratio);
+
 		void prepare();
 		void compute();
-
-		SIFTconfig getSIFTconfig() const;
-		float getMatchRatio() const;
-		void setExtraction(SIFTconfig SIFT_config);
-		void setMatch(float match_ratio);
 	};
 
 }//namespace opencorr
