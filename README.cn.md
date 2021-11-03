@@ -16,10 +16,6 @@ OpenCorr是一个开源的C++程序开发库，旨在提供一套轻量而高效
 
 OpenCorr的代码通过GitHub发布和维护，网址为 https://github.com/vincentjzy/OpenCorr
 
-# 目录
-
-[TOC]
-
 # 重要更新记录
 
 - 2021.04.23，OpenCorr正式上线
@@ -29,6 +25,16 @@ OpenCorr的代码通过GitHub发布和维护，网址为 https://github.com/vinc
 - 2021.06.12，发布了根据DIC结果计算应变的示例，更新了相应文档
 - 2021.08.14，发布了GPU加速的ICGN模块和调用示例，具体说明请见第三节（3. GPU加速模块）
 - 2021.11.03，发布了实现 Stereo DIC（3D DIC）的示例，全面完善了相应模块和文档
+
+# 目录
+
+1. 如何使用OpenCorr
+2. OpenCorr的组织架构
+> 2.1. 基本数据对象；2.2. DIC数据对象；2.3. 基本数据处理方法；2.4. DIC处理方法
+3. GPU加速模块
+4. 致谢
+5. 开发人员
+6. 相关论文
 
 ## 1. 如何使用OpenCorr
 
