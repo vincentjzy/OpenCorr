@@ -14,16 +14,6 @@ Comments and suggestions are most welcome. You may reach us via
 
 Users can also access the information of OpenCorr (in Chinese) via website [opencorr.org](http://opencorr.org) .
 
-# Index
-
-1. Get started
-2. Framework
-> 2.1. Basic data objects; 2.2. DIC data objects; 2.3. Basic processing methods; 2.4. DIC processing methods
-3. GPU accelerated modules
-4. Acknowledgements
-5. Developers
-6. Related publication
-
 # Important updates
 
 >2021.04.23, OpenCorr is released to public.
@@ -39,6 +29,16 @@ Users can also access the information of OpenCorr (in Chinese) via website [open
 >2021.08.14, Release the GPU accelerated module of ICGN algorithm and an example, instruction can be found in Section 3 (3. GPU accelerated modules).
 >
 >2021.11.03, Release an example to implement stereo DIC (3D DIC), thoroughly improve the related modules and documentation.
+
+# Index
+
+1. Get started
+2. Framework
+> 2.1. Basic data objects; 2.2. DIC data objects; 2.3. Basic processing methods; 2.4. DIC processing methods
+3. GPU accelerated modules
+4. Acknowledgements
+5. Developers
+6. Related publication
 
 # 1. Get started
 
