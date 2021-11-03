@@ -18,10 +18,7 @@ Users can also access the information of OpenCorr (in Chinese) via website [open
 
 1. Get started
 2. Framework
-   2.1. Basic data objects
-   2.2. DIC data objects
-   2.3. Basic processing methods
-   2.4. DIC processing methods
+> 2.1. Basic data objects; 2.2. DIC data objects; 2.3. Basic processing methods; 2.4. DIC processing methods
 3. GPU accelerated modules
 4. Acknowledgements
 5. Developers
