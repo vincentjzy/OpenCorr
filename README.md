@@ -346,16 +346,19 @@ Requirements:
 GPU accelerated ICGN module consists of three files: head (opencorr_gpu.h), static library (OpenCorrGPULib.lib), and dynamic link library (OpenCorrGPULib.dll). The configuration of IDE is similar to the one of FFTW, which can be summarized as four steps:
 
 1. Put opencorr_gpu.h into the folder where opencorr.h is, as shown in Figure 3.1;
+   
    ![image](./img/gpu_head_en.png)
-
+   
    *Figure 3.1. Placing opencorr_gpu.h in the same folder of opencorr.h*
 
 2. Set the path of static library file in VS (for example, OpenCorrGPULib.lib is in folder opencorrGPU\lib in Figure 1.1), as illustrated in Figure 3.2;
+   
    ![image](./img/vs_gpu_path_en.png)
    
    *Figure 3.2. Setting path of library in Visual Studio 2019*
 
 3. Add OpenCorrGPULib.lib as the additional dependencies, as illustrated in Figure 3.3;
+   
    ![image](./img/vs_gpu_lib_en.png)
    
    *Figure 3.3. Setting additional dependencies of library in Visual Studio 2019*
