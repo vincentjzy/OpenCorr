@@ -128,8 +128,8 @@ There are a few examples in the folder "samples" along with images, which demons
 
 # 2. Framework
 
-OpenCorr consists of four parts: (1) basic data objects; (2) DIC data objects; (3) basic processing methods; (4) DIC processing methods. Figure 2.1 shows the framework of OpenCorr, which gives a guide to understand the structure of this library.
-![image](./img/framework_en.png)
+OpenCorr consists of four parts: (1) basic data objects; (2) DIC data objects; (3) basic processing methods; (4) DIC processing methods. Figure 2.1 shows the framework of OpenCorr, which gives a guide to understand the structure of this library. A picture of full structure can be found [here](./img/framework_en.png).
+![image](./img/framework_main_branches_en.png)
 *Figure 2.1. Framework of OpenCorr*
 
 ### 2.1. Basic data objects:
