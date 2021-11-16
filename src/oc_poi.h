@@ -114,6 +114,7 @@ namespace opencorr {
 	public:
 		DisplacementVector3D deformation;
 		Result2DS result;
+		Point3D ref_coor, tar_coor;
 		StrainVector3D strain;
 
 		POI2DS(int x, int y);

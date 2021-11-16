@@ -26,53 +26,47 @@
 
 namespace opencorr{
 
+	struct PointIndex2D {
+		int index_in_queue; //index in the keypoint queue
+		float distance_to_poi; //Euclidean distance to the processed POI
+	};
+
+	//strain calculation for 2D DIC
 	class Strain2D
 	{
 	protected:
-		Point2D topleft_point; //topleft corner of ROI
 		int subregion_radius; //radius of subregion
-		int grid_space; //grid space of POIs
+		int min_neighbor_num; //minimum number of neighbor POI required by fitting
+		float zncc_threshold; //The POI with zncc above this threshold is regarded available
+		int description; //description of strain, 1 for Lagranian and 2 for Eulerian
+		std::vector<POI2D> poi2d_queue; //POI queue for processing
+		std::vector<POI2DS> poi2ds_queue; //POI queue for processing
 
 	public:
-		Eigen::MatrixXf u_map; //map of u-component
-		Eigen::MatrixXf v_map; //map of v-component
 
-		Strain2D(int subregion_radius, int grid_space);
+		Strain2D(int subregion_radius, int min_neighbor_num, std::vector<POI2D>& poi_queue);
+		Strain2D(int subregion_radius, int min_neighbor_num, std::vector<POI2DS>& poi_queue);
 		~Strain2D();
 
 		int getSubregionRadius() const;
-		int getGridSpace() const;
+		int getMinNeighborNumber() const;
+		float getZNCCThreshold() const;
 
 		void setSubregionRadius(int subregion_radius);
-		void setGridSpace(int grid_space);
-		void setDisplacement(std::vector<POI2D>& POI_queue);
+		void setMinNeighborNumer(int min_neighbor_num);
+		void setZNCCthreshold(float zncc_threshold);
+		void setDescription(int description); //"1" for Lagrangian, "2" for Eulerian
+		void setPOIQueue(std::vector<POI2D>& poi_queue);
+		void setPOIQueue(std::vector<POI2DS>& poi_queue);
 
 		void prepare();
-		virtual void compute(POI2D* POI) = 0;
-	};
-
-	bool sortByX(const POI2D& p1, const POI2D& p2);
-	bool sortByY(const POI2D& p1, const POI2D& p2);
-
-	//Savitzky-Golay filter based method
-	class SGFilter : public Strain2D
-	{
-	public:
-		SGFilter(int radius, int grid);
-		~SGFilter();
 		void compute(POI2D* poi);
+		void compute(POI2DS* poi);
 		void compute(std::vector<POI2D>& poi_queue);
+		void compute(std::vector<POI2DS>& poi_queue);
 	};
 
-	//regional least square fitting based method
-	class LSFitting : public Strain2D
-	{
-	public:
-		LSFitting(int radius, int grid);
-		~LSFitting();
-		void compute(POI2D* poi);
-		void compute(std::vector<POI2D>& poi_queue);
-	};
+	bool sortByDistance(const PointIndex2D& p1, const PointIndex2D& p2);
 
 }//namespace opencorr
 

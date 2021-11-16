@@ -254,12 +254,12 @@ namespace opencorr
 				output_map((int)poi_queue[i].y, (int)poi_queue[i].x) = poi_queue[i].deformation.v;
 			}
 			break;
-		case 'z':
+		case 'c':
 			for (int i = 0; i < poi_queue.size(); ++i) {
 				output_map((int)poi_queue[i].y, (int)poi_queue[i].x) = poi_queue[i].result.zncc;
 			}
 			break;
-		case 'c':
+		case 'd':
 			for (int i = 0; i < poi_queue.size(); ++i) {
 				output_map((int)poi_queue[i].y, (int)poi_queue[i].x) = poi_queue[i].result.convergence;
 			}
@@ -284,7 +284,7 @@ namespace opencorr
 				output_map((int)poi_queue[i].y, (int)poi_queue[i].x) = poi_queue[i].strain.eyy;
 			}
 			break;
-		case 'g':
+		case 'r':
 			for (int i = 0; i < poi_queue.size(); ++i) {
 				output_map((int)poi_queue[i].y, (int)poi_queue[i].x) = poi_queue[i].strain.exy;
 			}
@@ -305,6 +305,71 @@ namespace opencorr
 			}
 		}
 		file_out.close();
+	}
+
+	vector<POI2DS> IO2D::loadTable2DS() {
+		ifstream file_in(file_path);
+		if (!file_in) {
+			std::cerr << "failed to read file " << file_path << std::endl;
+		}
+
+		string data_line;
+		getline(file_in, data_line);
+		vector<POI2DS> poi_queue;
+		size_t position1, position2;
+		string variable;
+		vector<float> key_buffer;
+
+		while (getline(file_in, data_line)) {
+			position1 = 0;
+			position2 = 0;
+			vector<float> empty_buffer;
+			key_buffer.swap(empty_buffer);
+			do {
+				position2 = data_line.find(delimiter, position1);
+				if (position2 == string::npos)
+					position2 = data_line.length();
+
+				variable = data_line.substr(position1, position2 - position1);
+				if (!variable.empty())
+					key_buffer.push_back(std::stof(variable));
+
+				position1 = position2 + delimiter.length();
+			} while (position2 < data_line.length() && position1 < data_line.length());
+
+			float x = key_buffer[0];
+			float y = key_buffer[1];
+			POI2DS current_POI(x, y);
+
+			int current_index = 2;
+			int array_size = (int)(sizeof(current_POI.deformation.p) / sizeof(current_POI.deformation.p[0]));
+			for (int i = 0; i < array_size; i++) {
+				current_POI.deformation.p[i] = key_buffer[current_index + i];
+			}
+
+			current_index += array_size;
+			array_size = (int)(sizeof(current_POI.result.r) / sizeof(current_POI.result.r[0]));
+			for (int i = 0; i < array_size; i++) {
+				current_POI.result.r[i] = key_buffer[current_index + i];
+			}
+
+			current_index += array_size;
+			current_POI.ref_coor.x = key_buffer[current_index];
+			current_POI.ref_coor.y = key_buffer[current_index + 1];
+			current_POI.ref_coor.z = key_buffer[current_index + 2];
+
+			current_POI.tar_coor.x = key_buffer[current_index + 3];
+			current_POI.tar_coor.y = key_buffer[current_index + 4];
+			current_POI.tar_coor.z = key_buffer[current_index + 5];
+
+			current_index += 6;
+			array_size = (int)(sizeof(current_POI.strain.e) / sizeof(current_POI.strain.e[0]));
+			for (int i = 0; i < array_size; i++) {
+				current_POI.strain.e[i] = key_buffer[current_index + i];
+			}
+			poi_queue.push_back(current_POI);
+		}
+		return poi_queue;
 	}
 
 	void IO2D::saveTable2DS(vector<POI2DS>& poi_queue) {
@@ -330,6 +395,20 @@ namespace opencorr
 			file_out << "t2_x" << delimiter;
 			file_out << "t2_y" << delimiter;
 
+			file_out << "ref_x" << delimiter;
+			file_out << "ref_y" << delimiter;
+			file_out << "ref_z" << delimiter;
+			file_out << "tar_y" << delimiter;
+			file_out << "tar_x" << delimiter;
+			file_out << "tar_z" << delimiter;
+
+			file_out << "exx" << delimiter;
+			file_out << "eyy" << delimiter;
+			file_out << "ezz" << delimiter;
+			file_out << "exy" << delimiter;
+			file_out << "eyz" << delimiter;
+			file_out << "ezx" << delimiter;
+
 			file_out << std::endl;
 
 			for (vector<POI2DS>::iterator iter = poi_queue.begin(); iter != poi_queue.end(); ++iter) {
@@ -344,6 +423,103 @@ namespace opencorr
 				array_size = (int)(sizeof(iter->result.r) / sizeof(iter->result.r[0]));
 				for (int i = 0; i < array_size; i++) {
 					file_out << iter->result.r[i] << delimiter;
+				}
+
+				file_out << iter->ref_coor.x << delimiter;
+				file_out << iter->ref_coor.y << delimiter;
+				file_out << iter->ref_coor.z << delimiter;
+
+				file_out << iter->tar_coor.x << delimiter;
+				file_out << iter->tar_coor.y << delimiter;
+				file_out << iter->tar_coor.z << delimiter;
+
+				array_size = (int)(sizeof(iter->strain.e) / sizeof(iter->strain.e[0]));
+				for (int i = 0; i < array_size; i++) {
+					file_out << iter->strain.e[i] << delimiter;
+				}
+				file_out << std::endl;
+			}
+		}
+		file_out.close();
+	}
+
+	void IO2D::saveMap2DS(vector<POI2DS>& poi_queue, char variable) {
+		int height = getHeight();
+		int width = getWidth();
+		Eigen::MatrixXf output_map = Eigen::MatrixXf::Zero(height, width);
+
+		switch (variable) {
+		case 'u':
+			for (int i = 0; i < poi_queue.size(); ++i) {
+				output_map((int)poi_queue[i].y, (int)poi_queue[i].x) = poi_queue[i].deformation.u;
+			}
+			break;
+		case 'v':
+			for (int i = 0; i < poi_queue.size(); ++i) {
+				output_map((int)poi_queue[i].y, (int)poi_queue[i].x) = poi_queue[i].deformation.v;
+			}
+			break;
+		case 'w':
+			for (int i = 0; i < poi_queue.size(); ++i) {
+				output_map((int)poi_queue[i].y, (int)poi_queue[i].x) = poi_queue[i].deformation.w;
+			}
+			break;
+		case 'c':
+			for (int i = 0; i < poi_queue.size(); ++i) {
+				output_map((int)poi_queue[i].y, (int)poi_queue[i].x) = poi_queue[i].result.r1r2_zncc;
+			}
+			break;
+		case 'd':
+			for (int i = 0; i < poi_queue.size(); ++i) {
+				output_map((int)poi_queue[i].y, (int)poi_queue[i].x) = poi_queue[i].result.r1t1_zncc;
+			}
+			break;
+		case 'e':
+			for (int i = 0; i < poi_queue.size(); ++i) {
+				output_map((int)poi_queue[i].y, (int)poi_queue[i].x) = poi_queue[i].result.r1t2_zncc;
+			}
+			break;
+		case 'x':
+			for (int i = 0; i < poi_queue.size(); ++i) {
+				output_map((int)poi_queue[i].y, (int)poi_queue[i].x) = poi_queue[i].strain.exx;
+			}
+			break;
+		case 'y':
+			for (int i = 0; i < poi_queue.size(); ++i) {
+				output_map((int)poi_queue[i].y, (int)poi_queue[i].x) = poi_queue[i].strain.eyy;
+			}
+			break;
+		case 'z':
+			for (int i = 0; i < poi_queue.size(); ++i) {
+				output_map((int)poi_queue[i].y, (int)poi_queue[i].x) = poi_queue[i].strain.ezz;
+			}
+			break;
+		case 'r':
+			for (int i = 0; i < poi_queue.size(); ++i) {
+				output_map((int)poi_queue[i].y, (int)poi_queue[i].x) = poi_queue[i].strain.exy;
+			}
+			break;
+		case 's':
+			for (int i = 0; i < poi_queue.size(); ++i) {
+				output_map((int)poi_queue[i].y, (int)poi_queue[i].x) = poi_queue[i].strain.eyz;
+			}
+			break;
+		case 't':
+			for (int i = 0; i < poi_queue.size(); ++i) {
+				output_map((int)poi_queue[i].y, (int)poi_queue[i].x) = poi_queue[i].strain.ezx;
+			}
+			break;
+		default:
+			return;
+		}
+
+		std::ofstream file_out(file_path);
+		file_out.setf(std::ios::fixed);
+		file_out << std::setprecision(8);
+		if (file_out.is_open()) {
+			for (int r = 0; r < height; r++) {
+				for (int c = 0; c < width; c++) {
+					file_out << output_map(r, c) << delimiter;
 				}
 				file_out << std::endl;
 			}

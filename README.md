@@ -29,6 +29,8 @@ Users can also access the information of OpenCorr (in Chinese) via website [open
 >2021.08.14, Release the GPU accelerated module of ICGN algorithm and an example, instruction can be found in Section 3 (3. GPU accelerated modules).
 >
 >2021.11.03, Release an example to implement stereo DIC (3D DIC), thoroughly improve the related modules and documentation.
+>
+>2021.11.16, Implement the calculation of 2D and 3D strains for surface measurement.
 
 # Index
 
@@ -262,12 +264,14 @@ Member functions include:
 
 - setPath(string file_path), set path of csv file;
 - setDelimiter(string delimiter), set delimiter for data picking
-- loadTable2D(), load information from csv datasheet, create a POI queue;
+- loadTable2D(), load information from csv datasheet, create a POI2D queue;
 - loadPOI2D(), load coordinates of POIs from csv datasheet, create a Point2D queue;
+- loadTable2DS(), load information from csv datasheet, create a POI2DS queue;
 - saveTable2D(vector<POI2D> POI_queue)，save the information of POIs into csv datasheet;
 - saveDeformationTable2D(vector<POI2D> POI_queue), save the full deformation vectors of POIs into csv datasheet;
+- saveMap2D(vector<POI2D> POI_queue, char variable), save specific information of POIs (2D DIC results) into a 2D map according the coordinates of POIs, variable can be set as 'u', 'v', 'c'(zncc), 'd'(convergence), 'i'(iteration), 'f'(feature), 'x' (exx), 'y' (eyy), 'r' (exy);.
 - saveTable2DS(vector<POI2DS> POI_queue), specifically for Stereo/3D DIC, save the information of POIs into csv datasheet;
-- saveMap2D(vector<POI2D> POI_queue, char variable), save specific information of POIs into a 2D map according the coordinates of POIs, variable can be set as 'u', 'v', 'z' (ZNCC), 'c' (convergence), 'i' (iteration), 'f' (feature), 'x' (exx), 'y' (eyy), 'g' (exy).
+- saveMap2DS(vector<POI2DS>& poi_queue, char variable), save specific information of POIs (3D/stereo DIC results) into a 2D map according the coordinates of POIs, variable can be set as 'u', 'v', 'w', 'c'(r1r2_zncc), 'd'(r1t1_zncc), 'e'(r1t2_zncc), 'x' (exx), 'y' (eyy), 'z' (ezz), 'r' (exy) , 's' (eyz), 't' (ezx).
 
 ![image](./img/oc_io_en.png)
 
@@ -316,21 +320,24 @@ Parameters include:
 
 *Figure 2.4.5. Parameters and methods included in EpipolarSearch object*
 
-(5) Strain2D (oc_strain.h and oc_strain.cpp), calculation of strains based on the DIC results. Figure 2.4.6 shows the parameters and methods included in this objects. The method first creates local profiles of displacement components in POI-centered subregion through polynomial fitting, and then calculates the strains according to the first order derivatives of the profile. Users may refer to the paper by Professor PAN Bing (Pan et al. Opt Eng, 2007, 46:033601) for the details of the principle.
+(5) Strain2D (oc_strain.h and oc_strain.cpp), calculation of the strains on measured surface based on the displacements obtained by DIC. Figure 2.4.6 shows the parameters and methods included in this objects. The method first creates local profiles of displacement components in POI-centered subregion through polynomial fitting, and then calculates the Green-Lagrangian strains according to the first order derivatives of the profile. Users may refer to the paper by Professor PAN Bing (Pan et al. Opt Eng, 2007, 46:033601) for the details of the principle.
 
 Parameters include:
 
-- Topleft corner of ROI: topleft_point;
-- Radius of subregion: subregion_radius;
-- Space between adjacent POIs: grid_space;
-- 2D matrices of displacement components: u_map, v_map.
+- Radius of subregion for local dispacement profile fitting: subregion_radius;
+- Minimum number of neighbor POIs involved in fitting: min_neighbor_num;
+- Lowest ZNCC value required for the neighbor POIs involved in fitting: zncc_threshold;
+- Description of strain tensor: 1 denotes Lagrangian; 2 denotes Eulaerian: description;
+- POI queue for processing: std::vector<POI2D> poi2d_queue for 2D DIC, std::vector<POI2DS> poi2ds_queue for 3D/stereo DIC.
 
 Member functions include:
 
 - setSubregionRadius(int subregion_radius), set the radius of the POI-centerd subregion for fitting of local displacement profiles;
-- setGridSpace(int grid_space), set space between the adjacent POIs, which should be identical to the value set in DIC computation;
-- setDisplacement(std::vector& POI_queue), create u_map and v_map according to the results of DIC;
-- compute(POI2D* POI), calculate the strains at the POI.
+- setMinNeighborNumer(int min_neighbor_num), set minimum number of neighbor POIs;
+- setZNCCthreshold(float zncc_threshold), set ZNCC threshold;
+- setDescription(int description), set description of strain tensor: 1 denotes Lagrangian; 2 denotes Eulaerian;
+- void setPOIQueue(std::vector<POI2D>& poi_queue), set POI queue for processing, the element of vector should by POI2D in 2D DIC and POI2DS in 3D/stereo DIC;
+- compute(POI2D* POI), calculate the strains at a POI.
 
 ![image](./img/oc_strain_en.png)
 *Figure 2.4.6. Parameters and methods included in Strain2D object*

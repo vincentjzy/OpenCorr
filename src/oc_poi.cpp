@@ -65,6 +65,9 @@ namespace opencorr
 		std::fill(std::begin(deformation.p), std::end(deformation.p), 0.f);
 		std::fill(std::begin(result.r), std::end(result.r), 0.f);
 		std::fill(std::begin(strain.e), std::end(strain.e), 0.f);
+		Point3D zero_pt;
+		ref_coor = zero_pt;
+		tar_coor = zero_pt;
 	}
 
 

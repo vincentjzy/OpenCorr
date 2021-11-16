@@ -16,9 +16,22 @@
 
 namespace opencorr
 {
-	Strain2D::Strain2D(int subregion_radius, int grid_space) {
+	Strain2D::Strain2D(int subregion_radius, int min_neighor_num, std::vector<POI2D>& poi_queue) {
 		this->subregion_radius = subregion_radius;
-		this->grid_space = grid_space;
+		this->min_neighbor_num = min_neighbor_num;
+		this->poi2d_queue = poi_queue;
+
+		this->zncc_threshold = 0.9f;
+		this->description = 1;
+	}
+
+	Strain2D::Strain2D(int subregion_radius, int min_neighbor_num, std::vector<POI2DS>& poi_queue) {
+		this->subregion_radius = subregion_radius;
+		this->min_neighbor_num = min_neighbor_num;
+		this->poi2ds_queue = poi_queue;
+
+		this->zncc_threshold = 0.9f;
+		this->description = 1;
 	}
 
 	Strain2D::~Strain2D() {
@@ -28,207 +41,194 @@ namespace opencorr
 		return subregion_radius;
 	}
 
-	int Strain2D::getGridSpace() const {
-		return grid_space;
+	int Strain2D::getMinNeighborNumber() const {
+		return min_neighbor_num;
+	}
+
+	float Strain2D::getZNCCThreshold() const {
+		return zncc_threshold;
 	}
 
 	void Strain2D::setSubregionRadius(int subresion_radius) {
 		this->subregion_radius = subregion_radius;
 	}
 
-	void Strain2D::setGridSpace(int grid) {
-		this->grid_space = grid;
+	void Strain2D::setMinNeighborNumer(int min_neighbor_num) {
+		this->min_neighbor_num = min_neighbor_num;
 	}
 
-	void Strain2D::setDisplacement(std::vector<POI2D>& poi_queue) {
-		//create a copy for sorting
-		std::vector<POI2D> poi_sorted_queue(poi_queue);
-		int poi_number = (int)poi_sorted_queue.size();
+	void Strain2D::setZNCCthreshold(float zncc_threshold) {
+		this->zncc_threshold = zncc_threshold;
+	}
 
-		//get boundary of ROI along x-axis
-		std::sort(poi_sorted_queue.begin(), poi_sorted_queue.end(), sortByX);
-		int x_min = (int)poi_sorted_queue[0].x;
-		int x_max = (int)poi_sorted_queue[poi_number - 1].x;
-		//calculate the width of POI matrix
-		int width = (int)((x_max - x_min) / grid_space + 1);
-
-		//get boundary of ROI along y-axis
-		std::sort(poi_sorted_queue.begin(), poi_sorted_queue.end(), sortByY);
-		int y_min = (int)poi_sorted_queue[0].y;
-		int y_max = (int)poi_sorted_queue[poi_number - 1].y;
-		//calculate the height of POI matrix
-		int height = (int)((y_max - y_min) / grid_space + 1);
-
-		topleft_point.x = (float)x_min;
-		topleft_point.y = (float)y_min;
-
-		//create component matrices of POIs;
-		u_map = Eigen::MatrixXf::Zero(height, width);
-		v_map = Eigen::MatrixXf::Zero(height, width);
-
-		//fill the matrices with the components;
-		for (int i = 0; i < poi_number; ++i) {
-			int col = (int)((poi_sorted_queue[i].x - x_min) / grid_space);
-			int row = (int)((poi_sorted_queue[i].y - y_min) / grid_space);
-			u_map(row, col) = poi_sorted_queue[i].deformation.u;
-			v_map(row, col) = poi_sorted_queue[i].deformation.v;
-		}
+	void Strain2D::setDescription(int description) {
+		this->description = description;
 	}
 
 	void Strain2D::prepare() {
 	}
 
-	SGFilter::SGFilter(int radius, int grid) : Strain2D(radius, grid) {
+	void Strain2D::setPOIQueue(std::vector<POI2D>& poi_queue) {
+		this->poi2d_queue = poi_queue;
 	}
 
-	SGFilter::~SGFilter() {
-	}
+	void Strain2D::compute(POI2D* poi) {
+		//calculation of Green-Lagrangian strain
+		//brutal force search for adjacent POIs in subregion
+		std::vector<PointIndex2D> pois_sorted_index;
+		std::vector<POI2D> pois_for_fit;
 
-	void SGFilter::compute(POI2D* poi) {
-		//create Savitzky-Golay filter
-		int filter_size = 2 * subregion_radius + 1;
-		Eigen::MatrixXf coefficient_matrix = Eigen::MatrixXf::Zero(filter_size, filter_size);
-		float matrix_factor = 3.f / (float)(filter_size * filter_size * (subregion_radius + 1.f) * subregion_radius * grid_space);
-		for (int r = 0; r < filter_size; r++) {
-			for (int c = 0; c < filter_size; c++) {
-				coefficient_matrix(r, c) = matrix_factor * (c - subregion_radius);
+		//sort the poi queue in a descendent order of distance to the POI
+		int queue_size = (int)poi2d_queue.size();
+		for (int i = 0; i < queue_size; ++i) {
+			Point2D distance = poi2d_queue[i] - (Point2D)*poi;
+			PointIndex2D current_poi_idx;
+			current_poi_idx.index_in_queue = i;
+			current_poi_idx.distance_to_poi = distance.vectorNorm();
+			pois_sorted_index.push_back(current_poi_idx);
+		}
+
+		std::sort(pois_sorted_index.begin(), pois_sorted_index.end(), sortByDistance);
+
+		//pick the neighbor POIs facet fitting
+		int i = 0;
+		while ((pois_sorted_index[i].distance_to_poi < subregion_radius || pois_for_fit.size() <= min_neighbor_num)) {
+			if (poi2d_queue[pois_sorted_index[i].index_in_queue].result.zncc >= zncc_threshold) {
+				pois_for_fit.push_back(poi2d_queue[pois_sorted_index[i].index_in_queue]);
 			}
+			i++;
 		}
 
-		//get location of POI in u_map and v_map
-		Point2D relative_location = *poi - topleft_point;
-		int map_x = (int)(relative_location.x / grid_space);
-		int map_y = (int)(relative_location.y / grid_space);
+		int fit_queue_size = (int)pois_for_fit.size();
 
-		//deal with the POI close to boundary of ROI
-		int height = v_map.rows();
-		int width = u_map.cols();
-		if (map_y < subregion_radius)
-			map_y = subregion_radius;
-		if (map_y >= height - subregion_radius)
-			map_y = height - subregion_radius - 1;
-		if (map_x < subregion_radius)
-			map_x = subregion_radius;
-		if (map_x >= width - subregion_radius)
-			map_x = width - subregion_radius - 1;
-
-		//create a transposed matrix of filter
-		Eigen::VectorXf coefficient_matrix_transpose = coefficient_matrix.transpose();
-
-		//calculate the coefficients
-		float ux = 0;
-		float uy = 0;
-		float vx = 0;
-		float vy = 0;
-		for (int r = 0; r < filter_size; r++) {
-			int map_r = map_y + r - subregion_radius;
-			for (int c = 0; c < filter_size; c++) {
-				int map_c = map_x + c - subregion_radius;
-				ux += coefficient_matrix(r, c) * u_map(map_r, map_c);
-				vx += coefficient_matrix(r, c) * v_map(map_r, map_c);
-
-				uy += coefficient_matrix_transpose(r, c) * u_map(map_r, map_c);
-				vy += coefficient_matrix_transpose(r, c) * v_map(map_r, map_c);
-			}
-		}
-
-		//calculate the strains and save them for output
-		poi->strain.exx = ux + 0.5f * (ux * ux + vx * vx);
-		poi->strain.eyy = vy + 0.5f * (uy * uy + vy * vy);
-		poi->strain.exy = 0.5f * (uy + vx + ux * uy + vx * vy);
-
-	}
-
-	void SGFilter::compute(std::vector<POI2D>& poi_queue) {
-#pragma omp parallel for
-		for (int i = 0; i < poi_queue.size(); ++i) {
-			compute(&poi_queue[i]);
-		}
-	}
-
-	LSFitting::LSFitting(int radius, int grid) :Strain2D(radius, grid) {
-	}
-
-	LSFitting::~LSFitting() {
-	}
-
-	void LSFitting::compute(POI2D* poi) {
-		//get location of POI in u_map and v_map
-		Point2D relative_location = *poi - topleft_point;
-
-		//calculate the location of POI in u_map and v_map 
-		int map_x = (int)(relative_location.x / grid_space);
-		int map_y = (int)(relative_location.y / grid_space);
-
-		//deal with the POI close to the boundary of ROI
-		int height = v_map.rows();
-		int width = u_map.cols();
-		int subregion_x1 = map_x - subregion_radius;
-		int	subregion_x2 = map_x + subregion_radius;
-		int subregion_y1 = map_y - subregion_radius;
-		int subregion_y2 = map_y + subregion_radius;
-		if (map_x < subregion_radius)
-			subregion_x1 = 0;
-		if (map_x >= width - subregion_radius)
-			subregion_x2 = width - 1;
-		if (map_y < subregion_radius)
-			subregion_y1 = 0;
-		if (map_y >= height - subregion_radius)
-			subregion_y2 = height - 1;
-
-		int subregion_size_c = (subregion_x2 - subregion_x1) + 1;
-		int subregion_size_r = (subregion_y2 - subregion_y1) + 1;
-		int subregion_size = subregion_size_r * subregion_size_c;
-
-		//create two matrices of displacments
-		Eigen::VectorXf u_vector(subregion_size);
-		Eigen::VectorXf v_vector(subregion_size);
+		//create matrices of displacments
+		Eigen::VectorXf u_vector(fit_queue_size);
+		Eigen::VectorXf v_vector(fit_queue_size);
+		Eigen::VectorXf w_vector(fit_queue_size);
 
 		//construct coefficient matrix
-		Eigen::MatrixXf coefficient_matrix = Eigen::MatrixXf::Zero(subregion_size, 3);
+		Eigen::MatrixXf coefficient_matrix = Eigen::MatrixXf::Zero(fit_queue_size, 3);
 
-		//fill coefficient matrix, u_vector and v_vector
-		int counter = 0;
-		for (int r = subregion_y1; r <= subregion_y2; r++) {
-			for (int c = subregion_x1; c <= subregion_x2; c++) {
-				coefficient_matrix(counter, 0) = 1.f;
-				coefficient_matrix(counter, 1) = (float)(c - map_x);
-				coefficient_matrix(counter, 2) = (float)(r - map_y);
+		//fill coefficient matrix, u_vector, v_vector, and w_vector
+		for (int j = 0; j < fit_queue_size; j++) {
+			coefficient_matrix(j, 0) = 1.f;
+			coefficient_matrix(j, 1) = pois_for_fit[j].x - poi->x;
+			coefficient_matrix(j, 2) = pois_for_fit[j].y - poi->y;
 
-				u_vector(counter) = u_map(r, c);
-				v_vector(counter) = v_map(r, c);
-				counter++;
-			}
+			u_vector(j) = pois_for_fit[j].deformation.u;
+			v_vector(j) = pois_for_fit[j].deformation.v;
 		}
 
-		//solve the equations to obtain gradients of u and v
+		//solve the equations to obtain gradients of u, v, and w
 		Eigen::VectorXf u_gradient = coefficient_matrix.colPivHouseholderQr().solve(u_vector);
 		Eigen::VectorXf v_gradient = coefficient_matrix.colPivHouseholderQr().solve(v_vector);
-		float ux = u_gradient(1, 0) / grid_space;
-		float uy = u_gradient(2, 0) / grid_space;
-		float vx = v_gradient(1, 0) / grid_space;
-		float vy = v_gradient(2, 0) / grid_space;
+		float ux = u_gradient(1, 0);
+		float uy = u_gradient(2, 0);
+		float vx = v_gradient(1, 0);
+		float vy = v_gradient(2, 0);
 
 		//calculate the strains and save them for output
 		poi->strain.exx = ux + 0.5f * (ux * ux + vx * vx);
 		poi->strain.eyy = vy + 0.5f * (uy * uy + vy * vy);
-		poi->strain.exy = 0.5f * (uy + vx + ux * uy + vx * vy);
-
+		poi->strain.exy = 0.5f * (uy + vx + uy * ux + vy * vx);
 	}
 
-	void LSFitting::compute(std::vector<POI2D>& poi_queue) {
+	void Strain2D::compute(std::vector<POI2D>& poi_queue) {
 #pragma omp parallel for
 		for (int i = 0; i < poi_queue.size(); ++i) {
 			compute(&poi_queue[i]);
 		}
 	}
 
-	bool sortByX(const POI2D& p1, const POI2D& p2) {
-		return p1.x < p2.x;
+
+	void Strain2D::setPOIQueue(std::vector<POI2DS>& poi_queue) {
+		this->poi2ds_queue = poi_queue;
 	}
 
-	bool sortByY(const POI2D& p1, const POI2D& p2) {
-		return p1.y < p2.y;
+	void Strain2D::compute(POI2DS* poi) {
+		//calculation of Green-Lagrangian strain
+		//brutal force search for adjacent POIs in subregion
+		std::vector<PointIndex2D> pois_sorted_index;
+		std::vector<POI2DS> pois_for_fit;
+
+		//sort the poi queue in a descendent order of distance to the POI
+		int queue_size = (int)poi2ds_queue.size();
+		for (int i = 0; i < queue_size; ++i) {
+			Point2D distance = poi2ds_queue[i] - (Point2D)*poi;
+			PointIndex2D current_poi_idx;
+			current_poi_idx.index_in_queue = i;
+			current_poi_idx.distance_to_poi = distance.vectorNorm();
+			pois_sorted_index.push_back(current_poi_idx);
+		}
+
+		std::sort(pois_sorted_index.begin(), pois_sorted_index.end(), sortByDistance);
+
+		//pick the neighbor POIs facet fitting
+		int i = 0;
+		while (pois_sorted_index[i].distance_to_poi < subregion_radius || pois_for_fit.size() <= min_neighbor_num) {
+			if (poi2ds_queue[pois_sorted_index[i].index_in_queue].result.r1r2_zncc >= zncc_threshold
+				&& poi2ds_queue[pois_sorted_index[i].index_in_queue].result.r1t1_zncc >= zncc_threshold
+				&& poi2ds_queue[pois_sorted_index[i].index_in_queue].result.r1t2_zncc >= zncc_threshold) {
+				pois_for_fit.push_back(poi2ds_queue[pois_sorted_index[i].index_in_queue]);
+			}
+			i++;
+		}
+
+		int fit_queue_size = (int)pois_for_fit.size();
+
+		//create matrices of displacments
+		Eigen::VectorXf u_vector(fit_queue_size);
+		Eigen::VectorXf v_vector(fit_queue_size);
+		Eigen::VectorXf w_vector(fit_queue_size);
+
+		//construct coefficient matrix
+		Eigen::MatrixXf coefficient_matrix = Eigen::MatrixXf::Zero(fit_queue_size, 4);
+
+		//fill coefficient matrix, u_vector, v_vector, and w_vector
+		for (int j = 0; j < fit_queue_size; j++) {
+			Point3D current_pt_3d = pois_for_fit[j].ref_coor - poi->ref_coor;
+			coefficient_matrix(j, 0) = 1.f;
+			coefficient_matrix(j, 1) = current_pt_3d.x;
+			coefficient_matrix(j, 2) = current_pt_3d.y;
+			coefficient_matrix(j, 3) = current_pt_3d.z;
+
+			u_vector(j) = pois_for_fit[j].deformation.u;
+			v_vector(j) = pois_for_fit[j].deformation.v;
+			w_vector(j) = pois_for_fit[j].deformation.w;
+		}
+
+		//solve the equations to obtain gradients of u, v, and w
+		Eigen::VectorXf u_gradient = coefficient_matrix.colPivHouseholderQr().solve(u_vector);
+		Eigen::VectorXf v_gradient = coefficient_matrix.colPivHouseholderQr().solve(v_vector);
+		Eigen::VectorXf w_gradient = coefficient_matrix.colPivHouseholderQr().solve(w_vector);
+		float ux = u_gradient(1, 0);
+		float uy = u_gradient(2, 0);
+		float uz = u_gradient(3, 0);
+		float vx = v_gradient(1, 0);
+		float vy = v_gradient(2, 0);
+		float vz = v_gradient(3, 0);
+		float wx = w_gradient(1, 0);
+		float wy = w_gradient(2, 0);
+		float wz = w_gradient(3, 0);
+
+		//calculate the strains and save them for output
+		poi->strain.exx = ux + 0.5f * (ux * ux + vx * vx + wx * wx);
+		poi->strain.eyy = vy + 0.5f * (uy * uy + vy * vy + wy * wy);
+		poi->strain.ezz = wz + 0.5f * (uz * uz + vz * vz + wz * wz);
+		poi->strain.exy = 0.5f * (uy + vx + uy * ux + vy * vx + wy * wx);
+		poi->strain.eyz = 0.5f * (vz + wy + uz * uy + vz * vy + wz * wy);
+		poi->strain.ezx = 0.5f * (wx + uz + ux * uz + vx * vz + wx * wz);
+	}
+
+	void Strain2D::compute(std::vector<POI2DS>& poi_queue) {
+#pragma omp parallel for
+		for (int i = 0; i < poi_queue.size(); ++i) {
+			compute(&poi_queue[i]);
+		}
+	}
+
+	bool sortByDistance(const PointIndex2D& p1, const PointIndex2D& p2) {
+		return p1.distance_to_poi < p2.distance_to_poi;
 	}
 
 }//namespace opencorr

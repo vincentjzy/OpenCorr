@@ -41,53 +41,53 @@ int main() {
 	omp_set_num_threads(cpu_thread_number);
 
 	//create the instances of camera parameters
-	CameraIntrinsics view1_cam_intrisics, view2_cam_intrisics;
-	CameraExtrinsics view1_cam_extrisics, view2_cam_extrisics;
-	view1_cam_intrisics.fx = 6673.3159f;
-	view1_cam_intrisics.fy = 6669.3027f;
-	view1_cam_intrisics.fs = 0.f;
-	view1_cam_intrisics.cx = 872.15778f;
-	view1_cam_intrisics.cy = 579.95532f;
-	view1_cam_intrisics.k1 = 0.03225895f;
-	view1_cam_intrisics.k2 = -1.0114142f;
-	view1_cam_intrisics.k3 = 29.788389f;
-	view1_cam_intrisics.k4 = 0;
-	view1_cam_intrisics.k5 = 0;
-	view1_cam_intrisics.k6 = 0;
-	view1_cam_intrisics.p1 = 0;
-	view1_cam_intrisics.p2 = 0;
+	CameraIntrinsics view1_cam_intrinsics, view2_cam_intrinsics;
+	CameraExtrinsics view1_cam_extrinsics, view2_cam_extrinsics;
+	view1_cam_intrinsics.fx = 6673.3159f;
+	view1_cam_intrinsics.fy = 6669.3027f;
+	view1_cam_intrinsics.fs = 0.f;
+	view1_cam_intrinsics.cx = 872.15778f;
+	view1_cam_intrinsics.cy = 579.95532f;
+	view1_cam_intrinsics.k1 = 0.03225895f;
+	view1_cam_intrinsics.k2 = -1.0114142f;
+	view1_cam_intrinsics.k3 = 29.788389f;
+	view1_cam_intrinsics.k4 = 0;
+	view1_cam_intrinsics.k5 = 0;
+	view1_cam_intrinsics.k6 = 0;
+	view1_cam_intrinsics.p1 = 0;
+	view1_cam_intrinsics.p2 = 0;
 
-	view1_cam_extrisics.tx = 0;
-	view1_cam_extrisics.ty = 0;
-	view1_cam_extrisics.tz = 0;
-	view1_cam_extrisics.rx = 0;
-	view1_cam_extrisics.ry = 0;
-	view1_cam_extrisics.rz = 0;
+	view1_cam_extrinsics.tx = 0;
+	view1_cam_extrinsics.ty = 0;
+	view1_cam_extrinsics.tz = 0;
+	view1_cam_extrinsics.rx = 0;
+	view1_cam_extrinsics.ry = 0;
+	view1_cam_extrinsics.rz = 0;
 
-	view2_cam_intrisics.fx = 6607.6182f;
-	view2_cam_intrisics.fy = 6602.8574f;
-	view2_cam_intrisics.fs = 0.f;
-	view2_cam_intrisics.cx = 917.97339f;
-	view2_cam_intrisics.cy = 531.63525f;
-	view2_cam_intrisics.k1 = 0.06459849f;
-	view2_cam_intrisics.k2 = -4.531374f;
-	view2_cam_intrisics.k3 = 29.788389f;
-	view2_cam_intrisics.k4 = 0;
-	view2_cam_intrisics.k5 = 0;
-	view2_cam_intrisics.k6 = 0;
-	view2_cam_intrisics.p1 = 0;
-	view2_cam_intrisics.p2 = 0;
+	view2_cam_intrinsics.fx = 6607.6182f;
+	view2_cam_intrinsics.fy = 6602.8574f;
+	view2_cam_intrinsics.fs = 0.f;
+	view2_cam_intrinsics.cx = 917.97339f;
+	view2_cam_intrinsics.cy = 531.63525f;
+	view2_cam_intrinsics.k1 = 0.06459849f;
+	view2_cam_intrinsics.k2 = -4.531374f;
+	view2_cam_intrinsics.k3 = 29.788389f;
+	view2_cam_intrinsics.k4 = 0;
+	view2_cam_intrinsics.k5 = 0;
+	view2_cam_intrinsics.k6 = 0;
+	view2_cam_intrinsics.p1 = 0;
+	view2_cam_intrinsics.p2 = 0;
 
-	view2_cam_extrisics.tx = 122.24886f;
-	view2_cam_extrisics.ty = 1.8488892f;
-	view2_cam_extrisics.tz = 17.624638f;
-	view2_cam_extrisics.rx = 0.00307711f;
-	view2_cam_extrisics.ry = -0.33278773f;
-	view2_cam_extrisics.rz = 0.00524556f;
+	view2_cam_extrinsics.tx = 122.24886f;
+	view2_cam_extrinsics.ty = 1.8488892f;
+	view2_cam_extrinsics.tz = 17.624638f;
+	view2_cam_extrinsics.rx = 0.00307711f;
+	view2_cam_extrinsics.ry = -0.33278773f;
+	view2_cam_extrinsics.rz = 0.00524556f;
 
 	//create the instances for stereovision
-	Calibration cam_view1_calib(view1_cam_intrisics, view1_cam_extrisics);
-	Calibration cam_view2_calib(view2_cam_intrisics, view2_cam_extrisics);
+	Calibration cam_view1_calib(view1_cam_intrinsics, view1_cam_extrinsics);
+	Calibration cam_view2_calib(view2_cam_intrinsics, view2_cam_extrinsics);
 	cam_view1_calib.prepare(ref_view1_img.height, ref_view1_img.width);
 	cam_view2_calib.prepare(ref_view2_img.height, ref_view2_img.width);
 	Stereovision stereo_reconstruction(&cam_view1_calib, &cam_view2_calib, cpu_thread_number);
@@ -291,6 +291,8 @@ int main() {
 	//calculate the 3D displacements of POIs
 #pragma omp parallel for
 	for (int i = 0; i < poi_queue.size(); i++) {
+		poi_result_queue[i].ref_coor = ref_pt_3d_queue[i];
+		poi_result_queue[i].tar_coor = tar_pt_3d_queue[i];
 		poi_result_queue[i].deformation.u = tar_pt_3d_queue[i].x - ref_pt_3d_queue[i].x;
 		poi_result_queue[i].deformation.v = tar_pt_3d_queue[i].y - ref_pt_3d_queue[i].y;
 		poi_result_queue[i].deformation.w = tar_pt_3d_queue[i].z - ref_pt_3d_queue[i].z;

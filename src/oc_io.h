@@ -58,11 +58,20 @@ namespace opencorr
 
 		void saveTable2D(vector<POI2D>& poi_queue);
 		void saveDeformationTable2D(vector<POI2D>& poi_queue);
-		//variable: 'u', 'v', 'z'(zncc), 'c'(convergence), 'i'(iteration), 'f'(feature), 'x' (exx), 'y' (eyy), 'g' (exy)
+		
+		/*	variable: 'u', 'v', 'c'(zncc), 'd'(convergence), 'i'(iteration), 'f'(feature),
+			'x' (exx), 'y' (eyy), 'r' (exy) */
 		void saveMap2D(vector<POI2D>& poi_queue, char variable);
+
+
+		//load deformation of POIs from saved date table
+		vector<POI2DS> loadTable2DS();
 
 		void saveTable2DS(vector<POI2DS>& poi_queue);
 
+		/*	variable: 'u', 'v', 'w', 'c'(r1r2_zncc), 'd'(r1t1_zncc), 'e'(r1t2_zncc),
+			'x' (exx), 'y' (eyy), 'z' (ezz), 'r' (exy) , 's' (eyz), 't' (ezx)*/
+		void saveMap2DS(vector<POI2DS>& poi_queue, char variable);
 	};
 
 }//namespace opencorr
