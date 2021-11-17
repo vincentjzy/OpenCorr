@@ -78,9 +78,9 @@ namespace opencorr
 		//right side of equations
 		Eigen::Vector4f right_matrix;
 		right_matrix(0) = view1_cam->projection_matrix(0, 3) - x_view1 * view1_cam->projection_matrix(2, 3);
-		right_matrix(1) = view1_cam->projection_matrix(0, 3) - y_view1 * view1_cam->projection_matrix(2, 3);
+		right_matrix(1) = view1_cam->projection_matrix(1, 3) - y_view1 * view1_cam->projection_matrix(2, 3);
 		right_matrix(2) = view2_cam->projection_matrix(0, 3) - x_view2 * view2_cam->projection_matrix(2, 3);
-		right_matrix(3) = view2_cam->projection_matrix(0, 3) - y_view2 * view2_cam->projection_matrix(2, 3);
+		right_matrix(3) = view2_cam->projection_matrix(1, 3) - y_view2 * view2_cam->projection_matrix(2, 3);
 
 		Eigen::Vector3f world_coor = left_matrix.colPivHouseholderQr().solve(right_matrix);
 
