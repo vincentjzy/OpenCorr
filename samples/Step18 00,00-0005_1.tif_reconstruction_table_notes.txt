@@ -1,0 +1,3 @@
+The ZNCC values are lower than 0.9 at some of POIs (about 5%). It indicates relatively poor matching between the two views at those POIs, which could be excluded in the following steps, such as drawing profile figure or making error statistics.
+
+An additional figure is provided to show the positions of these POIs. Most of them are near the edge with relatively steep slope, where current shape function may not be sufficent to approximate the distortion of subset. More detailed discussion can be found in our recent paper (Lin et al. Optics and Lasers in Engineering, 2022, 14(:106812)
