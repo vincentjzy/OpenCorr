@@ -221,9 +221,9 @@ namespace opencorr
 		if (point.y < 0)
 			point.y = 0;
 		if (point.x > map_x.cols() - 2)
-			point.x = map_x.cols() - 2;
+			point.x = (float)map_x.cols() - 2.f;
 		if (point.y > map_y.rows() - 2)
-			point.y = map_y.rows() - 2;
+			point.y = (float)map_y.rows() - 2.f;
 
 		//get integral part and decimal part of the coordinate
 		int y_integral = (int)floor(point.y);

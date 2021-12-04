@@ -99,11 +99,12 @@ namespace opencorr {
 
 		for (int r = 0; r < subset_height; r++) {
 			for (int c = 0; c < subset_width; c++) {
-				Point2D current_point(poi->x + c - subset_radius_x, poi->y + r - subset_radius_y);
-				current_instance->ref_subset[r * subset_width + c] = ref_img->eg_mat(current_point.y, current_point.x);
+				Point2D ref_point(poi->x + c - subset_radius_x, poi->y + r - subset_radius_y);
+				current_instance->ref_subset[r * subset_width + c] = ref_img->eg_mat(ref_point.y, ref_point.x);
 				ref_mean += current_instance->ref_subset[r * subset_width + c];
 				//fill the target subset with initial guess
-				current_instance->tar_subset[r * subset_width + c] = tar_img->eg_mat(current_point.y, current_point.x);
+				Point2D tar_point = ref_point + initial_displacement;
+				current_instance->tar_subset[r * subset_width + c] = tar_img->eg_mat(tar_point.y, tar_point.x);
 				tar_mean += current_instance->tar_subset[r * subset_width + c];
 			}
 		}
