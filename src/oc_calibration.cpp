@@ -13,7 +13,6 @@
  */
 
 #include <cmath>
-#include <opencv2/calib3d.hpp>
 #include "oc_calibration.h"
 
 namespace opencorr
@@ -45,10 +44,12 @@ namespace opencorr
 	}
 
 	void Calibration::updateRotationMatrix() {
-		cv::Mat cv_rotation_matrix;
-		cv::Mat cv_rotation_vector = (cv::Mat_<float>(3, 1) << extrinsics.rx, extrinsics.ry, extrinsics.rz);
-		cv::Rodrigues(cv_rotation_vector, cv_rotation_matrix);
-		cv::cv2eigen(cv_rotation_matrix, rotation_matrix);
+		Eigen::Vector3f rotation_vector;
+		rotation_vector << extrinsics.rx, extrinsics.ry, extrinsics.rz;
+		float theta = rotation_vector.norm();
+		rotation_vector.normalize();
+		Eigen::AngleAxisf r_v(theta, rotation_vector);
+		rotation_matrix = r_v.toRotationMatrix();
 	}
 
 	void Calibration::updateTranslationVector() {

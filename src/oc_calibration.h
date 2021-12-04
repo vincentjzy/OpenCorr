@@ -19,8 +19,6 @@
 
 #include "oc_array.h"
 #include "oc_point.h"
-#include <opencv2/opencv.hpp>
-#include <opencv2/core/eigen.hpp>
 
 namespace opencorr
 {
