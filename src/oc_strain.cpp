@@ -93,7 +93,7 @@ namespace opencorr
 		//pick the neighbor for POIs facet fitting
 		int sorted_index_size = (int)pois_sorted_index.size();
 		int i = 0;
-		while ((pois_sorted_index[i].distance_to_poi < subregion_radius || pois_for_fit.size() <= min_neighbor_num) && i <= sorted_index_size) {
+		while ((pois_sorted_index[i].distance_to_poi < subregion_radius || pois_for_fit.size() <= min_neighbor_num) && i < sorted_index_size) {
 			if (poi2d_queue[pois_sorted_index[i].index_in_queue].result.zncc >= zncc_threshold) {
 				pois_for_fit.push_back(poi2d_queue[pois_sorted_index[i].index_in_queue]);
 			}
@@ -167,7 +167,7 @@ namespace opencorr
 		//pick the neighbor for POIs facet fitting
 		int sorted_index_size = (int)pois_sorted_index.size();
 		int i = 0;
-		while ((pois_sorted_index[i].distance_to_poi < subregion_radius || pois_for_fit.size() <= min_neighbor_num) && i <= sorted_index_size) {
+		while ((pois_sorted_index[i].distance_to_poi < subregion_radius || pois_for_fit.size() <= min_neighbor_num) && i < sorted_index_size) {
 			if (poi2ds_queue[pois_sorted_index[i].index_in_queue].result.r1r2_zncc >= zncc_threshold
 				&& poi2ds_queue[pois_sorted_index[i].index_in_queue].result.r1t1_zncc >= zncc_threshold
 				&& poi2ds_queue[pois_sorted_index[i].index_in_queue].result.r1t2_zncc >= zncc_threshold) {
