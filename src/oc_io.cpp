@@ -398,8 +398,8 @@ namespace opencorr
 			file_out << "ref_x" << delimiter;
 			file_out << "ref_y" << delimiter;
 			file_out << "ref_z" << delimiter;
-			file_out << "tar_y" << delimiter;
 			file_out << "tar_x" << delimiter;
+			file_out << "tar_y" << delimiter;
 			file_out << "tar_z" << delimiter;
 
 			file_out << "exx" << delimiter;
