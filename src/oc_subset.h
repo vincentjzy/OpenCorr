@@ -7,7 +7,7 @@
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * file, You can obtain one from http://mozilla.org/MPL/2.0/.
  *
  * More information about OpenCorr can be found at https://www.opencorr.org/
  */
@@ -37,8 +37,25 @@ namespace opencorr
 
 		void fill(Image2D* image);
 		float zeroMeanNorm();
-
 	};
+
+	class Subset3D
+	{
+	public:
+		Point3D center;
+		int radius_x, radius_y, radius_z;
+		int dim_x, dim_y, dim_z;
+		float intensity_mean;
+
+		float*** vol_mat = nullptr;
+
+		Subset3D(Point3D center, int radius_x, int radius_y, int radius_z);
+		~Subset3D();
+
+		void fill(Image3D* image);
+		float zeroMeanNorm();
+	};
+
 }//namespace opencorr
 
 #endif //_SUBSET_H_

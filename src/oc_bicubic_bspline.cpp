@@ -7,11 +7,12 @@
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * file, You can obtain one from http://mozilla.org/MPL/2.0/.
  *
  * More information about OpenCorr can be found at https://www.opencorr.org/
  */
 
+#include <cmath>
 #include <omp.h>
 #include "oc_bicubic_bspline.h"
 
@@ -32,6 +33,9 @@ namespace opencorr
 		}
 		int height = interp_img->height;
 		int width = interp_img->width;
+		if (height < 5 || width < 5) {
+			std::cerr << "Too small image:" << width << ", " << height << std::endl;
+		}
 		lookup_table = new4D(height, width, 4, 4);
 
 #pragma omp parallel for
@@ -83,8 +87,8 @@ namespace opencorr
 			return 0.f;
 		}
 
-		int y_integral = (int)floor(location.y);
-		int x_integral = (int)floor(location.x);
+		int y_integral = (int)floorf(location.y);
+		int x_integral = (int)floorf(location.x);
 
 		float x_decimal = location.x - x_integral;
 		float y_decimal = location.y - y_integral;

@@ -7,7 +7,7 @@
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * file, You can obtain one from http://mozilla.org/MPL/2.0/.
  *
  * More information about OpenCorr can be found at https://www.opencorr.org/
  */
@@ -17,12 +17,8 @@
 #ifndef  _IO_H_
 #define  _IO_H_
 
-#include <vector>
 #include <string>
-#include <fstream>
-#include <sstream>
-#include <iostream>
-#include <Eigen>
+#include <vector>
 
 #include "oc_poi.h"
 
@@ -42,7 +38,7 @@ namespace opencorr
 		~IO2D();
 
 		string getPath() const;
-		string getDilimiter() const;
+		string getDelimiter() const;
 		int getWidth() const;
 		int getHeight() const;
 		void setPath(string file_path);
@@ -58,7 +54,7 @@ namespace opencorr
 
 		void saveTable2D(vector<POI2D>& poi_queue);
 		void saveDeformationTable2D(vector<POI2D>& poi_queue);
-		
+
 		/*	variable: 'u', 'v', 'c'(zncc), 'd'(convergence), 'i'(iteration), 'f'(feature),
 			'x' (exx), 'y' (eyy), 'r' (exy) */
 		void saveMap2D(vector<POI2D>& poi_queue, char variable);

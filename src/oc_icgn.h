@@ -7,7 +7,7 @@
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * file, You can obtain one from http://mozilla.org/MPL/2.0/.
  *
  * More information about OpenCorr can be found at https://www.opencorr.org/
  */
@@ -17,8 +17,6 @@
 #ifndef _ICGN_H_
 #define _ICGN_H_
 
-#include <omp.h>
-#include <cmath>
 #include "oc_bicubic_bspline.h"
 #include "oc_dic.h"
 #include "oc_gradient.h"
@@ -30,7 +28,7 @@
 
 namespace opencorr
 {
-	//the 1st shape function
+	//the 1st shape function of 2D case
 	class ICGN2D1_
 	{
 	public:
@@ -64,14 +62,14 @@ namespace opencorr
 		void prepareTar(); //calculate interpolation coefficient look_up table of tar image
 		void prepare(); //calculate gradient maps of ref image and interpolation coefficient look_up table of tar image
 
-		void compute(POI2D* POI);
-		void compute(std::vector<POI2D>& POI_queue);
+		void compute(POI2D* poi);
+		void compute(std::vector<POI2D>& poi_queue);
 
 		void setIteration(float conv_criterion, float stop_condition);
-		void setIteration(POI2D* POI);
+		void setIteration(POI2D* poi);
 	};
 
-	//the 2nd shape function------------------------------------------------------
+	//the 2nd shape function of 2D case
 	class ICGN2D2_
 	{
 	public:

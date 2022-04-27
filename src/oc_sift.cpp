@@ -7,12 +7,13 @@
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * file, You can obtain one from http://mozilla.org/MPL/2.0/.
  *
  * More information about OpenCorr can be found at https://www.opencorr.org/
  */
 
 #include "oc_sift.h"
+
 #include <random>
 #include <omp.h>
 
@@ -31,7 +32,7 @@ namespace opencorr
 	SIFT2D::~SIFT2D() {
 	}
 
-	SIFTconfig SIFT2D::getSIFTconfig() const {
+	Sift2DConfig SIFT2D::getSiftConfig() const {
 		return sift_config;
 	}
 
@@ -39,7 +40,7 @@ namespace opencorr
 		return matching_ratio;
 	}
 
-	void SIFT2D::setExtraction(SIFTconfig sift_config) {
+	void SIFT2D::setSiftConfig(Sift2DConfig sift_config) {
 		//refer to opencv document for detailed information
 		this->sift_config = sift_config;
 	}
@@ -58,7 +59,7 @@ namespace opencorr
 		//initialization, refer to opencv document for details
 		std::vector<cv::KeyPoint> ref_kp;
 		cv::Mat ref_descriptor;
-		cv::Ptr<cv::Feature2D> ref_SIFT = cv::xfeatures2d::SIFT::create(
+		cv::Ptr<cv::Feature2D> ref_SIFT = cv::SIFT::create(
 			sift_config.n_features,
 			sift_config.n_octave_layers,
 			sift_config.contrast_threshold,
@@ -67,7 +68,7 @@ namespace opencorr
 
 		std::vector<cv::KeyPoint> tar_kp;
 		cv::Mat tar_descriptor;
-		cv::Ptr<cv::Feature2D> tar_SIFT = cv::xfeatures2d::SIFT::create(
+		cv::Ptr<cv::Feature2D> tar_SIFT = cv::SIFT::create(
 			sift_config.n_features,
 			sift_config.n_octave_layers,
 			sift_config.contrast_threshold,
@@ -94,12 +95,26 @@ namespace opencorr
 		cv::FlannBasedMatcher matcher;
 		std::vector<std::vector<cv::DMatch>> matches;
 		matcher.knnMatch(ref_descriptor, tar_descriptor, matches, 2);
-		for (int i = 0; i < matches.size(); ++i) {
-			if (matches[i][0].distance < matching_ratio * matches[i][1].distance) {
-				Point2D ref_candidate(ref_kp[i].pt.x, ref_kp[i].pt.y);
-				ref_matched_kp.push_back(ref_candidate);
-				Point2D tar_candidate(tar_kp[matches[i][0].trainIdx].pt.x, tar_kp[matches[i][0].trainIdx].pt.y);
-				tar_matched_kp.push_back(tar_candidate);
+		int match_size = (int)matches.size();
+#pragma omp parallel sections
+		{
+#pragma omp section
+			{
+				for (int i = 0; i < match_size; ++i) {
+					if (matches[i][0].distance < matching_ratio * matches[i][1].distance) {
+						Point2D ref_candidate(ref_kp[i].pt.x, ref_kp[i].pt.y);
+						ref_matched_kp.push_back(ref_candidate);
+					}
+				}
+			}
+#pragma omp section
+			{
+				for (int j = 0; j < match_size; ++j) {
+					if (matches[j][0].distance < matching_ratio * matches[j][1].distance) {
+						Point2D tar_candidate(tar_kp[matches[j][0].trainIdx].pt.x, tar_kp[matches[j][0].trainIdx].pt.y);
+						tar_matched_kp.push_back(tar_candidate);
+					}
+				}
 			}
 		}
 	}

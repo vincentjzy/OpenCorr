@@ -7,7 +7,7 @@
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * file, You can obtain one from http://mozilla.org/MPL/2.0/.
  *
  * More information about OpenCorr can be found at https://www.opencorr.org/
  */
@@ -17,7 +17,6 @@
 #ifndef _POI_H_
 #define _POI_H_
 
-#include <algorithm>
 #include "oc_point.h"
 #include "oc_deformation.h"
 
@@ -46,6 +45,13 @@ namespace opencorr {
 			float u0, v0, zncc, iteration, convergence, feature;
 		};
 		float r[6];
+	};
+
+	union Result2DS {
+		struct {
+			float r1r2_zncc, r1t1_zncc, r1t2_zncc, r2_x, r2_y, t1_x, t1_y, t2_x, t2_y;
+		};
+		float r[9];
 	};
 
 	union DeformationVector3D {
@@ -81,13 +87,6 @@ namespace opencorr {
 		float r[7];
 	};
 
-	union Result2DS {
-		struct {
-			float r1r2_zncc, r1t1_zncc, r1t2_zncc, r2_x, r2_y, t1_x, t1_y, t2_x, t2_y;
-		};
-		float r[9];
-	};
-
 	//class for 2D DIC
 	class POI2D : public Point2D
 	{
@@ -103,8 +102,6 @@ namespace opencorr {
 
 		//reset data except the location
 		void clean();
-		//set convergence criterion and stop condition for iterative procedure at a specific POI
-		void setIterationCriteria(float conv_criterion, float stop_condition, float neighbor_kp_min);
 	};
 
 
@@ -121,24 +118,6 @@ namespace opencorr {
 		POI2DS(float x, float y);
 		POI2DS(Point2D location);
 		~POI2DS();
-
-		//reset data except the location
-		void clean();
-	};
-
-
-	//class for DVC
-	class POI3D : public Point3D
-	{
-	public:
-		DeformationVector3D deformation;
-		Result3D result;
-		StrainVector3D strain;
-
-		POI3D(int x, int y, int z);
-		POI3D(float x, float y, float z);
-		POI3D(Point3D location);
-		~POI3D();
 
 		//reset data except the location
 		void clean();

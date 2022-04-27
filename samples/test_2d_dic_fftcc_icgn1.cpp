@@ -9,8 +9,7 @@
 using namespace opencorr;
 using namespace std;
 
-int mainx() {
-
+int main() {
 	//set files to process
 	string ref_image_path = "../samples/oht_cfrp_0.bmp";
 	string tar_image_path = "../samples/oht_cfrp_4.bmp";

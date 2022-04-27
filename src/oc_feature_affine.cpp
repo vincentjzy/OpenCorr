@@ -7,90 +7,139 @@
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * file, You can obtain one from http://mozilla.org/MPL/2.0/.
  *
  * More information about OpenCorr can be found at https://www.opencorr.org/
  */
 
-#include "oc_feature_affine.h"
-#include <random>
-#include <omp.h>
-#include <opencv2/opencv.hpp>
-#include <opencv2/xfeatures2d.hpp>
+#include <algorithm>
+#include <math.h>
 #include <numeric>
+#include <omp.h>
+#include <random>
+
+#include "oc_feature_affine.h"
 
 namespace opencorr
 {
-
-	FeatureAffine2D::FeatureAffine2D(int subset_radius_x, int subset_radius_y) {
-		this->subset_radius_x = subset_radius_x;
-		this->subset_radius_y = subset_radius_y;
-		neighbor_search_radius = sqrtf(float(subset_radius_x * subset_radius_x + subset_radius_y * subset_radius_y));
+	//2D case----------------------------------------------------------------------------------
+	FeatureAffine2D::FeatureAffine2D(int radius_x, int radius_y) {
+		this->subset_radius_x = radius_x;
+		this->subset_radius_y = radius_y;
+		neighbor_search_radius = sqrtf(float(radius_x * radius_x + radius_y * radius_y));
 		min_neighbor_num = 14;
 		ransac_config.error_threshold = 1.5f;
 		ransac_config.sample_mumber = 5;
 		ransac_config.trial_number = 10;
+
+		neighbor_search = new NearestNeighbor();
 	}
 
 	FeatureAffine2D::~FeatureAffine2D() {
+		if (neighbor_search != nullptr) {
+			delete neighbor_search;
+		}
 	}
 
 	void FeatureAffine2D::prepare() {
+		neighbor_search->assignPoints(ref_kp);
+		neighbor_search->setSearchRadius(neighbor_search_radius);
+		neighbor_search->setSearchK(min_neighbor_num);
+		neighbor_search->constructKdTree();
 	}
 
 	void FeatureAffine2D::compute(POI2D* poi) {
-		//brutal force search for neighbor keypoints
-		std::vector<KeypointIndex> ref_sorted_index;
-		std::vector<Point2D> tar_candidates, ref_candidates;
+		Point3D current_point(poi->x, poi->y, 0.f);
+		std::vector<Point2D> ref_candidates, tar_candidates;
 
-		//sort the kp queue in a descendent order of distance to the POI
-		int queue_size = (int)ref_kp.size();
-		for (int i = 0; i < queue_size; ++i) {
-			Point2D distance = ref_kp[i] - (Point2D)*poi;
-			KeypointIndex current_kp_idx;
-			current_kp_idx.index_in_queue = i;
-			current_kp_idx.distance_to_poi = distance.vectorNorm();
-			ref_sorted_index.push_back(current_kp_idx);
+		//search the neighbor keypoints in a region of given radius
+		std::vector<std::pair<uint32_t, float>> current_matches;
+		int num_candidate = neighbor_search->radiusSearch(current_point, current_matches);
+
+		ref_candidates.resize(num_candidate);
+		tar_candidates.resize(num_candidate);
+		if (num_candidate >= min_neighbor_num) {
+			for (int i = 0; i < num_candidate; i++) {
+				ref_candidates[i] = ref_kp[current_matches[i].first];
+				tar_candidates[i] = tar_kp[current_matches[i].first];
+			}
+		}
+		//try KNN search if the obtained neighbor keypoints are not enough
+		else {
+			std::vector<Point2D>().swap(ref_candidates);
+			std::vector<Point2D>().swap(tar_candidates);
+
+			std::vector<uint32_t> k_neighbors_idx;
+			std::vector<float> kp_squared_distance;
+
+			num_candidate = neighbor_search->knnSearch(current_point, k_neighbors_idx, kp_squared_distance);
+
+			ref_candidates.resize(num_candidate);
+			tar_candidates.resize(num_candidate);
+			for (int i = 0; i < num_candidate; i++) {
+				ref_candidates[i] = ref_kp[k_neighbors_idx[i]];
+				tar_candidates[i] = tar_kp[k_neighbors_idx[i]];
+			}
 		}
 
-		std::sort(ref_sorted_index.begin(), ref_sorted_index.end(), sortByDistance);
+		//use the brutal force search for those POIs with too few keypoints nearby
+		if (num_candidate < min_neighbor_num) {
+			std::vector<Point2D>().swap(ref_candidates);
+			std::vector<Point2D>().swap(tar_candidates);
 
-		//pick the keypoints for RANSAC procedure
-		int i = 0;
-		while (ref_sorted_index[i].distance_to_poi < neighbor_search_radius || ref_candidates.size() <= min_neighbor_num) {
-			tar_candidates.push_back(tar_kp[ref_sorted_index[i].index_in_queue]);
-			ref_candidates.push_back(ref_kp[ref_sorted_index[i].index_in_queue]);
-			i++;
+			//sort the kp queue in an ascending order of distance to the POI
+			std::vector<KeypointIndex> ref_sorted_index;
+			int queue_size = (int)ref_kp.size();
+			for (int i = 0; i < queue_size; ++i) {
+				Point2D distance = ref_kp[i] - (Point2D)*poi;
+				KeypointIndex current_kp_idx;
+				current_kp_idx.idx_in_queue = i;
+				current_kp_idx.distance_to_poi = distance.vectorNorm();
+				ref_sorted_index.push_back(current_kp_idx);
+			}
+
+			std::sort(ref_sorted_index.begin(), ref_sorted_index.end(), sortByDistance);
+
+			//pick the keypoints for RANSAC procedure
+			int i = 0;
+			while (ref_sorted_index[i].distance_to_poi < neighbor_search_radius || ref_candidates.size() < min_neighbor_num) {
+				ref_candidates.push_back(ref_kp[ref_sorted_index[i].idx_in_queue]);
+				tar_candidates.push_back(tar_kp[ref_sorted_index[i].idx_in_queue]);
+				i++;
+			}
+			num_candidate = (int)ref_candidates.size();
 		}
 
 		//convert global coordinates to the POI-centered local coordinates
-		int candidate_number = (int)ref_candidates.size();
-		for (int i = 0; i < candidate_number; ++i) {
-			tar_candidates[i] = tar_candidates[i] - (Point2D)*poi;
+		for (int i = 0; i < num_candidate; ++i) {
 			ref_candidates[i] = ref_candidates[i] - (Point2D)*poi;
+			tar_candidates[i] = tar_candidates[i] - (Point2D)*poi;
 		}
 
 		//RANSAC procedure, refer to Yang et al. Opt Laser Eng (2020), 127, 105964 for details
-		std::vector<int> candidate_index(candidate_number);
+		std::vector<int> candidate_index(num_candidate);
 		std::iota(candidate_index.begin(), candidate_index.end(), 0);
 
 		int trial_number = 0;
 		float location_mean_error;
 		std::vector<int> max_set;
+
+		//random number generator
+		std::random_device rd;
+		std::mt19937_64 gen64(rd());
 		do {
 			//randomly select samples
-			std::random_shuffle(candidate_index.begin(), candidate_index.end());
+			std::shuffle(candidate_index.begin(), candidate_index.end(), gen64);
 
-			Eigen::MatrixXf tar_neighbors(ransac_config.sample_mumber, 3);
 			Eigen::MatrixXf ref_neighbors(ransac_config.sample_mumber, 3);
+			Eigen::MatrixXf tar_neighbors(ransac_config.sample_mumber, 3);
 			for (int j = 0; j < ransac_config.sample_mumber; j++) {
-				tar_neighbors(j, 0) = tar_candidates[candidate_index[j]].x;
-				tar_neighbors(j, 1) = tar_candidates[candidate_index[j]].y;
-				tar_neighbors(j, 2) = 1.f;
-
 				ref_neighbors(j, 0) = ref_candidates[candidate_index[j]].x;
 				ref_neighbors(j, 1) = ref_candidates[candidate_index[j]].y;
 				ref_neighbors(j, 2) = 1.f;
+				tar_neighbors(j, 0) = tar_candidates[candidate_index[j]].x;
+				tar_neighbors(j, 1) = tar_candidates[candidate_index[j]].y;
+				tar_neighbors(j, 2) = 1.f;
 			}
 			Eigen::Matrix3f affine_matrix = ref_neighbors.colPivHouseholderQr().solve(tar_neighbors);
 
@@ -98,7 +147,7 @@ namespace opencorr
 			std::vector<int> trial_set;
 			location_mean_error = 0;
 			float px, py, estimated_error;
-			for (int j = 0; j < candidate_number; j++) {
+			for (int j = 0; j < num_candidate; j++) {
 				px = (float)(ref_candidates[candidate_index[j]].x * affine_matrix(0, 0)
 					+ ref_candidates[candidate_index[j]].y * affine_matrix(1, 0) + affine_matrix(2, 0))
 					- tar_candidates[candidate_index[j]].x;
@@ -128,8 +177,8 @@ namespace opencorr
 			poi->result.zncc = 0;
 		}
 
-		Eigen::MatrixXf tar_neighbors(max_set_size, 3);
 		Eigen::MatrixXf ref_neighbors(max_set_size, 3);
+		Eigen::MatrixXf tar_neighbors(max_set_size, 3);
 
 		for (int i = 0; i < max_set_size; i++)
 		{
@@ -156,13 +205,13 @@ namespace opencorr
 	}
 
 	void FeatureAffine2D::compute(std::vector<POI2D>& poi_queue) {
-#pragma omp parallel for
+		//#pragma omp parallel for
 		for (int i = 0; i < poi_queue.size(); ++i) {
 			compute(&poi_queue[i]);
 		}
 	}
 
-	RANSACconfig FeatureAffine2D::getRANSAC() const {
+	RansacConfig FeatureAffine2D::getRansacConfig() const {
 		return ransac_config;
 	}
 
@@ -170,7 +219,7 @@ namespace opencorr
 		return neighbor_search_radius;
 	}
 
-	int FeatureAffine2D::getMinimumNeighborNumber() const {
+	int FeatureAffine2D::getMinNeighborNumber() const {
 		return min_neighbor_num;
 	}
 
@@ -179,7 +228,7 @@ namespace opencorr
 		this->min_neighbor_num = min_neighbor_num;
 	}
 
-	void FeatureAffine2D::setRANSAC(RANSACconfig ransac_config) {
+	void FeatureAffine2D::setRansacConfig(RansacConfig ransac_config) {
 		this->ransac_config = ransac_config;
 	}
 

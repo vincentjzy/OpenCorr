@@ -7,7 +7,7 @@
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * file, You can obtain one from http://mozilla.org/MPL/2.0/.
  *
  * More information about OpenCorr can be found at https://www.opencorr.org/
  */
@@ -54,7 +54,7 @@ namespace opencorr
 		float convergence; //convergence criterion in undistortion
 		int iteration; //stop condition in undistortion
 
-		//map of distorted coordinates in image coordinate system
+		//map of distorted coordinates in image coordinate system corresponding to the integral pixel coordinates in sensor system
 		Eigen::MatrixXf map_x;
 		Eigen::MatrixXf map_y;
 
@@ -75,13 +75,12 @@ namespace opencorr
 		Point2D image_to_sensor(Point2D& point);
 		Point2D sensor_to_image(Point2D& point);
 
-		//create a map of distorted coordinates in image/retina system corresponding to the integer pixel coordinates
+		/* create a map of distorted coordinates in image/retina system
+		corresponding to the integral pixel coordinates in sensor/pixel system */
 		void prepare(int height, int width);
 
-		//distort the sensor coordinate of point
+		//distort the coordinate of a point in image coordinate system
 		Point2D distort(Point2D& point);
-		//iterative correction procedure, maybe more efficient for a small number of points to process 
-		Point2D undistort_nt(Point2D& point);
 		//correction procedure based on interpolation
 		Point2D undistort(Point2D& point);
 

@@ -1,5 +1,5 @@
 /*
- This example demonstrates how to use OpenCorr to perform stereo matching of
+ This example demonstrates how to use OpenCorr to perform stereo matching of 
  points in two camera views, using the epipolar constraint aided method and
  the ICGN algorithm with the 2nd order shape function.
 */
@@ -132,11 +132,11 @@ int main() {
 	epipolar_search->setSearch(search_radius, search_step);
 
 	//initialize an ICGN2D1 instance in epipolar constraint aided matching
-	subset_radius_x = 15;
-	subset_radius_y = 15;
+	subset_radius_x = 20;
+	subset_radius_y = 20;
 	conv_criterion = 0.05f;
 	stop_condition = 5;
-	epipolar_search->setICGN(subset_radius_x, subset_radius_y, conv_criterion, stop_condition);
+	epipolar_search->createICGN(subset_radius_x, subset_radius_y, conv_criterion, stop_condition);
 
 	//get the time of end 
 	double timer_toc = omp_get_wtime();
@@ -165,9 +165,16 @@ int main() {
 		Point2D current_location(poi_queue[i].x, poi_queue[i].y);
 		Point2D current_offset(poi_queue[i].deformation.u, poi_queue[i].deformation.v);
 		view2_pt_queue[i] = current_location + current_offset;
-		poi_result_queue[i].result.r2_x = view2_pt_queue[i].x;
-		poi_result_queue[i].result.r2_y = view2_pt_queue[i].y;
-		poi_result_queue[i].result.r1r2_zncc = poi_queue[i].result.zncc;
+		if (isnan(poi_queue[i].result.zncc)) {
+			poi_result_queue[i].result.r2_x = 0;
+			poi_result_queue[i].result.r2_y = 0;
+			poi_result_queue[i].result.r1r2_zncc = -2;
+		}
+		else {
+			poi_result_queue[i].result.r2_x = view2_pt_queue[i].x;
+			poi_result_queue[i].result.r2_y = view2_pt_queue[i].y;
+			poi_result_queue[i].result.r1r2_zncc = poi_queue[i].result.zncc;
+		}
 	}
 
 

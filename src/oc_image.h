@@ -7,7 +7,7 @@
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * file, You can obtain one from http://mozilla.org/MPL/2.0/.
  *
  * More information about OpenCorr can be found at https://www.opencorr.org/
  */
@@ -17,10 +17,12 @@
 #ifndef _IMAGE_H_
 #define _IMAGE_H_
 
-#include "oc_array.h"
-#include <string>
+#include <Eigen>
 #include <opencv2/opencv.hpp>
 #include <opencv2/core/eigen.hpp>
+#include <string>
+
+#include "oc_array.h"
 
 using std::string;
 
@@ -48,6 +50,15 @@ namespace opencorr
 	public:
 		int dim_x, dim_y, dim_z;
 		string file_path;
+
+		float*** vol_mat = nullptr;
+
+		Image3D(int dim_x, int dim_y, int dim_z);
+		Image3D(string file_path);
+		~Image3D();
+
+		void load(string file_path);
+		void loadTIFF(string file_path);
 	};
 
 }//namespace opencorr

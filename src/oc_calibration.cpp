@@ -7,7 +7,7 @@
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * file, You can obtain one from http://mozilla.org/MPL/2.0/.
  *
  * More information about OpenCorr can be found at https://www.opencorr.org/
  */
@@ -174,46 +174,6 @@ namespace opencorr
 
 	}
 
-	Point2D Calibration::undistort_nt(Point2D& point) {
-		//convert to the image coordinates
-		Point2D image_coordinate(sensor_to_image(point));
-
-		//initialize the coordinates for Newton algorithm
-		int i = 0;
-		Point2D coordinate_previous;
-		Point2D coordinate_current(image_coordinate.x, image_coordinate.y);
-		Point2D coordinate_increment(1, 1);
-
-		//iterative procedure for undistortion
-		while (i < iteration && (fabs(coordinate_increment.x) > convergence || fabs(coordinate_increment.y) > convergence)) {
-			i++;
-			coordinate_previous = coordinate_current;
-
-			//prepare the variables
-			float physical_xx = coordinate_previous.x * coordinate_previous.x;
-			float physical_yy = coordinate_previous.y * coordinate_previous.y;
-			float physical_xy = coordinate_previous.x * coordinate_previous.y;
-			float distortion_r2 = physical_xx + physical_yy;
-			float distrotion_r4 = distortion_r2 * distortion_r2;
-			float distortion_r6 = distortion_r2 * distrotion_r4;
-
-			//undistort the coordinates
-			float radial_factor = (1 + intrinsics.k4 * distortion_r2 + intrinsics.k5 * distrotion_r4 + intrinsics.k5 * distortion_r6)
-				/ (1 + intrinsics.k1 * distortion_r2 + intrinsics.k2 * distrotion_r4 + intrinsics.k3 * distortion_r6);
-			float tangential_y = intrinsics.p1 * (distortion_r2 + 2 * physical_yy) + 2 * intrinsics.p2 * physical_xy;
-			float tangential_x = 2 * intrinsics.p1 * physical_xy + intrinsics.p2 * (distortion_r2 + 2 * physical_xx);
-			coordinate_current.y = (coordinate_previous.y - tangential_y) * radial_factor;
-			coordinate_current.x = (coordinate_previous.x - tangential_x) * radial_factor;
-
-			//calculate the increment
-			coordinate_increment = coordinate_current - coordinate_previous;
-		}
-
-		//convert back to the sensor coordinates
-		Point2D undistorted_coordinate(image_to_sensor(image_coordinate));
-		return undistorted_coordinate;
-	}
-
 	Point2D Calibration::undistort(Point2D& point) {
 		//deal with the points adjacent to boundary
 		if (point.x < 0)
@@ -226,8 +186,8 @@ namespace opencorr
 			point.y = (float)map_y.rows() - 2.f;
 
 		//get integral part and decimal part of the coordinate
-		int y_integral = (int)floor(point.y);
-		int x_integral = (int)floor(point.x);
+		int y_integral = (int)floorf(point.y);
+		int x_integral = (int)floorf(point.x);
 
 		float y_decimal = point.y - y_integral;
 		float x_decimal = point.x - x_integral;

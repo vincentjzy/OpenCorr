@@ -10,7 +10,7 @@ using namespace opencorr;
 using namespace std;
 
 int main() {
-//set files to process
+	//set files to process
 	string ref_image_path = "../samples/oht_cfrp_0.bmp";
 	string tar_image_path = "../samples/oht_cfrp_4.bmp";
 	Image2D ref_img(ref_image_path);
@@ -66,6 +66,7 @@ int main() {
 	FeatureAffine2D* feature_affine = new FeatureAffine2D(subset_radius_x, subset_radius_y);
 	feature_affine->setImages(ref_img, tar_img);
 	feature_affine->setKeypointPair(sift->ref_matched_kp, sift->tar_matched_kp);
+	feature_affine->prepare();
 	feature_affine->compute(poi_queue);
 
 	//get the time of end 

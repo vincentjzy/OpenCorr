@@ -7,16 +7,19 @@
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * file, You can obtain one from http://mozilla.org/MPL/2.0/.
  *
  * More information about OpenCorr can be found at https://www.opencorr.org/
  */
+
+#include <math.h>
+#include <omp.h>
 
 #include "oc_icgn.h"
 
 namespace opencorr
 {
-	//the 1st order shape function--------------------------------------------
+	//DIC, the 1st order shape function--------------------------------------------
 	ICGN2D1_* ICGN2D1_::allocate(int subset_radius_x, int subset_radius_y) {
 		int subset_width = 2 * subset_radius_x + 1;
 		int subset_height = 2 * subset_radius_y + 1;
@@ -35,6 +38,15 @@ namespace opencorr
 		delete instance->ref_subset;
 		delete instance->tar_subset;
 		delete3D(instance->sd_img);
+	}
+
+	ICGN2D1_* ICGN2D1::getInstance(int tid)
+	{
+		if (tid >= (int)instance_pool.size()) {
+			throw std::string("CPU thread ID over limit");
+		}
+
+		return instance_pool[tid];
 	}
 
 	ICGN2D1::ICGN2D1(int subset_radius_x, int subset_radius_y, float conv_criterion, float stop_condition, int thread_number)
@@ -70,15 +82,6 @@ namespace opencorr
 	void ICGN2D1::setIteration(POI2D* poi) {
 		conv_criterion = poi->result.convergence;
 		stop_condition = (int)poi->result.iteration;
-	}
-
-	ICGN2D1_* ICGN2D1::getInstance(int tid)
-	{
-		if (tid >= (int)instance_pool.size()) {
-			throw std::string("CPU thread ID over limit");
-		}
-
-		return instance_pool[tid];
 	}
 
 	void ICGN2D1::prepareRef() {
@@ -131,8 +134,8 @@ namespace opencorr
 				for (int c = 0; c < subset_width; c++) {
 					int x_local = c - subset_radius_x;
 					int y_local = r - subset_radius_y;
-					int x_global = poi->x + x_local;
-					int y_global = poi->y + y_local;
+					int x_global = (int)poi->x + x_local;
+					int y_global = (int)poi->y + y_local;
 					float ref_gradient_x = ref_gradient->gradient_x(y_global, x_global);
 					float ref_gradient_y = ref_gradient->gradient_y(y_global, x_global);
 
@@ -258,7 +261,7 @@ namespace opencorr
 
 
 
-	//the 2nd order shape function--------------------------------------------
+	//DIC, the 2nd order shape function--------------------------------------------
 	ICGN2D2_* ICGN2D2_::allocate(int subset_radius_x, int subset_radius_y) {
 		int subset_width = 2 * subset_radius_x + 1;
 		int subset_height = 2 * subset_radius_y + 1;
@@ -277,6 +280,15 @@ namespace opencorr
 		delete instance->ref_subset;
 		delete instance->tar_subset;
 		delete3D(instance->sd_img);
+	}
+
+	ICGN2D2_* ICGN2D2::getInstance(int tid)
+	{
+		if (tid >= (int)instance_pool.size()) {
+			throw std::string("CPU thread ID over limit");
+		}
+
+		return instance_pool[tid];
 	}
 
 	ICGN2D2::ICGN2D2(int thread_number) :ref_gradient(nullptr), tar_interp(nullptr) {
@@ -321,15 +333,6 @@ namespace opencorr
 	void ICGN2D2::setIteration(POI2D* poi) {
 		conv_criterion = poi->result.convergence;
 		stop_condition = poi->result.iteration;
-	}
-
-	ICGN2D2_* ICGN2D2::getInstance(int tid)
-	{
-		if (tid >= (int)instance_pool.size()) {
-			throw std::string("CPU thread ID over limit");
-		}
-
-		return instance_pool[tid];
 	}
 
 	void ICGN2D2::prepareRef() {
@@ -385,8 +388,8 @@ namespace opencorr
 					float xx_local = (x_local * x_local) * 0.5f;
 					float xy_local = (float)(x_local * y_local);
 					float yy_local = (y_local * y_local) * 0.5f;
-					int x_global = poi->x + x_local;
-					int y_global = poi->y + y_local;
+					int x_global = (int)poi->x + x_local;
+					int y_global = (int)poi->y + y_local;
 					float ref_gradient_x = ref_gradient->gradient_x(y_global, x_global);
 					float ref_gradient_y = ref_gradient->gradient_y(y_global, x_global);
 

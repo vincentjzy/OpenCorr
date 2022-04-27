@@ -7,7 +7,7 @@
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * file, You can obtain one from http://mozilla.org/MPL/2.0/.
  *
  * More information about OpenCorr can be found at https://www.opencorr.org/
  */
@@ -41,7 +41,7 @@ namespace opencorr
 		void setDeformation(Deformation2D1& another_deformation);
 
 		void setWarp(); //update warp_matrix according to deformation
-		Point2D warp(Point2D& point);
+		Point2D warp(Point2D& location);
 	};
 
 	//2D 2nd order
@@ -66,7 +66,7 @@ namespace opencorr
 		void setDeformation(Deformation2D1& another_deformation);
 
 		void setWarp(); //update deformation according to warp2d2
-		Point2D warp(Point2D point);
+		Point2D warp(Point2D location);
 	};
 
 	//3D 1st order
@@ -76,6 +76,22 @@ namespace opencorr
 		float u, ux, uy, uz;
 		float v, vx, vy, vz;
 		float w, wx, wy, wz;
+		Eigen::Matrix4f warp_matrix;
+
+		Deformation3D1();
+		Deformation3D1(float u, float ux, float uy, float uz,
+			float v, float vx, float vy, float vz, float w, float wx, float wy, float wz);
+		Deformation3D1(float p[12]);
+		~Deformation3D1();
+
+		void setDeformation(); // set deformation according to warp_matrix
+		void setDeformation(float u, float ux, float uy, float uz,
+			float v, float vx, float vy, float vz, float w, float wx, float wy, float wz);
+		void setDeformation(float p[12]);
+		void setDeformation(Deformation3D1& another_deformation);
+
+		void setWarp(); //update warp_matrix according to deformation
+		Point3D warp(Point3D& point);
 	};
 
 }//namespace opencorr

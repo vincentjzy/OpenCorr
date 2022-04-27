@@ -7,7 +7,7 @@
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * file, You can obtain one from http://mozilla.org/MPL/2.0/.
  *
  * More information about OpenCorr can be found at https://www.opencorr.org/
  */
@@ -24,8 +24,6 @@
 #include "oc_image.h"
 #include "oc_poi.h"
 #include "oc_point.h"
-#include <opencv2/opencv.hpp>
-#include <opencv2/core/eigen.hpp>
 
 namespace opencorr
 {
@@ -38,7 +36,7 @@ namespace opencorr
 		Calibration view1_cam; //intrinsics and extrinsics of the principal camera
 		Calibration view2_cam; //intrinsics and extrinsics of the secondary camera
 		Eigen::Matrix3f fundamental_matrix; //fundamental mattrix of stereovision system
-		int icgn_sr_x, icgn_sr_y; //subset radius of ICGN
+		int icgn_rx, icgn_ry; //subset radius of ICGN
 		float icgn_conv; //convergence criterion of ICGN
 		float icgn_stop; //stop condition of ICGN
 
@@ -52,7 +50,7 @@ namespace opencorr
 		int getSearchStep() const;
 		Point2D getParallax() const;
 		void setSearch(int search_radius, int search_step);
-		void setICGN(int subset_radius_x, int subset_radius_y, float conv_criterion, float stop_condition);
+		void createICGN(int subset_radius_x, int subset_radius_y, float conv_criterion, float stop_condition);
 		void destoryICGN();
 		void setParallax(Point2D parallax);
 

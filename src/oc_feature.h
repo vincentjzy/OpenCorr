@@ -7,7 +7,7 @@
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * file, You can obtain one from http://mozilla.org/MPL/2.0/.
  *
  * More information about OpenCorr can be found at https://www.opencorr.org/
  */
@@ -16,15 +16,14 @@
 
 #ifndef _FEATURE_H_
 #define _FEATURE_H_
-#include "opencv2/imgproc/imgproc.hpp"
-#include <opencv2/opencv.hpp>
-#include <opencv2/xfeatures2d.hpp>
 
-#include "oc_dic.h"
+#include <opencv2/opencv.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
+#include <opencv2/features2d.hpp>
+
+#include "oc_array.h"
 #include "oc_image.h"
-#include "oc_poi.h"
 #include "oc_point.h"
-#include "oc_subset.h"
 
 namespace opencorr
 {
@@ -40,7 +39,6 @@ namespace opencorr
 		void setImages(Image2D& ref_img, Image2D& tar_img);
 		virtual void prepare() = 0;
 		virtual void compute() = 0;
-
 	};
 
 }//namespace opencorr

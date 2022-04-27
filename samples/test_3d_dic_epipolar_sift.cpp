@@ -43,14 +43,14 @@ int main() {
 	//create the instances of camera parameters
 	CameraIntrinsics view1_cam_intrinsics, view2_cam_intrinsics;
 	CameraExtrinsics view1_cam_extrinsics, view2_cam_extrinsics;
-	view1_cam_intrinsics.fx = 6673.3159f;
-	view1_cam_intrinsics.fy = 6669.3027f;
+	view1_cam_intrinsics.fx = 6673.315918f;
+	view1_cam_intrinsics.fy = 6669.302734f;
 	view1_cam_intrinsics.fs = 0.f;
 	view1_cam_intrinsics.cx = 872.15778f;
 	view1_cam_intrinsics.cy = 579.95532f;
-	view1_cam_intrinsics.k1 = 0.03225895f;
-	view1_cam_intrinsics.k2 = -1.0114142f;
-	view1_cam_intrinsics.k3 = 29.788389f;
+	view1_cam_intrinsics.k1 = 0.032258954f;
+	view1_cam_intrinsics.k2 = -1.01141417f;
+	view1_cam_intrinsics.k3 = 29.78838921f;
 	view1_cam_intrinsics.k4 = 0;
 	view1_cam_intrinsics.k5 = 0;
 	view1_cam_intrinsics.k6 = 0;
@@ -64,14 +64,14 @@ int main() {
 	view1_cam_extrinsics.ry = 0;
 	view1_cam_extrinsics.rz = 0;
 
-	view2_cam_intrinsics.fx = 6607.6182f;
-	view2_cam_intrinsics.fy = 6602.8574f;
+	view2_cam_intrinsics.fx = 6607.618164f;
+	view2_cam_intrinsics.fy = 6602.857422f;
 	view2_cam_intrinsics.fs = 0.f;
-	view2_cam_intrinsics.cx = 917.97339f;
-	view2_cam_intrinsics.cy = 531.63525f;
-	view2_cam_intrinsics.k1 = 0.06459849f;
-	view2_cam_intrinsics.k2 = -4.531374f;
-	view2_cam_intrinsics.k3 = 29.788389f;
+	view2_cam_intrinsics.cx = 917.9733887f;
+	view2_cam_intrinsics.cy = 531.6352539f;
+	view2_cam_intrinsics.k1 = 0.064598486f;
+	view2_cam_intrinsics.k2 = -4.531373978f;
+	view2_cam_intrinsics.k3 = 29.78838921f;
 	view2_cam_intrinsics.k4 = 0;
 	view2_cam_intrinsics.k5 = 0;
 	view2_cam_intrinsics.k6 = 0;
@@ -81,9 +81,9 @@ int main() {
 	view2_cam_extrinsics.tx = 122.24886f;
 	view2_cam_extrinsics.ty = 1.8488892f;
 	view2_cam_extrinsics.tz = 17.624638f;
-	view2_cam_extrinsics.rx = 0.00307711f;
-	view2_cam_extrinsics.ry = -0.33278773f;
-	view2_cam_extrinsics.rz = 0.00524556f;
+	view2_cam_extrinsics.rx = 0.01450813f;
+	view2_cam_extrinsics.ry = -0.39152833f;
+	view2_cam_extrinsics.rz = 0.01064092f;
 
 	//create the instances for stereovision
 	Calibration cam_view1_calib(view1_cam_intrinsics, view1_cam_extrinsics);
@@ -157,7 +157,7 @@ int main() {
 	subset_radius_y = 20;
 	conv_criterion = 0.05f;
 	stop_condition = 5;
-	epipolar_search->setICGN(subset_radius_x, subset_radius_y, conv_criterion, stop_condition);
+	epipolar_search->createICGN(subset_radius_x, subset_radius_y, conv_criterion, stop_condition);
 
 	//get the time of end 
 	double timer_toc = omp_get_wtime();
@@ -210,6 +210,7 @@ int main() {
 	//estimate the deformation according to the SIFT features around each POIs
 	feature_affine->setImages(ref_view1_img, tar_view1_img);
 	feature_affine->setKeypointPair(sift->ref_matched_kp, sift->tar_matched_kp);
+	feature_affine->prepare();
 	feature_affine->compute(poi_queue);
 
 	//high accuracy registration

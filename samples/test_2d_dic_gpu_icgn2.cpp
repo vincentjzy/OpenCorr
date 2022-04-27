@@ -58,6 +58,7 @@ int main() {
 	FeatureAffine2D* feature_affine = new FeatureAffine2D(subset_radius_x, subset_radius_y);
 	feature_affine->setImages(ref_img, tar_img);
 	feature_affine->setKeypointPair(sift->ref_matched_kp, sift->tar_matched_kp);
+	feature_affine->prepare();
 	feature_affine->compute(poi_queue);
 
 	//initialize the reference image and target image for GPU accelerated processing

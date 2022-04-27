@@ -7,7 +7,7 @@
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * file, You can obtain one from http://mozilla.org/MPL/2.0/.
  *
  * More information about OpenCorr can be found at https://www.opencorr.org/
  */
@@ -23,7 +23,7 @@ namespace opencorr
 	}
 
 	void delete2D(float**& ptr) {
-		if (!ptr) return;
+		if (ptr == nullptr) return;
 		hDestroyPtr(ptr);
 	}
 
@@ -34,7 +34,7 @@ namespace opencorr
 	}
 
 	void delete3D(float***& ptr) {
-		if (!ptr) return;
+		if (ptr == nullptr) return;
 		hDestroyPtr(ptr);
 	}
 
@@ -45,7 +45,7 @@ namespace opencorr
 	}
 
 	void delete4D(float****& ptr) {
-		if (!ptr) return;
+		if (ptr == nullptr) return;
 		hDestroyPtr(ptr);
 	}
 

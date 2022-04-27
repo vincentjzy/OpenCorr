@@ -7,11 +7,12 @@
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * file, You can obtain one from http://mozilla.org/MPL/2.0/.
  *
  * More information about OpenCorr can be found at https://www.opencorr.org/
  */
 
+#include <math.h>
 #include <omp.h>
 #include "oc_fftcc.h"
 
@@ -20,23 +21,50 @@ namespace opencorr {
 	FFTW* FFTW::allocate(int subset_radius_x, int subset_radius_y) {
 		int width = 2 * subset_radius_x;
 		int height = 2 * subset_radius_y;
-		int length = subset_radius_y + 1;
+		int buffer_length = width * (subset_radius_y + 1);
+		unsigned int subset_size = width * height;
 
 		FFTW* FFTW_instance = new FFTW;
 
-		FFTW_instance->ref_freq = (fftwf_complex*)fftw_malloc(sizeof(fftwf_complex) * width * length);
-		FFTW_instance->tar_freq = (fftwf_complex*)fftw_malloc(sizeof(fftwf_complex) * width * length);
-		FFTW_instance->zncc_freq = (fftwf_complex*)fftw_malloc(sizeof(fftwf_complex) * width * length);
+		FFTW_instance->ref_freq = (fftwf_complex*)fftw_malloc(sizeof(fftwf_complex) * buffer_length);
+		FFTW_instance->tar_freq = (fftwf_complex*)fftw_malloc(sizeof(fftwf_complex) * buffer_length);
+		FFTW_instance->zncc_freq = (fftwf_complex*)fftw_malloc(sizeof(fftwf_complex) * buffer_length);
 
-		FFTW_instance->ref_subset = new float[width * height];
-		FFTW_instance->tar_subset = new float[width * height];
-		FFTW_instance->zncc = new float[width * height];
+		FFTW_instance->ref_subset = new float[subset_size];
+		FFTW_instance->tar_subset = new float[subset_size];
+		FFTW_instance->zncc = new float[subset_size];
 
 #pragma omp critical 
 		{
 			FFTW_instance->ref_plan = fftwf_plan_dft_r2c_2d(width, height, FFTW_instance->ref_subset, FFTW_instance->ref_freq, FFTW_ESTIMATE);
 			FFTW_instance->tar_plan = fftwf_plan_dft_r2c_2d(width, height, FFTW_instance->tar_subset, FFTW_instance->tar_freq, FFTW_ESTIMATE);
 			FFTW_instance->zncc_plan = fftwf_plan_dft_c2r_2d(width, height, FFTW_instance->zncc_freq, FFTW_instance->zncc, FFTW_ESTIMATE);
+		}
+		return FFTW_instance;
+	}
+
+	FFTW* FFTW::allocate(int subset_radius_x, int subset_radius_y, int subset_radius_z) {
+		int dim_x = 2 * subset_radius_x;
+		int dim_y = 2 * subset_radius_y;
+		int dim_z = 2 * subset_radius_z;
+		int buffer_length = dim_x * dim_y * (subset_radius_z + 1);
+		unsigned int subset_size = dim_x * dim_y * dim_z;
+
+		FFTW* FFTW_instance = new FFTW;
+
+		FFTW_instance->ref_freq = (fftwf_complex*)fftw_malloc(sizeof(fftwf_complex) * buffer_length);
+		FFTW_instance->tar_freq = (fftwf_complex*)fftw_malloc(sizeof(fftwf_complex) * buffer_length);
+		FFTW_instance->zncc_freq = (fftwf_complex*)fftw_malloc(sizeof(fftwf_complex) * buffer_length);
+
+		FFTW_instance->ref_subset = new float[subset_size];
+		FFTW_instance->tar_subset = new float[subset_size];
+		FFTW_instance->zncc = new float[subset_size];
+
+#pragma omp critical 
+		{
+			FFTW_instance->ref_plan = fftwf_plan_dft_r2c_3d(dim_x, dim_y, dim_z, FFTW_instance->ref_subset, FFTW_instance->ref_freq, FFTW_ESTIMATE);
+			FFTW_instance->tar_plan = fftwf_plan_dft_r2c_3d(dim_x, dim_y, dim_z, FFTW_instance->tar_subset, FFTW_instance->tar_freq, FFTW_ESTIMATE);
+			FFTW_instance->zncc_plan = fftwf_plan_dft_c2r_3d(dim_x, dim_y, dim_z, FFTW_instance->zncc_freq, FFTW_instance->zncc, FFTW_ESTIMATE);
 		}
 		return FFTW_instance;
 	}
@@ -53,6 +81,7 @@ namespace opencorr {
 		fftwf_destroy_plan(instance->zncc_plan);
 	}
 
+	//FFT accelerated cross correlation 2D
 	FFTCC2D::FFTCC2D(int subset_radius_x, int subset_radius_y, int thread_number) {
 		this->subset_radius_x = subset_radius_x;
 		this->subset_radius_y = subset_radius_y;
@@ -100,12 +129,14 @@ namespace opencorr {
 		for (int r = 0; r < subset_height; r++) {
 			for (int c = 0; c < subset_width; c++) {
 				Point2D ref_point(poi->x + c - subset_radius_x, poi->y + r - subset_radius_y);
-				current_instance->ref_subset[r * subset_width + c] = ref_img->eg_mat(ref_point.y, ref_point.x);
-				ref_mean += current_instance->ref_subset[r * subset_width + c];
+				float value = ref_img->eg_mat(int(ref_point.y), int(ref_point.x));
+				current_instance->ref_subset[r * subset_width + c] = value;
+				ref_mean += value;
 				//fill the target subset with initial guess
 				Point2D tar_point = ref_point + initial_displacement;
-				current_instance->tar_subset[r * subset_width + c] = tar_img->eg_mat(tar_point.y, tar_point.x);
-				tar_mean += current_instance->tar_subset[r * subset_width + c];
+				value = tar_img->eg_mat(int(tar_point.y), int(tar_point.x));
+				current_instance->tar_subset[r * subset_width + c] = value;
+				tar_mean += value;
 			}
 		}
 		ref_mean /= subset_size;
@@ -121,7 +152,8 @@ namespace opencorr {
 		fftwf_execute(current_instance->ref_plan);
 		fftwf_execute(current_instance->tar_plan);
 
-		for (int n = 0; n < subset_width * (subset_radius_y + 1); n++) {
+		int mat_length = subset_width * (subset_radius_y + 1);
+		for (int n = 0; n < mat_length; n++) {
 			current_instance->zncc_freq[n][0] = (current_instance->ref_freq[n][0] * current_instance->tar_freq[n][0])
 				+ (current_instance->ref_freq[n][1] * current_instance->tar_freq[n][1]);
 			current_instance->zncc_freq[n][1] = (current_instance->ref_freq[n][0] * current_instance->tar_freq[n][1])

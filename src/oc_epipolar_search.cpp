@@ -7,14 +7,14 @@
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * file, You can obtain one from http://mozilla.org/MPL/2.0/.
  *
  * More information about OpenCorr can be found at https://www.opencorr.org/
  */
 
-#include <vector>
 #include <algorithm>
 #include <omp.h>
+#include <vector>
 
 #include "oc_epipolar_search.h"
 
@@ -52,13 +52,13 @@ namespace opencorr
 		this->search_step = search_step;
 	}
 
-	void EpipolarSearch::setICGN(int subset_radius_x, int subset_radius_y, float conv_criterion, float stop_condition) {
-		icgn_sr_x = subset_radius_x;
-		icgn_sr_y = subset_radius_y;
+	void EpipolarSearch::createICGN(int subset_radius_x, int subset_radius_y, float conv_criterion, float stop_condition) {
+		icgn_rx = subset_radius_x;
+		icgn_ry = subset_radius_y;
 		icgn_conv = conv_criterion;
 		icgn_stop = stop_condition;
 
-		icgn1 = new ICGN2D1(icgn_sr_x, icgn_sr_y, icgn_conv, icgn_stop, thread_number);
+		icgn1 = new ICGN2D1(icgn_rx, icgn_ry, icgn_conv, icgn_stop, thread_number);
 	}
 
 	void EpipolarSearch::destoryICGN() {
@@ -135,7 +135,7 @@ namespace opencorr
 			y_trial = (int)(line_slope * x_trial + line_intercept);
 			current_poi.deformation.u = x_trial - poi->x;
 			current_poi.deformation.v = y_trial - poi->y;
-			if (x_trial - icgn_sr_x > 0 && x_trial + icgn_sr_x < icgn1->ref_img->width - 1 && y_trial - icgn_sr_y > 0 && y_trial + icgn_sr_y < icgn1->ref_img->height - 1) {
+			if (x_trial - icgn_rx > 0 && x_trial + icgn_rx < icgn1->ref_img->width - 1 && y_trial - icgn_ry > 0 && y_trial + icgn_ry < icgn1->ref_img->height - 1) {
 				poi_candidates.push_back(current_poi);
 			}
 
@@ -143,12 +143,15 @@ namespace opencorr
 			y_trial = (int)(line_slope * x_trial + line_intercept);
 			current_poi.deformation.u = x_trial - poi->x;
 			current_poi.deformation.v = y_trial - poi->y;
-			if (x_trial - icgn_sr_x > 0 && x_trial + icgn_sr_x < icgn1->ref_img->width - 1 && y_trial - icgn_sr_y > 0 && y_trial + icgn_sr_y < icgn1->ref_img->height - 1) {
+			if (x_trial - icgn_rx > 0 && x_trial + icgn_rx < icgn1->ref_img->width - 1 && y_trial - icgn_ry > 0 && y_trial + icgn_ry < icgn1->ref_img->height - 1) {
 				poi_candidates.push_back(current_poi);
 			}
 		}
 
-		icgn1->compute(poi_candidates);
+		int queue_size = (int)poi_candidates.size();
+		for (int i = 0; i < queue_size; i++) {
+			icgn1->compute(&poi_candidates[i]);
+		}
 
 		std::sort(poi_candidates.begin(), poi_candidates.end(), sortByZNCC);
 
@@ -159,7 +162,7 @@ namespace opencorr
 	}
 
 	void EpipolarSearch::compute(std::vector<POI2D>& poi_queue) {
-		//do not run it using multiple threads, as the internal icgn instance is already in multi-thread mode
+#pragma omp parallel for
 		for (int i = 0; i < poi_queue.size(); ++i) {
 			compute(&poi_queue[i]);
 		}

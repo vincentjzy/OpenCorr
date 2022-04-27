@@ -7,7 +7,7 @@
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * file, You can obtain one from http://mozilla.org/MPL/2.0/.
  *
  * More information about OpenCorr can be found at https://www.opencorr.org/
  */
@@ -38,7 +38,24 @@ namespace opencorr
 		void getGradientX(); //create an array of gradient_x
 		void getGradientY(); //create an array of gradient_y
 		void getGradientXY(); //create an array of gradient_xy
+	};
 
+	class Gradient3D4
+	{
+	protected:
+		Image3D* grad_img = nullptr;
+
+	public:
+		float*** gradient_x = nullptr;
+		float*** gradient_y = nullptr;
+		float*** gradient_z = nullptr;
+
+		Gradient3D4(Image3D& image);
+		~Gradient3D4();
+
+		void getGradientX(); //create an array of gradient_x
+		void getGradientY(); //create an array of gradient_y
+		void getGradientZ(); //create an array of gradient_z
 	};
 
 }//namespace opencorr
