@@ -205,7 +205,7 @@ namespace opencorr
 	}
 
 	void FeatureAffine2D::compute(std::vector<POI2D>& poi_queue) {
-	#pragma omp parallel for
+#pragma omp parallel for
 		for (int i = 0; i < poi_queue.size(); ++i) {
 			compute(&poi_queue[i]);
 		}
