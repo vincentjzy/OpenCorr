@@ -20,7 +20,7 @@ GPU accelerated ICGN module consists of three files: head (opencorr_gpu.h), stat
    
    *Figure 5.2. Setting directory of library in Visual Studio 2019*
 
-3. Add OpenCorrGPULib.lib as the additional dependencies, as illustrated in Figure 4.3;
+3. Add OpenCorrGPULib.lib as the additional dependencies, as illustrated in Figure 5.3;
    
    ![image](./img/vs_gpu_dependencies.png)
    
