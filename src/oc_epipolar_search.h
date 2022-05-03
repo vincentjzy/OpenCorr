@@ -32,13 +32,11 @@ namespace opencorr
 	protected:
 		int search_radius; //seaching radius along the epipolar
 		int search_step; //step of search along the epipolar
-		Point2D parallax; //parallax in view2 with respect to view1 
 		Calibration view1_cam; //intrinsics and extrinsics of the principal camera
 		Calibration view2_cam; //intrinsics and extrinsics of the secondary camera
 		Eigen::Matrix3f fundamental_matrix; //fundamental mattrix of stereovision system
-		int icgn_rx, icgn_ry; //subset radius of ICGN
-		float icgn_conv; //convergence criterion of ICGN
-		float icgn_stop; //stop condition of ICGN
+		Point2D parallax; //parallax in view2 with respect to view1 
+		float parallax_x[3], parallax_y[3]; //linear regression coefficients of parallax with respect to coordinates
 
 	public:
 		ICGN2D1* icgn1;
@@ -48,11 +46,13 @@ namespace opencorr
 
 		int getSearchRadius() const;
 		int getSearchStep() const;
-		Point2D getParallax() const;
 		void setSearch(int search_radius, int search_step);
 		void createICGN(int subset_radius_x, int subset_radius_y, float conv_criterion, float stop_condition);
+		void prepareICGN();
 		void destoryICGN();
+
 		void setParallax(Point2D parallax);
+		void setParallax(float coefficient_x[3], float coefficient_y[3]);
 
 		void updateCameras(Calibration& view1_cam, Calibration& view2_cam);
 		void updateFundementalMatrix();

@@ -30,6 +30,7 @@
 #include "oc_image.h"
 #include "oc_interpolation.h"
 #include "oc_io.h"
+#include "oc_nearest_neighbor.h"
 #include "oc_poi.h"
 #include "oc_point.h"
 #include "oc_sift.h"
