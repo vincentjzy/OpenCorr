@@ -119,8 +119,7 @@ namespace opencorr
 		warp_matrix(2, 2) = 1.f;
 	}
 
-
-	//deformation2d 2nd order////////////////////////////////////////////////////////////////////////////
+	//deformation2d 2nd order
 	Deformation2D2::Deformation2D2() {
 		u = 0.f;
 		ux = 0.f;
@@ -333,7 +332,7 @@ namespace opencorr
 		warp_matrix(5, 5) = 1.f;
 	}
 
-	//deformation3d 1st order////////////////////////////////////////////////////////////////////////////
+	//deformation3d 1st order
 	Deformation3D1::Deformation3D1() {
 		u = 0.f;
 		ux = 0.f;

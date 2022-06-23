@@ -38,7 +38,7 @@ namespace opencorr
 	}
 
 	float Point2D::vectorNorm() const {
-		return sqrtf(x * x + y * y);
+		return sqrt(x * x + y * y);
 	}
 
 	std::ostream& operator<<(std::ostream& output, const Point2D& point) {
@@ -69,7 +69,7 @@ namespace opencorr
 	}
 
 	float Point3D::vectorNorm() const {
-		return sqrtf(x * x + y * y + z * z);
+		return sqrt(x * x + y * y + z * z);
 	}
 
 	std::ostream& operator<<(std::ostream& output, const Point3D& point) {

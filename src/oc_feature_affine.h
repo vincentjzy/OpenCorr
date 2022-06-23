@@ -66,6 +66,33 @@ namespace opencorr
 		void setRansacConfig(RansacConfig ransac_config);
 	};
 
+	class FeatureAffine3D : public DVC
+	{
+	protected:
+		float neighbor_search_radius; //seaching radius for mached keypoints around a POI
+		int min_neighbor_num; //minimum number of neighbors required by RANSAC
+		RansacConfig ransac_config;
+
+	public:
+		std::vector<Point3D> ref_kp; //matched keypoints in ref image
+		std::vector<Point3D> tar_kp; //matched keypoints in tar image
+
+		FeatureAffine3D(int radius_x, int radius_y, int radius_z);
+		~FeatureAffine3D();
+
+		void setKeypointPair(std::vector<Point3D>& ref_kp, std::vector<Point3D>& tar_kp);
+		void prepare();
+		void compute(POI3D* poi);
+		void compute(std::vector<POI3D>& poi_queue);
+
+		RansacConfig getRansacConfig() const;
+		float getSearchRadius() const;
+		int getMinNeighborNumber() const;
+
+		void setSearchParameters(float neighbor_search_radius, int min_neighbor_num);
+		void setRansacConfig(RansacConfig ransac_config);
+	};
+
 	bool sortByDistance(const KeypointIndex& kp1, const KeypointIndex& kp2);
 
 }//namespace opencorr

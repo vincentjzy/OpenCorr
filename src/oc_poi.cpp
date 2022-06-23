@@ -65,4 +65,26 @@ namespace opencorr
 		tar_coor = zero_pt;
 	}
 
+	//POI3D
+	POI3D::POI3D(int x, int y, int z) :Point3D(x, y, z) {
+		clean();
+	}
+
+	POI3D::POI3D(float x, float y, float z) : Point3D(x, y, z) {
+		clean();
+	}
+
+	POI3D::POI3D(Point3D location) : Point3D(location) {
+		clean();
+	}
+
+	POI3D::~POI3D() {
+	}
+
+	void POI3D::clean() {
+		std::fill(std::begin(deformation.p), std::end(deformation.p), 0.f);
+		std::fill(std::begin(result.r), std::end(result.r), 0.f);
+		std::fill(std::begin(strain.e), std::end(strain.e), 0.f);
+	}
+
 }//namespace opencorr

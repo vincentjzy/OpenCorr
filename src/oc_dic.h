@@ -45,6 +45,26 @@ namespace opencorr
 
 	};
 
+	class DVC
+	{
+	public:
+		Image3D* ref_img = nullptr;
+		Image3D* tar_img = nullptr;
+
+		int subset_radius_x, subset_radius_y, subset_radius_z;
+		int thread_number; //OpenMP thread number
+
+		DVC();
+		virtual ~DVC() = default;
+
+		void setImages(Image3D& ref_img, Image3D& tar_img);
+		void setSubsetRadii(int radius_x, int radius_y, int radius_z);
+
+		virtual void prepare();
+		virtual void compute(POI3D* POI) = 0;
+		virtual void compute(std::vector<POI3D>& poi_queue) = 0;
+	};
+
 }//namespace opencorr
 
 #endif //_DIC_H_

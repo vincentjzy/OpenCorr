@@ -50,7 +50,7 @@ namespace opencorr
 		vector<POI2D> loadTable2D();
 
 		//load locations of POIs from csv table
-		vector<Point2D> loadPOI2D();
+		vector<Point2D> loadPoint2D();
 
 		void saveTable2D(vector<POI2D>& poi_queue);
 		void saveDeformationTable2D(vector<POI2D>& poi_queue);
@@ -68,6 +68,38 @@ namespace opencorr
 		/*	variable: 'u', 'v', 'w', 'c'(r1r2_zncc), 'd'(r1t1_zncc), 'e'(r1t2_zncc),
 			'x' (exx), 'y' (eyy), 'z' (ezz), 'r' (exy) , 's' (eyz), 't' (ezx)*/
 		void saveMap2DS(vector<POI2DS>& poi_queue, char variable);
+	};
+
+	class IO3D {
+	private:
+		string file_path;
+		string delimiter;
+		int dim_x, dim_y, dim_z;
+
+	public:
+		IO3D();
+		~IO3D();
+
+		string getPath() const;
+		string getDelimiter() const;
+		void setPath(string file_path);
+		void setDelimiter(string delimiter);
+
+		int getDimX();
+		int getDimY();
+		int getDimZ();
+		void setDimX(int dim_x);
+		void setDimY(int dim_y);
+		void setDimZ(int dim_z);
+
+		//load deformation of POIs from saved date table
+		vector<POI3D> loadTable3D();
+
+		//load locations of POIs from csv table
+		vector<Point3D> loadPoint3D();
+
+		void saveTable3D(vector<POI3D>& poi_queue);
+		void saveMatrixBin(vector<POI3D>& poi_queue);
 	};
 
 }//namespace opencorr

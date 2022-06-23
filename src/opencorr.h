@@ -18,8 +18,8 @@
 #define _OPENCORR_
 
 #include "oc_array.h"
-#include "oc_bicubic_bspline.h"
 #include "oc_calibration.h"
+#include "oc_cubic_bspline.h"
 #include "oc_deformation.h"
 #include "oc_dic.h"
 #include "oc_epipolar_search.h"
@@ -35,8 +35,7 @@
 #include "oc_point.h"
 #include "oc_sift.h"
 #include "oc_stereovision.h"
-#include "oc_subset.h"
 #include "oc_strain.h"
-#include "opencorr_gpu.h"
+#include "oc_subset.h"
 
 #endif //_OPENCORR_

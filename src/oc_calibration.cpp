@@ -186,8 +186,8 @@ namespace opencorr
 			point.y = (float)map_y.rows() - 2.f;
 
 		//get integral part and decimal part of the coordinate
-		int y_integral = (int)floorf(point.y);
-		int x_integral = (int)floorf(point.x);
+		int y_integral = (int)floor(point.y);
+		int x_integral = (int)floor(point.x);
 
 		float y_decimal = point.y - y_integral;
 		float x_decimal = point.x - x_integral;

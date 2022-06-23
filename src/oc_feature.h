@@ -17,8 +17,6 @@
 #ifndef _FEATURE_H_
 #define _FEATURE_H_
 
-#include <opencv2/opencv.hpp>
-#include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/features2d.hpp>
 
 #include "oc_array.h"
@@ -37,6 +35,20 @@ namespace opencorr
 		virtual ~Feature2D() = default;
 
 		void setImages(Image2D& ref_img, Image2D& tar_img);
+		virtual void prepare() = 0;
+		virtual void compute() = 0;
+	};
+
+	class Feature3D
+	{
+	protected:
+		Image3D* ref_img = nullptr;
+		Image3D* tar_img = nullptr;
+
+	public:
+		virtual ~Feature3D() = default;
+
+		void setImages(Image3D& ref_img, Image3D& tar_img);
 		virtual void prepare() = 0;
 		virtual void compute() = 0;
 	};

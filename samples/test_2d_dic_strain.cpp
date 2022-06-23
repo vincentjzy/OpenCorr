@@ -1,7 +1,8 @@
 /*
  This example demonstrates how to use OpenCorr to calculate the stain
  according to the polynomial fit displacement fields of u component and
- v component.
+ v component. The searching of neighbor POIs around a POI combines
+ FLANN and brute force searching.
 */
 
 #include "opencorr.h"
@@ -42,7 +43,6 @@ int main() {
 	Strain2D* strain = new Strain2D(strain_radius, min_neighbors, poi_queue);
 
 	//calculate the strain exx, exy, eyy
-	strain->prepare(poi_queue);
 	strain->compute(poi_queue);
 
 	//get time of end
@@ -58,7 +58,8 @@ int main() {
 	file_path = tar_image_path + "_eyy.csv";
 	in_out.setPath(file_path);
 
-	//variable: 'u', 'v', 'c'(zncc), 'd'(convergence), 'i'(iteration), 'f'(feature), 'x' (exx), 'y' (eyy), 'r' (exy)
+	//	variable: 'u', 'v', 'c'(zncc), 'd'(convergence), 'i'(iteration), 'f'(feature),
+	//	'x' (exx), 'y' (eyy), 'r' (exy)
 	in_out.saveMap2D(poi_queue, 'y');
 
 	cout << "Press any key to exit" << std::endl;

@@ -117,7 +117,7 @@ namespace opencorr
 		return poi_queue;
 	}
 
-	vector<Point2D> IO2D::loadPOI2D() {
+	vector<Point2D> IO2D::loadPoint2D() {
 		ifstream file_in(this->file_path);
 		if (!file_in) {
 			std::cerr << "failed to read file " << file_path << std::endl;
@@ -125,14 +125,14 @@ namespace opencorr
 
 		string data_line;
 		getline(file_in, data_line);
-		vector<Point2D> poi_queue;
+		vector<Point2D> point_queue;
 		size_t position1, position2;
 		string variable;
 		vector<float> key_buffer;
-		int poi_number = 0;
+		int point_number = 0;
 
 		while (getline(file_in, data_line)) {
-			poi_number++;
+			point_number++;
 			position1 = 0;
 			position2 = 0;
 			vector<float> empty_buffer;
@@ -140,24 +140,27 @@ namespace opencorr
 
 			position2 = data_line.find(delimiter, position1);
 			if (position2 == string::npos) {
-				std::cerr << "failed to read POI at line: " << poi_number << std::endl;
+				std::cerr << "failed to read POI at line: " << point_number << std::endl;
 			}
 			variable = data_line.substr(position1, position2 - position1);
-			if (!variable.empty())
+			if (!variable.empty()) {
 				key_buffer.push_back(std::stof(variable));
+			}
+
 			position1 = position2 + delimiter.length();
 			position2 = data_line.length();
 			variable = data_line.substr(position1, position2 - position1);
-			if (!variable.empty())
+			if (!variable.empty()) {
 				key_buffer.push_back(std::stof(variable));
+			}
 
 			float x = key_buffer[0];
 			float y = key_buffer[1];
-			Point2D current_poi(x, y);
+			Point2D current_point(x, y);
 
-			poi_queue.push_back(current_poi);
+			point_queue.push_back(current_point);
 		}
-		return poi_queue;
+		return point_queue;
 	}
 
 	void IO2D::saveTable2D(vector<POI2D>& poi_queue) {
@@ -529,6 +532,276 @@ namespace opencorr
 			}
 		}
 		file_out.close();
+	}
+
+
+	IO3D::IO3D() {
+	}
+
+	IO3D::~IO3D() {
+	}
+
+	string IO3D::getPath() const {
+		return file_path;
+	}
+
+	string IO3D::getDelimiter() const {
+		return delimiter;
+	}
+
+	void IO3D::setPath(string file_path) {
+		this->file_path = file_path;
+	}
+
+	void IO3D::setDelimiter(string delimiter) {
+		this->delimiter = delimiter;
+	}
+
+	int IO3D::getDimX() {
+		return dim_x;
+	}
+
+	int IO3D::getDimY() {
+		return dim_y;
+	}
+
+	int IO3D::getDimZ() {
+		return dim_z;
+	}
+
+	void IO3D::setDimX(int dim_x) {
+		this->dim_x = dim_x;
+	}
+
+	void IO3D::setDimY(int dim_y) {
+		this->dim_x = dim_y;
+	}
+
+	void IO3D::setDimZ(int dim_z) {
+		this->dim_x = dim_z;
+	}
+
+	vector<POI3D> IO3D::loadTable3D() {
+		ifstream file_in(file_path);
+		if (!file_in) {
+			std::cerr << "failed to read file " << file_path << std::endl;
+		}
+
+		string data_line;
+		getline(file_in, data_line);
+		vector<POI3D> poi_queue;
+		size_t position1, position2;
+		string variable;
+		vector<float> key_buffer;
+
+		while (getline(file_in, data_line)) {
+			position1 = 0;
+			position2 = 0;
+			vector<float> empty_buffer;
+			key_buffer.swap(empty_buffer);
+			do {
+				position2 = data_line.find(delimiter, position1);
+				if (position2 == string::npos) {
+					position2 = data_line.length();
+				}
+				variable = data_line.substr(position1, position2 - position1);
+				if (!variable.empty()) {
+					key_buffer.push_back(std::stof(variable));
+				}
+				position1 = position2 + delimiter.length();
+			} while (position2 < data_line.length() && position1 < data_line.length());
+
+			float x = key_buffer[0];
+			float y = key_buffer[1];
+			float z = key_buffer[2];
+			POI3D current_POI(x, y, z);
+
+			current_POI.deformation.u = key_buffer[3];
+			current_POI.deformation.v = key_buffer[4];
+			current_POI.deformation.w = key_buffer[5];
+
+			int current_index = 6;
+			int array_size = (int)(sizeof(current_POI.result.r) / sizeof(current_POI.result.r[0]));
+			for (int i = 0; i < array_size; i++) {
+				current_POI.result.r[i] = key_buffer[current_index + i];
+			}
+
+			current_index += array_size;
+			array_size = (int)(sizeof(current_POI.strain.e) / sizeof(current_POI.strain.e[0]));
+			for (int i = 0; i < array_size; i++) {
+				current_POI.strain.e[i] = key_buffer[current_index + i];
+			}
+
+			poi_queue.push_back(current_POI);
+		}
+		return poi_queue;
+	}
+
+	vector<Point3D> IO3D::loadPoint3D()
+	{
+		ifstream file_in(this->file_path);
+		if (!file_in) {
+			std::cerr << "failed to read file " << file_path << std::endl;
+		}
+
+		string data_line;
+		getline(file_in, data_line);
+		vector<Point3D> point_queue;
+		size_t position1, position2;
+		string variable;
+		vector<float> key_buffer;
+		int point_number = 0;
+
+		while (getline(file_in, data_line)) {
+			point_number++;
+			position1 = 0;
+			position2 = 0;
+			vector<float> empty_buffer;
+			key_buffer.swap(empty_buffer);
+
+			//get x
+			position2 = data_line.find(delimiter, position1);
+			if (position2 == string::npos) {
+				std::cerr << "failed to read POI at line: " << point_number << std::endl;
+			}
+			variable = data_line.substr(position1, position2 - position1);
+			if (!variable.empty()) {
+				key_buffer.push_back(std::stof(variable));
+			}
+			//get y
+			position1 = position2 + delimiter.length();
+			position2 = data_line.find(delimiter, position1);
+			variable = data_line.substr(position1, position2 - position1);
+			if (!variable.empty()) {
+				key_buffer.push_back(std::stof(variable));
+			}
+			//get z
+			position1 = position2 + delimiter.length();
+			position2 = data_line.length();
+			variable = data_line.substr(position1, position2 - position1);
+			if (!variable.empty()) {
+				key_buffer.push_back(std::stof(variable));
+			}
+
+			float x = key_buffer[0];
+			float y = key_buffer[1];
+			float z = key_buffer[2];
+			Point3D current_point(x, y, z);
+
+			point_queue.push_back(current_point);
+		}
+		return point_queue;
+	}
+
+	void IO3D::saveTable3D(vector<POI3D>& poi_queue) {
+		std::ofstream file_out(file_path);
+		file_out.setf(std::ios::fixed);
+		file_out << std::setprecision(8);
+		if (file_out.is_open()) {
+			file_out << "x" << delimiter;
+			file_out << "y" << delimiter;
+			file_out << "z" << delimiter;
+
+			file_out << "u" << delimiter;
+			file_out << "v" << delimiter;
+			file_out << "w" << delimiter;
+
+			file_out << "u0" << delimiter;
+			file_out << "v0" << delimiter;
+			file_out << "w0" << delimiter;
+			file_out << "ZNCC" << delimiter;
+			file_out << "iteration" << delimiter;
+			file_out << "convergence" << delimiter;
+			file_out << "feature" << delimiter;
+
+			file_out << "ux" << delimiter;
+			file_out << "uy" << delimiter;
+			file_out << "uz" << delimiter;
+			file_out << "vx" << delimiter;
+			file_out << "vy" << delimiter;
+			file_out << "vz" << delimiter;
+			file_out << "wx" << delimiter;
+			file_out << "wy" << delimiter;
+			file_out << "wz" << delimiter;
+
+			file_out << "exx" << delimiter;
+			file_out << "eyy" << delimiter;
+			file_out << "ezz" << delimiter;
+			file_out << "exy" << delimiter;
+			file_out << "eyz" << delimiter;
+			file_out << "ezx" << delimiter;
+
+			file_out << std::endl;
+
+			for (vector<POI3D>::iterator iter = poi_queue.begin(); iter != poi_queue.end(); ++iter) {
+				file_out << iter->x << delimiter;
+				file_out << iter->y << delimiter;
+				file_out << iter->z << delimiter;
+
+				file_out << iter->deformation.u << delimiter;
+				file_out << iter->deformation.v << delimiter;
+				file_out << iter->deformation.w << delimiter;
+
+				int array_size = (int)(sizeof(iter->result.r) / sizeof(iter->result.r[0]));
+				for (int i = 0; i < array_size; i++) {
+					file_out << iter->result.r[i] << delimiter;
+				}
+
+				file_out << iter->deformation.ux << delimiter;
+				file_out << iter->deformation.uy << delimiter;
+				file_out << iter->deformation.uz << delimiter;
+				file_out << iter->deformation.vx << delimiter;
+				file_out << iter->deformation.vy << delimiter;
+				file_out << iter->deformation.vz << delimiter;
+				file_out << iter->deformation.wx << delimiter;
+				file_out << iter->deformation.wy << delimiter;
+				file_out << iter->deformation.wz << delimiter;
+
+				file_out << std::endl;
+			}
+		}
+		file_out.close();
+
+	}
+
+	void IO3D::saveMatrixBin(vector<POI3D>& poi_queue) {
+		std::ofstream file_out;
+		file_out.open(file_path, std::ios::out | std::ios::binary);
+
+		if (!file_out.is_open()) {
+			std::cerr << "failed to open file " << file_path << std::endl;
+		}
+
+		//head information, including the number of POIs and the three dimensions of image
+		int queue_length = (int)poi_queue.size();
+		int head_info[4];
+		head_info[0] = queue_length;
+		head_info[1] = dim_x;
+		head_info[2] = dim_y;
+		head_info[3] = dim_z;
+
+		//create a 1D array and fill it with output data of POIs
+		int result_length = 7;
+		int data_length = result_length * queue_length;
+		float* data_array = new float[data_length];
+		for (int i = 0; i < queue_length; i++) {
+			data_array[i * result_length] = poi_queue[i].x;
+			data_array[i * result_length + 1] = poi_queue[i].y;
+			data_array[i * result_length + 2] = poi_queue[i].z;
+			data_array[i * result_length + 3] = poi_queue[i].deformation.u;
+			data_array[i * result_length + 4] = poi_queue[i].deformation.v;
+			data_array[i * result_length + 5] = poi_queue[i].deformation.w;
+			data_array[i * result_length + 6] = poi_queue[i].result.zncc;
+		}
+
+		//write head information
+		file_out.write((char*)head_info, sizeof(head_info[0]) * 4);
+		//write data
+		file_out.write((char*)data_array, sizeof(data_array[0]) * data_length);
+
+		file_out.close();
+
+		delete[] data_array;
 	}
 
 }//namespace opencorr

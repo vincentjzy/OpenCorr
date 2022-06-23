@@ -17,7 +17,7 @@
 ![image](./img/oc_image.png)
 *Figure 3.1.3. Parameters and methods included in Image object*
 
-### 3.2. DIC data:
+### 3.2. DIC/DVC data:
 
 (1) Subset (oc_subset.h and oc_subset.cpp). Figure 3.2.1 shows the parameters and methods included in this object. Subset can be regarded as a special matrix with its center located at a specific point. Each dimension of a subset equals to two times of corresponding radius plus one.
 

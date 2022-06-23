@@ -19,6 +19,7 @@
 
 #include <Eigen>
 #include <opencv2/opencv.hpp>
+#include <opencv2/world.hpp>
 #include <opencv2/core/eigen.hpp>
 #include <string>
 
@@ -58,7 +59,7 @@ namespace opencorr
 		~Image3D();
 
 		void load(string file_path);
-		void loadTIFF(string file_path);
+		void loadTiff(string file_path);
 	};
 
 }//namespace opencorr

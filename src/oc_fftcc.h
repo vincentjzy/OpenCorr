@@ -18,7 +18,7 @@
 #define _FFTCC_H_
 
 #include <vector>
-#include <fftw3.h>
+#include "fftw3.h"
 
 #include "oc_array.h"
 #include "oc_dic.h"
@@ -59,6 +59,26 @@ namespace opencorr {
 
 		void compute(POI2D* poi);
 		void compute(std::vector<POI2D>& poi_queue);
+
+		//determine speckle size (rectangular box) using autocorrelation
+		Point2D determineSpeckleSize(POI2D* poi, float half_peak_ratio); // half_peak_ratio could be 1/2 or 1/e
+	};
+
+	class FFTCC3D : public DVC {
+	private:
+		//pool of FFTW instances for multi-thread processing
+		std::vector<FFTW*> instance_pool;
+		FFTW* getInstance(int tid);
+
+	public:
+		FFTCC3D(int subset_radius_x, int subset_radius_y, int subset_radius_z, int thread_number);
+		~FFTCC3D();
+
+		void compute(POI3D* poi);
+		void compute(std::vector<POI3D>& poi_queue);
+
+		//determine speckle size (cubic box) using autocorrelation
+		Point3D determineSpeckleSize(POI3D* poi, float half_peak_ratio); // half_peak_ratio could be 1/2 or 1/e
 	};
 
 }//namespace opencorr

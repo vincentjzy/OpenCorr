@@ -23,7 +23,7 @@ namespace opencorr
 	SIFT2D::SIFT2D() {
 		sift_config.n_features = 0;
 		sift_config.n_octave_layers = 3;
-		sift_config.contrast_threshold = 0.04f;
+		sift_config.contrast_threshold = 0.09f;
 		sift_config.edge_threshold = 10.f;
 		sift_config.sigma = 1.6f;
 		matching_ratio = 0.8f;

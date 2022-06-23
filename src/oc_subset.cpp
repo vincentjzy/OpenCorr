@@ -44,7 +44,7 @@ namespace opencorr
 		eg_mat.array() -= subset_mean;
 		float subset_sum = eg_mat.squaredNorm();
 
-		return sqrtf(subset_sum);
+		return sqrt(subset_sum);
 	}
 
 	//3D subvolume
@@ -53,7 +53,9 @@ namespace opencorr
 			std::cerr << "Too small radius:" << radius_x << ", " << radius_y << ", " << radius_z << std::endl;
 		}
 
-		if (vol_mat != nullptr)	delete3D(vol_mat);
+		if (vol_mat != nullptr) {
+			delete3D(vol_mat);
+		}
 
 		this->center = center;
 		this->radius_x = radius_x;
@@ -68,7 +70,9 @@ namespace opencorr
 	}
 
 	Subset3D::~Subset3D() {
-		if (vol_mat != nullptr)	delete3D(vol_mat);
+		if (vol_mat != nullptr) {
+			delete3D(vol_mat);
+		}
 	}
 
 	void Subset3D::fill(Image3D* image) {
@@ -99,15 +103,14 @@ namespace opencorr
 		for (int i = 0; i < dim_z; i++) {
 			for (int j = 0; j < dim_y; j++) {
 				for (int k = 0; k < dim_x; k++) {
-					float value = vol_mat[i][j][k] - intensity_mean;
-					vol_mat[i][j][k] = value;
-					subset_sum += value * value;
+					vol_mat[i][j][k] -= intensity_mean;
+					subset_sum += (vol_mat[i][j][k] * vol_mat[i][j][k]);
 				}
 			}
 		}
 
 		//return the norm
-		return sqrtf(subset_sum);
+		return sqrt(subset_sum);
 	}
 
 }//namespace opencorr

@@ -93,7 +93,7 @@ int main() {
 	Stereovision stereo_reconstruction(&cam_view1_calib, &cam_view2_calib, cpu_thread_number);
 
 	//load the coordinates of POIs in principal view
-	vector<Point2D> ref_view1_pt_queue = in_out.loadPOI2D();
+	vector<Point2D> ref_view1_pt_queue = in_out.loadPoint2D();
 	int queue_length = (int)ref_view1_pt_queue.size();
 
 	//create the the queues of 2D points for stereo matching and reconstruction

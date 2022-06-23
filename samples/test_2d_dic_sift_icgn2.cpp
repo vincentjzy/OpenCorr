@@ -1,7 +1,9 @@
 /*
  This example demonstrates how to use OpenCorr to realize the path
  independent DIC based on the SIFT feature aided deformation estimation
- and the ICGN algorithm (with 2nd order shape function).
+ and the ICGN algorithm (with 2nd order shape function). In feature
+ affine module, the searching of neighbor keypoints around a POI
+ combines FLANN and brute force searching.
 */
 
 #include "opencorr.h"
@@ -10,7 +12,7 @@ using namespace opencorr;
 using namespace std;
 
 int main() {
-	//set files to process
+//set files to process
 	string ref_image_path = "../samples/oht_cfrp_0.bmp";
 	string tar_image_path = "../samples/oht_cfrp_4.bmp";
 	Image2D ref_img(ref_image_path);
@@ -51,6 +53,7 @@ int main() {
 	double consumed_time = timer_toc - timer_tic;
 
 	//display the time of initialization on the screen
+	cout << "POI number: " << poi_queue.size() << std::endl;
 	cout << "Initialization: " << consumed_time << " sec" << std::endl;
 
 	//get the time of start 

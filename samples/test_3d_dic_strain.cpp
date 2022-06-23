@@ -1,7 +1,8 @@
 /*
  This example demonstrates how to use OpenCorr to calculate the stain
  according to the polynomial fit displacement fields of displacements
- u, v, and w obtained through 3D/stereo DIC methods.
+ u, v, and w obtained through 3D/stereo DIC methods. The searching of
+ neighbor POIs around a POI combines FLANN and brute force searching.
 */
 
 #include "opencorr.h"
@@ -55,10 +56,9 @@ int main() {
 	in_out.saveTable2DS(poi_queue);
 
 	//save eyy
-	file_path = tar_image_path + "_exx.csv";
+	file_path = tar_image_path + "_eyy.csv";
 	in_out.setPath(file_path);
-
-	in_out.saveMap2DS(poi_queue, 'x');
+	in_out.saveMap2DS(poi_queue, 'y');
 
 	cout << "Press any key to exit" << std::endl;
 	cin.get();

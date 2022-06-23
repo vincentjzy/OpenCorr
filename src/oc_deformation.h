@@ -80,13 +80,15 @@ namespace opencorr
 
 		Deformation3D1();
 		Deformation3D1(float u, float ux, float uy, float uz,
-			float v, float vx, float vy, float vz, float w, float wx, float wy, float wz);
+			float v, float vx, float vy, float vz,
+			float w, float wx, float wy, float wz);
 		Deformation3D1(float p[12]);
 		~Deformation3D1();
 
 		void setDeformation(); // set deformation according to warp_matrix
 		void setDeformation(float u, float ux, float uy, float uz,
-			float v, float vx, float vy, float vz, float w, float wx, float wy, float wz);
+			float v, float vx, float vy, float vz,
+			float w, float wx, float wy, float wz);
 		void setDeformation(float p[12]);
 		void setDeformation(Deformation3D1& another_deformation);
 

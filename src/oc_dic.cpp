@@ -32,4 +32,21 @@ namespace opencorr
 	void DIC::prepare() {
 	}
 
+	//digital volume correlation----------------------------------------------------------
+	DVC::DVC() {
+	}
+
+	void DVC::setImages(Image3D& ref_img, Image3D& tar_img) {
+		this->ref_img = &ref_img;
+		this->tar_img = &tar_img;
+	}
+	void DVC::setSubsetRadii(int radius_x, int radius_y, int radius_z) {
+		subset_radius_x = radius_x;
+		subset_radius_y = radius_y;
+		subset_radius_z = radius_z;
+
+	}
+	void DVC::prepare() {
+	}
+
 }//namespace opencorr

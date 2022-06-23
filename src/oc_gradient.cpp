@@ -90,9 +90,12 @@ namespace opencorr
 	}
 
 	Gradient3D4::~Gradient3D4() {
-		if (gradient_x != nullptr)	delete3D(gradient_x);
-		if (gradient_y != nullptr)	delete3D(gradient_y);
-		if (gradient_z != nullptr)	delete3D(gradient_z);
+		if (gradient_x != nullptr)
+			delete3D(gradient_x);
+		if (gradient_y != nullptr)
+			delete3D(gradient_y);
+		if (gradient_z != nullptr)
+			delete3D(gradient_z);
 	}
 
 	void Gradient3D4::getGradientX() {
@@ -100,7 +103,8 @@ namespace opencorr
 		int dim_y = grad_img->dim_y;
 		int dim_z = grad_img->dim_z;
 
-		if (gradient_x != nullptr)	delete3D(gradient_x);
+		if (gradient_x != nullptr)
+			delete3D(gradient_x);
 		gradient_x = new3D(dim_z, dim_y, dim_x);
 
 #pragma omp parallel for
@@ -123,7 +127,8 @@ namespace opencorr
 		int dim_y = grad_img->dim_y;
 		int dim_z = grad_img->dim_z;
 
-		if (gradient_y != nullptr)	delete3D(gradient_y);
+		if (gradient_y != nullptr)
+			delete3D(gradient_y);
 		gradient_y = new3D(dim_z, dim_y, dim_x);
 
 #pragma omp parallel for
@@ -146,7 +151,8 @@ namespace opencorr
 		int dim_y = grad_img->dim_y;
 		int dim_z = grad_img->dim_z;
 
-		if (gradient_z != nullptr)	delete3D(gradient_z);
+		if (gradient_z != nullptr)
+			delete3D(gradient_z);
 		gradient_z = new3D(dim_z, dim_y, dim_x);
 
 #pragma omp parallel for

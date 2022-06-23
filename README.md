@@ -35,6 +35,8 @@ Users can also access the information of OpenCorr via website [opencorr.org](htt
 >2022.04.27, A major update, including (i) introduction of nanoflann to speed up the searching for nearest neighbors in Feature Affine method and strain calculation; (ii) update of the third party libraries (Eigen and OpenCV) to the latest stable version; (iii) regularization of the codes.
 >
 >2022.05.03, Estimation of parallax for epipolar constraint aided matching, and an example of stereo matching and reconstruction combining the methods using SIFT feature and epipolar constraint. 
+>
+>2022.06.23, Release DVC module, which includes 3D FFTCC and 3D ICGN algorithms. The related modules are expanded accordingly.
 
 # Instructions
 

@@ -26,18 +26,29 @@ namespace opencorr
 	}
 
 	void NearestNeighbor::assignPoints(std::vector<Point2D>& point_queue) {
-		int queue_length = (int)point_queue.size();
+		int queue_length = int(point_queue.size());
 		point_cloud.pts.resize(queue_length);
 #pragma omp parallel for
 		for (int i = 0; i < queue_length; i++) {
 			point_cloud.pts[i].x = point_queue[i].x;
 			point_cloud.pts[i].y = point_queue[i].y;
-			point_cloud.pts[i].z = 0;
+			point_cloud.pts[i].z = 0.f;
+		}
+	}
+
+	void NearestNeighbor::assignPoints(std::vector<POI2D>& poi_queue) {
+		int queue_length = int(poi_queue.size());
+		point_cloud.pts.resize(queue_length);
+#pragma omp parallel for
+		for (int i = 0; i < queue_length; i++) {
+			point_cloud.pts[i].x = poi_queue[i].x;
+			point_cloud.pts[i].y = poi_queue[i].y;
+			point_cloud.pts[i].z = 0.f;
 		}
 	}
 
 	void NearestNeighbor::assignPoints(std::vector<Point3D>& point_queue) {
-		int queue_length = (int)point_queue.size();
+		int queue_length = int(point_queue.size());
 		point_cloud.pts.resize(queue_length);
 #pragma omp parallel for
 		for (int i = 0; i < queue_length; i++) {
@@ -46,6 +57,18 @@ namespace opencorr
 			point_cloud.pts[i].z = point_queue[i].z;
 		}
 	}
+
+	void NearestNeighbor::assignPoints(std::vector<POI3D>& poi_queue) {
+		int queue_length = int(poi_queue.size());
+		point_cloud.pts.resize(queue_length);
+#pragma omp parallel for
+		for (int i = 0; i < queue_length; i++) {
+			point_cloud.pts[i].x = poi_queue[i].x;
+			point_cloud.pts[i].y = poi_queue[i].y;
+			point_cloud.pts[i].z = poi_queue[i].z;
+		}
+	}
+
 	float NearestNeighbor::getSearchRadius() const {
 		return search_radius;
 	}
@@ -90,12 +113,12 @@ namespace opencorr
 		query_coor[1] = query_point.y;
 		query_coor[2] = query_point.z;
 
-		size_t num_matches = kdt_index->knnSearch(&query_coor[0], search_k, &k_neighbors_idx[0], &kp_squared_distance[0]);
-		
+		int num_matches = (int)kdt_index->knnSearch(&query_coor[0], search_k, &k_neighbors_idx[0], &kp_squared_distance[0]);
+
 		//in case of insufficient keypoints in the tree than requested
 		k_neighbors_idx.resize(num_matches);
 		kp_squared_distance.resize(num_matches);
-		return (int)num_matches;
+		return num_matches;
 	}
 
 }//namespace opencorr

@@ -60,7 +60,6 @@ int main() {
 	//FFTCC
 	FFTCC2D* fftcc = new FFTCC2D(subset_radius_x, subset_radius_y, cpu_thread_number);
 	fftcc->setImages(ref_img, tar_img);
-	fftcc->prepare();
 	fftcc->compute(poi_queue);
 
 	//get the time of end 

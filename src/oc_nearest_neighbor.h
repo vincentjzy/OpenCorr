@@ -20,6 +20,7 @@
 #include <vector>
 #include <nanoflann.hpp>
 
+#include "oc_poi.h"
 #include "oc_point.h"
 
 namespace opencorr
@@ -70,7 +71,9 @@ namespace opencorr
 		~NearestNeighbor();
 
 		void assignPoints(std::vector<Point2D>& point_queue);
+		void assignPoints(std::vector<POI2D>& poi_queue);
 		void assignPoints(std::vector<Point3D>& point_queue);
+		void assignPoints(std::vector<POI3D>& poi_queue);
 
 		float getSearchRadius() const;
 		int getSearchK() const;
@@ -81,7 +84,6 @@ namespace opencorr
 		int radiusSearch(Point3D query_point, std::vector<std::pair<uint32_t, float>>& matches);
 		int knnSearch(Point3D query_point, std::vector<uint32_t>& k_neighbors_idx, std::vector<float>& kp_squared_distance);
 	};
-
 }//namespace opencorr
 
 #endif //_NEAREST_NEIGHBORS_H_

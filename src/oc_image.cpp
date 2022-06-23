@@ -18,7 +18,7 @@
 
 namespace opencorr
 {
-
+	//2D image
 	Image2D::Image2D(int width, int height) {
 		eg_mat = Eigen::MatrixXf::Zero(height, width);
 		this->width = width;
@@ -57,6 +57,7 @@ namespace opencorr
 		cv::cv2eigen(cv_mat, eg_mat);
 	}
 
+	//3D image
 	Image3D::Image3D(int dim_x, int dim_y, int dim_z) {
 		vol_mat = new3D(dim_z, dim_y, dim_x);
 		this->dim_x = dim_x;
@@ -132,7 +133,7 @@ namespace opencorr
 		file_in.close();
 	}
 
-	void Image3D::loadTIFF(string file_path) {
+	void Image3D::loadTiff(string file_path) {
 		if (vol_mat != nullptr) {
 			delete3D(vol_mat);
 		}
