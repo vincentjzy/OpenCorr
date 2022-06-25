@@ -13,7 +13,7 @@ In 3D case, Pointer grad_img points to a Image3D object for processing. The grad
 
 Member functions:
 
-- getGradientX(), getGradientY() and getGradientZ(), calculate the 1st-order gradient map along directions x, y and z, respectively;
+- getGradientX(), getGradientY() and getGradientZ(), calculate the 1st-order gradient map along directions x, y and z, respectively.
 
 ![image](./img/oc_gradient.png)
 *Figure 4.1.1. Parameters and methods included in Gradient object*
@@ -123,7 +123,7 @@ Member functions:
 - saveMap2D(vector<POI2D> poi_queue, char variable), save specific information of POIs (2D DIC results) into a 2D map according to the coordinates of POIs, variable can be set as 'u', 'v', 'c'(zncc), 'd'(convergence), 'i'(iteration), 'f'(feature), 'x' (exx), 'y' (eyy), 'r' (exy);.
 - saveTable2DS(vector<POI2DS> poi_queue), specifically for Stereo/3D DIC, save the computed results of POIs into a CSV datasheet;
 - saveMap2DS(vector<POI2DS>& poi_queue, char variable), save specific information of POIs (3D/stereo DIC results) into a 2D map according to the coordinates of POIs, variable can be set as 'u', 'v', 'w', 'c'(r1r2_zncc), 'd'(r1t1_zncc), 'e'(r1t2_zncc), 'x' (exx), 'y' (eyy), 'z' (ezz), 'r' (exy) , 's' (eyz), 't' (ezx);
-- saveMatrixBin(vector<POI3D>& poi_queue), save the information of POIs into a binary file.
+- saveMatrixBin(vector<POI3D>& poi_queue), save the information of POIs into a binary file. The binary file begins with four integers (data length and three dimensions), followed with an array of floats.
 
 ![image](./img/oc_io.png)
 
@@ -165,7 +165,7 @@ It is noteworthy that the methods in derive classes are designed for path-indepe
 ![image](./img/oc_icgn.png)
 *Figure 4.2.3. Parameters and methods included in ICGN object*
 
-(4) EpipolarSearch (oc_epipolar_search.h and oc_epipolar_search.cpp), Epipolar constraint aided search for stereo matching. Figure 4.2.4 shows the parameters and methods included in this object. The method uses the epipolar constraint between the two views to search the counterpart (in view2) of a point (in view1), narrowing the searching range within a part of epipolar line. The searching range centered at the intersection of epipolar line and its normal line crossing a point estimated according to an initial displacement and a guess of parallax. The searching step is limited to a couple pixels (less than the convergence radius of ICGN algorithms). Users may refer to our paper (Lin et al. Opt Laser Eng, 2022, 149:106812) for details of principle and implementation. This method calls ICGN2D1 method with lenient convergence criterion and less iteration to guarantee roughly accurate matching in trials, and reserve the result with highest ZNCC value, which can be fed into ICGN2D2 method for high accuracy matching. A simple example (test_3d_reconstruction_epipolar.cpp in folder /samples) demonstrates the reconstruction of a 3D point cloud using this method. Another example (test_3d_reconstruction_epipolar_sift.cpp in folder /samples) demonstrates how combine the EpipolarSearch method and SIFT features to achieve a significantly improved efficiency.
+(4) EpipolarSearch (oc_epipolar_search.h and oc_epipolar_search.cpp), epipolar constraint aided search for stereo matching. Figure 4.2.4 shows the parameters and methods included in this object. The method uses the epipolar constraint between the two views to search the counterpart (in view2) of a point (in view1), narrowing the searching range within a part of epipolar line. The searching range centered at the intersection of epipolar line and its normal line crossing a point estimated according to an initial displacement and a guess of parallax. The searching step is limited to a couple pixels (less than the convergence radius of ICGN algorithms). Users may refer to our paper (Lin et al. Opt Laser Eng, 2022, 149:106812) for details of principle and implementation. This method calls ICGN2D1 method with lenient convergence criterion and less iteration to guarantee roughly accurate matching in trials, and reserve the result with highest ZNCC value, which can be fed into ICGN2D2 method for high accuracy matching. A simple example (test_3d_reconstruction_epipolar.cpp in folder /samples) demonstrates the reconstruction of a 3D point cloud using this method. Another example (test_3d_reconstruction_epipolar_sift.cpp in folder /samples) demonstrates how combine the EpipolarSearch method and SIFT features to achieve a significantly improved efficiency.
 
 Parameters:
 
@@ -195,7 +195,7 @@ Member functions:
 - setZnccThreshold(float zncc_threshold), set ZNCC threshold;
 - setDescription(int description), set description of strain tensor: 1 denotes Lagrangian; 2 denotes Eulerian;
 - void setPoiQueue(poi_queue), set POI queue for processing, the element of vector should be POI2D in 2D DIC, POI2DS in 3D/stereo DIC, and POI3D in DVC;
-- compute(POI2D* poi), compute(POI2DS* poi), or compute(POI3D* poi), calculate the strains at a POI.
+- compute(POI2D* poi), compute(POI2DS* poi), or compute(POI3D* poi), calculate the strains at a POI;
 - compute(std::vector& poi_queue), handle a queue of POIs, calling compute(poi).
 
 ![image](./img/oc_strain.png)
