@@ -123,6 +123,24 @@ namespace opencorr {
 		void clean();
 	};
 
+
+	//class for DVC
+	class POI3D : public Point3D
+	{
+	public:
+		DeformationVector3D deformation;
+		Result3D result;
+		StrainVector3D strain;
+
+		POI3D(int x, int y, int z);
+		POI3D(float x, float y, float z);
+		POI3D(Point3D location);
+		~POI3D();
+
+		//reset data except the location
+		void clean();
+	};
+
 }//namespace opencorr
 
 #endif //_POI_H_
