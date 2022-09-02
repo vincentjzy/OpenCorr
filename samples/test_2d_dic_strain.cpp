@@ -43,6 +43,7 @@ int main() {
 	Strain2D* strain = new Strain2D(strain_radius, min_neighbors, poi_queue);
 
 	//calculate the strain exx, exy, eyy
+	strain->prepare(poi_queue);
 	strain->compute(poi_queue);
 
 	//get time of end
