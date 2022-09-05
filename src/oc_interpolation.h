@@ -35,6 +35,17 @@ namespace opencorr
 		virtual float compute(Point2D& location) = 0;
 	};
 
+	class Interpolation3D
+	{
+	protected:
+		Image3D* interp_img = nullptr;
+
+	public:
+		virtual ~Interpolation3D() = default;
+
+		virtual void prepare() = 0;
+		virtual float compute(Point3D& location) = 0;
+	};
 }//namespace opencorr
 
 #endif //_INTERPOLATION_H_
