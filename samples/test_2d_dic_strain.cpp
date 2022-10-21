@@ -12,7 +12,7 @@ using namespace std;
 
 int main() {
 	//select the image file to get the file name to process
-	string tar_image_path = "../samples/oht_cfrp_4.bmp";
+	string tar_image_path = "e:/dic_tests//oht_cfrp_4.bmp";
 	Image2D tar_img(tar_image_path);
 
 	//get the DIC results from csv file
@@ -40,7 +40,7 @@ int main() {
 	vector<POI2D> poi_queue = in_out.loadTable2D();
 
 	//initialize a object of stain calculation
-	Strain2D* strain = new Strain2D(strain_radius, min_neighbors, poi_queue);
+	Strain* strain = new Strain(strain_radius, min_neighbors, poi_queue, cpu_thread_number);
 
 	//calculate the strain exx, exy, eyy
 	strain->prepare(poi_queue);
@@ -59,8 +59,7 @@ int main() {
 	file_path = tar_image_path + "_eyy.csv";
 	in_out.setPath(file_path);
 
-	//	variable: 'u', 'v', 'c'(zncc), 'd'(convergence), 'i'(iteration), 'f'(feature),
-	//	'x' (exx), 'y' (eyy), 'r' (exy)
+	//variable: 'u', 'v', 'c'(zncc), 'd'(convergence), 'i'(iteration), 'f'(feature), 'x' (exx), 'y' (eyy), 'r' (exy)
 	in_out.saveMap2D(poi_queue, 'y');
 
 	cout << "Press any key to exit" << std::endl;

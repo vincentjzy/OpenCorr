@@ -39,6 +39,8 @@ Users can also access the information of OpenCorr via website [opencorr.org](htt
 >2022.06.23, Release DVC module, which includes 3D FFTCC and 3D ICGN algorithms. The related modules are expanded accordingly.
 >
 >2022.10.13, Fix the VRAM leak issue of GPU accelerated ICGN module.
+>
+>2022.10.21, Fix the conflict of calling NearestNeighbor instance by multiple threads in modules FeatureAffine and Strain.
 
 # Instructions
 

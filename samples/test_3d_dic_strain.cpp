@@ -12,7 +12,7 @@ using namespace std;
 
 int main() {
 	//select the image file to get the file name to process
-	string tar_image_path = "../samples/GT4-0273_0.tif";
+	string tar_image_path = "e:/dic_tests/GT4-0273_0.tif";
 	Image2D tar_img(tar_image_path);
 
 	//get the DIC results from csv file
@@ -40,7 +40,7 @@ int main() {
 	vector<POI2DS> poi_queue = in_out.loadTable2DS();
 
 	//initialize a object of stain calculation
-	Strain2D* strain = new Strain2D(strain_radius, min_neighbors, poi_queue);
+	Strain* strain = new Strain(strain_radius, min_neighbors, poi_queue, cpu_thread_number);
 
 	//calculate the strain exx, eyy, ezz, exy, eyz, ezx
 	strain->prepare(poi_queue);
@@ -56,9 +56,9 @@ int main() {
 	in_out.saveTable2DS(poi_queue);
 
 	//save eyy
-	file_path = tar_image_path + "_eyy.csv";
+	file_path = tar_image_path + "_exx.csv";
 	in_out.setPath(file_path);
-	in_out.saveMap2DS(poi_queue, 'y');
+	in_out.saveMap2DS(poi_queue, 'x');
 
 	cout << "Press any key to exit" << std::endl;
 	cin.get();

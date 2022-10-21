@@ -26,64 +26,42 @@
 
 namespace opencorr
 {
-	struct RansacConfig {
+	struct RansacConfig
+	{
 		int trial_number; //maximum number of trials in RANSAC
 		int sample_mumber; //number of samples in every trial
 		float error_threshold; //error threshold in RANSAC
 	};
 
 	//structure for brute force searching
-	struct KeypointIndex {
+	struct KeypointIndex
+	{
 		int idx_in_queue; //index in the keypoint queue
 		float distance_to_poi; //Euclidean distance to the processed POI
 	};
 
 	class FeatureAffine2D : public DIC
 	{
+	private:
+		std::vector<NearestNeighbor*> instance_pool;
+		NearestNeighbor* getInstance(int tid);
+
 	protected:
 		float neighbor_search_radius; //seaching radius for mached keypoints around a POI
 		int min_neighbor_num; //minimum number of neighbors required by RANSAC
 		RansacConfig ransac_config;
-		NearestNeighbor* neighbor_search; //pointer to an instance for fast approximation of nearest neighbors
 
 	public:
 		std::vector<Point2D> ref_kp; //matched keypoints in ref image
 		std::vector<Point2D> tar_kp; //matched keypoints in tar image
 
-		FeatureAffine2D(int radius_x, int radius_y);
+		FeatureAffine2D(int radius_x, int radius_y, int thread_number);
 		~FeatureAffine2D();
 
 		void setKeypointPair(std::vector<Point2D>& ref_kp, std::vector<Point2D>& tar_kp);
 		void prepare();
 		void compute(POI2D* poi);
 		void compute(std::vector<POI2D>& poi_queue);
-
-		RansacConfig getRansacConfig() const;
-		float getSearchRadius() const;
-		int getMinNeighborNumber() const;
-
-		void setSearchParameters(float neighbor_search_radius, int min_neighbor_num);
-		void setRansacConfig(RansacConfig ransac_config);
-	};
-
-	class FeatureAffine3D : public DVC
-	{
-	protected:
-		float neighbor_search_radius; //seaching radius for mached keypoints around a POI
-		int min_neighbor_num; //minimum number of neighbors required by RANSAC
-		RansacConfig ransac_config;
-
-	public:
-		std::vector<Point3D> ref_kp; //matched keypoints in ref image
-		std::vector<Point3D> tar_kp; //matched keypoints in tar image
-
-		FeatureAffine3D(int radius_x, int radius_y, int radius_z);
-		~FeatureAffine3D();
-
-		void setKeypointPair(std::vector<Point3D>& ref_kp, std::vector<Point3D>& tar_kp);
-		void prepare();
-		void compute(POI3D* poi);
-		void compute(std::vector<POI3D>& poi_queue);
 
 		RansacConfig getRansacConfig() const;
 		float getSearchRadius() const;
