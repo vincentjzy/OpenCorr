@@ -23,18 +23,22 @@
 #endif
 
 #include <vector>
-using std::vector;
 
+namespace opencorr_gpu
+{
+	//this module is the implementation of
+	//L. Zhang et al, Optics and Lasers in Engineering (2015) 69: 7-12.
+	//https://doi.org/10.1016/j.optlaseng.2015.01.012
 
-namespace opencorr_gpu {
-
-	struct ICGNConfiguration {
+	struct ICGNConfiguration
+	{
 		int subset_rx;				//subset radius in x direction
 		int subset_ry;				//subset radius in y direction
 		int stop_condtion;			//[IC-GN] max iteration steps
 		float convergence_criterion;//[IC-GN] max norm of delta_p
 
-		ICGNConfiguration() {
+		ICGNConfiguration()
+		{
 			subset_rx = subset_ry = 15;
 			stop_condtion = 10;
 			convergence_criterion = 0.001f;
@@ -42,18 +46,21 @@ namespace opencorr_gpu {
 	};
 
 
-	struct ICGNDeformationVector {
+	struct ICGNDeformationVector
+	{
 		float u, ux, uy, uxx, uxy, uyy;
 		float v, vx, vy, vxx, vxy, vyy;
 
-		ICGNDeformationVector() {
+		ICGNDeformationVector()
+		{
 			u = ux = uy = uxx = uxy = uyy = 0.f;
 			v = vx = vy = vxx = vxy = vyy = 0.f;
 		}
 	};
 
 
-	struct ICGNPOI {
+	struct ICGNPOI
+	{
 		int x;								//[ input]
 		int y;								//[ input]
 		int iteration;						//[output][IC-GN] actual iteration steps
@@ -64,7 +71,8 @@ namespace opencorr_gpu {
 		ICGNDeformationVector initial;		//[ input] initial deformation vector
 		ICGNDeformationVector final;		//[output] final deformation vector
 
-		ICGNPOI(int x, int y) :x(x), y(y) {
+		ICGNPOI(int x, int y) :x(x), y(y)
+		{
 			iteration = -1;
 			dpNorm = -1.f;
 			convergence = false;
@@ -73,16 +81,17 @@ namespace opencorr_gpu {
 		}
 	};
 
-	struct ICGNImage {
+	struct ICGNImage
+	{
 		int w, h;		//width and height of the images to be processed
 		float* data;	//row major grayscale data, e.g. if w=10,h=10,x=3,y=1, then grayscale of image at postion (x,y) is : gray(x,y) == data[x + y * w -1] == data[12]
 
 		ICGNImage() :w(0), h(0), data(nullptr) {}
 	};
 
-	OCAPI bool ICGN2D1GPU(ICGNImage ref, ICGNImage tar, vector<ICGNPOI>& pois, ICGNConfiguration = ICGNConfiguration());
+	OCAPI bool ICGN2D1GPU(ICGNImage ref, ICGNImage tar, std::vector<ICGNPOI>& pois, ICGNConfiguration = ICGNConfiguration());
 
-	OCAPI bool ICGN2D2GPU(ICGNImage ref, ICGNImage tar, vector<ICGNPOI>& pois, ICGNConfiguration = ICGNConfiguration());
+	OCAPI bool ICGN2D2GPU(ICGNImage ref, ICGNImage tar, std::vector<ICGNPOI>& pois, ICGNConfiguration = ICGNConfiguration());
 
 }//namespace opencorr_gpu
 

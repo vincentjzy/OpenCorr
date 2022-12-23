@@ -27,15 +27,19 @@
 
 namespace opencorr
 {
+	//this module is the implementation of
+	//A. Lin et al, Optics and Lasers in Engineering (2022) 149: 106812.
+	//https://doi.org/10.1016/j.optlaseng.2021.106812
+
 	class EpipolarSearch : public DIC
 	{
 	protected:
 		int search_radius; //seaching radius along the epipolar
 		int search_step; //step of search along the epipolar
-		Calibration view1_cam; //intrinsics and extrinsics of the principal camera
+		Calibration view1_cam; //intrinsics and extrinsics of the primary camera
 		Calibration view2_cam; //intrinsics and extrinsics of the secondary camera
-		Eigen::Matrix3f fundamental_matrix; //fundamental mattrix of stereovision system
-		Point2D parallax; //parallax in view2 with respect to view1 
+		Eigen::Matrix3f fundamental_matrix; //fundamental matrix of stereovision system
+		Point2D parallax; //parallax of the secondary view with respect to the primary view 
 		float parallax_x[3], parallax_y[3]; //linear regression coefficients of parallax with respect to coordinates
 
 	public:
@@ -61,8 +65,6 @@ namespace opencorr
 		void compute(POI2D* poi);
 		void compute(std::vector<POI2D>& poi_queue);
 	};
-
-	bool sortByZNCC(const POI2D& p1, const POI2D& p2);
 
 }//namespace opencorr
 

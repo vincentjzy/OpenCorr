@@ -46,6 +46,7 @@ namespace opencorr
 		virtual void prepare() = 0;
 		virtual float compute(Point3D& location) = 0;
 	};
+
 }//namespace opencorr
 
 #endif //_INTERPOLATION_H_

@@ -20,68 +20,80 @@
 #include "oc_point.h"
 #include "oc_deformation.h"
 
-namespace opencorr {
-
-	//structures for POI
-	union DeformationVector2D {
-		struct {
+namespace opencorr
+{
+	//structures included in POI
+	union DeformationVector2D
+	{
+		struct
+		{
 			float u, ux, uy, uxx, uxy, uyy;
 			float v, vx, vy, vxx, vxy, vyy;
 		};
-		//content: u ux uy uxx uxy uyy v vx vy vxx vxy vyy
-		float p[12];
+		float p[12]; //order: u ux uy uxx uxy uyy v vx vy vxx vxy vyy
 	};
 
-	union StrainVector2D {
-		struct {
+	union StrainVector2D
+	{
+		struct
+		{
 			float exx, eyy, exy;
 		};
-		//conetent: exx, eyy, exy
-		float e[3];
+		float e[3]; //order: exx, eyy, exy
 	};
 
-	union Result2D {
-		struct {
+	union Result2D
+	{
+		struct
+		{
 			float u0, v0, zncc, iteration, convergence, feature;
 		};
 		float r[6];
 	};
 
-	union Result2DS {
-		struct {
+	union Result2DS
+	{
+		struct
+		{
 			float r1r2_zncc, r1t1_zncc, r1t2_zncc, r2_x, r2_y, t1_x, t1_y, t2_x, t2_y;
 		};
 		float r[9];
 	};
 
-	union DeformationVector3D {
-		struct {
+	union DeformationVector3D
+	{
+		struct
+		{
 			float u, ux, uy, uz;
 			float v, vx, vy, vz;
 			float w, wx, wy, wz;
 		};
-		//content: u ux uy uz v vx vy vz w wx wy wz
-		float p[12];
+		float p[12]; //order: u ux uy uz v vx vy vz w wx wy wz
 	};
 
-	union DisplacementVector3D {
-		struct {
+	union DisplacementVector3D
+	{
+		struct
+		{
 			float u, v, w;
 		};
 		float p[3];
 	};
 
-	union StrainVector3D {
-		struct {
+	union StrainVector3D
+	{
+		struct
+		{
 			float exx, eyy, ezz;
 			float exy, eyz, ezx;
 		};
-		//conetent: exx, eyy, ezz, exy, eyz, ezx
-		float e[6];
+		float e[6]; //order: exx, eyy, ezz, exy, eyz, ezx
 	};
 
-	union Result3D {
-		struct {
+	union Result3D
+	{
+		struct
+		{
 			float u0, v0, w0, zncc, iteration, convergence, feature;
 		};
 		float r[7];
@@ -94,6 +106,7 @@ namespace opencorr {
 		DeformationVector2D deformation;
 		Result2D result;
 		StrainVector2D strain;
+		Point2D subset_radius;
 
 		POI2D(int x, int y);
 		POI2D(float x, float y);
@@ -101,7 +114,7 @@ namespace opencorr {
 		~POI2D();
 
 		//reset data except the location
-		void clean();
+		void clear();
 	};
 
 
@@ -113,6 +126,7 @@ namespace opencorr {
 		Result2DS result;
 		Point3D ref_coor, tar_coor;
 		StrainVector3D strain;
+		Point2D subset_radius;
 
 		POI2DS(int x, int y);
 		POI2DS(float x, float y);
@@ -120,7 +134,7 @@ namespace opencorr {
 		~POI2DS();
 
 		//reset data except the location
-		void clean();
+		void clear();
 	};
 
 
@@ -131,6 +145,7 @@ namespace opencorr {
 		DeformationVector3D deformation;
 		Result3D result;
 		StrainVector3D strain;
+		Point3D subset_radius;
 
 		POI3D(int x, int y, int z);
 		POI3D(float x, float y, float z);
@@ -138,7 +153,7 @@ namespace opencorr {
 		~POI3D();
 
 		//reset data except the location
-		void clean();
+		void clear();
 	};
 
 }//namespace opencorr

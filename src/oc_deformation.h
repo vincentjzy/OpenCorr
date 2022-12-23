@@ -22,7 +22,7 @@
 
 namespace opencorr
 {
-	//2D 1st order
+	//2D deformation with the 1st order shape function
 	class Deformation2D1
 	{
 	public:
@@ -44,7 +44,7 @@ namespace opencorr
 		Point2D warp(Point2D& location);
 	};
 
-	//2D 2nd order
+	//2D deformation with the 2nd order shape function
 	class Deformation2D2
 	{
 	public:
@@ -65,11 +65,11 @@ namespace opencorr
 		void setDeformation(Deformation2D2& another_deformation);
 		void setDeformation(Deformation2D1& another_deformation);
 
-		void setWarp(); //update deformation according to warp2d2
+		void setWarp(); //update warp_matrix according to deformation
 		Point2D warp(Point2D location);
 	};
 
-	//3D 1st order
+	//3D deformation with the 1st order shape function
 	class Deformation3D1
 	{
 	public:
@@ -85,7 +85,7 @@ namespace opencorr
 		Deformation3D1(float p[12]);
 		~Deformation3D1();
 
-		void setDeformation(); // set deformation according to warp_matrix
+		void setDeformation(); //set deformation according to warp_matrix
 		void setDeformation(float u, float ux, float uy, float uz,
 			float v, float vx, float vy, float vz,
 			float w, float wx, float wy, float wz);

@@ -12,8 +12,6 @@
  * More information about OpenCorr can be found at https://www.opencorr.org/
  */
 
-#include <algorithm>
-
 #include "oc_strain.h"
 
 namespace opencorr
@@ -21,55 +19,23 @@ namespace opencorr
 	NearestNeighbor* Strain::getInstance(int tid)
 	{
 		if (tid >= (int)instance_pool.size())
+		{
 			throw std::string("CPU thread ID over limit");
+		}
 
 		return instance_pool[tid];
 	}
 
-	Strain::Strain(int subregion_radius, int min_neighbor_num, std::vector<POI2D>& poi_queue, int thread_number)
+	Strain::Strain(float subregion_radius, int min_neighbor_num, int thread_number)
 	{
-		this->subregion_radius = subregion_radius;
-		this->min_neighbor_num = min_neighbor_num;
-		this->poi2d_queue = poi_queue;
+		setSubregionRadius(subregion_radius);
+		setMinNeighborNumer(min_neighbor_num);
+
+		setZnccThreshold(0.9f);
+		setDescription(1);
+		setApproximation(1);
+
 		this->thread_number = thread_number;
-
-		this->zncc_threshold = 0.9f;
-		this->description = 1;
-
-		for (int i = 0; i < thread_number; i++)
-		{
-			NearestNeighbor* instance = new NearestNeighbor();
-			instance_pool.push_back(instance);
-		}
-	}
-
-	Strain::Strain(int subregion_radius, int min_neighbor_num, std::vector<POI2DS>& poi_queue, int thread_number)
-	{
-		this->subregion_radius = subregion_radius;
-		this->min_neighbor_num = min_neighbor_num;
-		this->poi2ds_queue = poi_queue;
-		this->thread_number = thread_number;
-
-		this->zncc_threshold = 0.9f;
-		this->description = 1;
-
-		for (int i = 0; i < thread_number; i++)
-		{
-			NearestNeighbor* instance = new NearestNeighbor();
-			instance_pool.push_back(instance);
-		}
-	}
-
-	Strain::Strain(int subregion_radius, int min_neighbor_num, std::vector<POI3D>& poi_queue, int thread_number)
-	{
-		this->subregion_radius = subregion_radius;
-		this->min_neighbor_num = min_neighbor_num;
-		this->poi3d_queue = poi_queue;
-		this->thread_number = thread_number;
-
-		this->zncc_threshold = 0.9f;
-		this->description = 1;
-
 		for (int i = 0; i < thread_number; i++)
 		{
 			NearestNeighbor* instance = new NearestNeighbor();
@@ -86,54 +52,54 @@ namespace opencorr
 		instance_pool.clear();
 	}
 
-	int Strain::getSubregionRadius() const {
+	float Strain::getSubregionRadius() const
+	{
 		return subregion_radius;
 	}
 
-	int Strain::getMinNeighborNumber() const {
+	int Strain::getMinNeighborNumber() const
+	{
 		return min_neighbor_num;
 	}
 
-	float Strain::getZNCCThreshold() const {
+	float Strain::getZnccThreshold() const
+	{
 		return zncc_threshold;
 	}
 
-	void Strain::setSubregionRadius(int subregion_radius) {
+	void Strain::setSubregionRadius(float subregion_radius)
+	{
 		this->subregion_radius = subregion_radius;
 	}
 
-	void Strain::setMinNeighborNumer(int min_neighbor_num) {
+	void Strain::setMinNeighborNumer(int min_neighbor_num)
+	{
 		this->min_neighbor_num = min_neighbor_num;
 	}
 
-	void Strain::setZnccThreshold(float zncc_threshold) {
+	void Strain::setZnccThreshold(float zncc_threshold)
+	{
 		this->zncc_threshold = zncc_threshold;
 	}
 
-	void Strain::setDescription(int description) {
+	void Strain::setDescription(int description)
+	{
 		this->description = description;
 	}
 
-	void Strain::setPOIQueue(std::vector<POI2D>& poi_queue)
+	void Strain::setApproximation(int approximation)
 	{
-		this->poi2d_queue = poi_queue;
+		this->approximation = approximation;
 	}
 
-	void Strain::setPOIQueue(std::vector<POI2DS>& poi_queue)
+	void Strain::prepare(std::vector<POI2D>& poi_queue)
 	{
-		this->poi2ds_queue = poi_queue;
-	}
-
-	void Strain::setPOIQueue(std::vector<POI3D>& poi_queue)
-	{
-		this->poi3d_queue = poi_queue;
-	}
-
-	void Strain::prepare(std::vector<POI2D>& poi_queue) {
 		int queue_size = (int)poi_queue.size();
 		std::vector<Point2D> pt_queue;
 		pt_queue.resize(queue_size);
-		for (int i = 0; i < queue_size; i++) {
+#pragma omp parallel for
+		for (int i = 0; i < queue_size; i++)
+		{
 			pt_queue[i].x = poi_queue[i].x;
 			pt_queue[i].y = poi_queue[i].y;
 		}
@@ -148,11 +114,14 @@ namespace opencorr
 		}
 	}
 
-	void Strain::prepare(std::vector<POI2DS>& poi_queue) {
+	void Strain::prepare(std::vector<POI2DS>& poi_queue)
+	{
 		int queue_size = (int)poi_queue.size();
 		std::vector<Point2D> pt_queue;
 		pt_queue.resize(queue_size);
-		for (int i = 0; i < queue_size; i++) {
+#pragma omp parallel for
+		for (int i = 0; i < queue_size; i++)
+		{
 			pt_queue[i].x = poi_queue[i].x;
 			pt_queue[i].y = poi_queue[i].y;
 		}
@@ -167,11 +136,14 @@ namespace opencorr
 		}
 	}
 
-	void Strain::prepare(std::vector<POI3D>& poi_queue) {
+	void Strain::prepare(std::vector<POI3D>& poi_queue)
+	{
 		int queue_size = (int)poi_queue.size();
 		std::vector<Point3D> pt_queue;
 		pt_queue.resize(queue_size);
-		for (int i = 0; i < queue_size; i++) {
+#pragma omp parallel for
+		for (int i = 0; i < queue_size; i++)
+		{
 			pt_queue[i].x = poi_queue[i].x;
 			pt_queue[i].y = poi_queue[i].y;
 			pt_queue[i].z = poi_queue[i].z;
@@ -187,8 +159,7 @@ namespace opencorr
 		}
 	}
 
-	//calculation of Green-Lagrangian strain
-	void Strain::compute(POI2D* poi)
+	void Strain::compute(POI2D* poi, std::vector<POI2D>& poi_queue)
 	{
 		//get instance of NearestNeighbor according to thread id
 		NearestNeighbor* neighbor_search = getInstance(omp_get_thread_num());
@@ -197,76 +168,90 @@ namespace opencorr
 		Point3D current_point(poi->x, poi->y, 0.f);
 
 		//POI queue for displacment field fitting
-		std::vector<POI2D> pois_for_fit;
+		std::vector<POI2D> pois_fit;
 
-		//search the neighbor keypoints in a subregion of given radius
-		std::vector<std::pair<uint32_t, float>> current_matches;
-		int fit_queue_size = neighbor_search->radiusSearch(current_point, current_matches);
-		if (fit_queue_size >= min_neighbor_num)
+		//search the neighbor POIs in a subregion of given radius
+		std::vector<nanoflann::ResultItem<uint32_t, float>> current_matches;
+		int neighbor_num = neighbor_search->radiusSearch(current_point, current_matches);
+		if (neighbor_num >= min_neighbor_num)
 		{
-			for (int i = 0; i < fit_queue_size; i++)
+			for (int i = 0; i < neighbor_num; i++)
 			{
-				if (poi2d_queue[current_matches[i].first].result.zncc >= zncc_threshold)
+				if (poi_queue[current_matches[i].first].result.zncc >= zncc_threshold)
 				{
-					pois_for_fit.push_back(poi2d_queue[current_matches[i].first]);
+					pois_fit.push_back(poi_queue[current_matches[i].first]);
 				}
 			}
 		}
-		fit_queue_size = (int)pois_for_fit.size();
+		else //try KNN search if the obtained neighbor POIs are not enough
+		{
+			std::vector<POI2D>().swap(pois_fit);
+
+			std::vector<uint32_t> k_neighbors_idx;
+			std::vector<float> squared_distance;
+			neighbor_num = neighbor_search->knnSearch(current_point, k_neighbors_idx, squared_distance);
+
+			for (int i = 0; i < neighbor_num; i++)
+			{
+				if (poi_queue[k_neighbors_idx[i]].result.zncc >= zncc_threshold)
+				{
+					pois_fit.push_back(poi_queue[k_neighbors_idx[i]]);
+				}
+			}
+		}
+		neighbor_num = (int)pois_fit.size();
 
 		//use brutal force search in case of insufficient neighbor POIs for fitting
-		if (fit_queue_size < min_neighbor_num)
+		if (neighbor_num < min_neighbor_num)
 		{
-			std::vector<POI2D>().swap(pois_for_fit);
+			std::vector<POI2D>().swap(pois_fit);
 			std::vector<PointIndex> pois_sorted_index;
 
-			//sort the poi queue in a descendent order of distance to the POI
-			int queue_size = (int)poi2d_queue.size();
-			for (int i = 0; i < queue_size; ++i)
+			//sort the poi queue in a descending order of distance to the POI
+			int queue_size = (int)poi_queue.size();
+			for (int i = 0; i < queue_size; i++)
 			{
-				Point2D distance = poi2d_queue[i] - (Point2D)*poi;
+				Point2D distance = poi_queue[i] - (Point2D)*poi;
 				PointIndex current_poi_idx;
-				current_poi_idx.index_in_queue = i;
-				current_poi_idx.distance_to_poi = distance.vectorNorm();
+				current_poi_idx.poi_idx = i;
+				current_poi_idx.distance = distance.vectorNorm();
 				pois_sorted_index.push_back(current_poi_idx);
 			}
 
 			std::sort(pois_sorted_index.begin(), pois_sorted_index.end(), sortByDistance);
 
 			//pick the neighbor POIs for facet fitting
-			int sorted_index_size = (int)pois_sorted_index.size();
 			int i = 0;
-			while (i < sorted_index_size && (pois_sorted_index[i].distance_to_poi < subregion_radius || pois_for_fit.size() < min_neighbor_num))
+			while (i < queue_size && (pois_sorted_index[i].distance < subregion_radius || pois_fit.size() < min_neighbor_num))
 			{
-				if (poi2d_queue[pois_sorted_index[i].index_in_queue].result.zncc >= zncc_threshold)
+				if (poi_queue[pois_sorted_index[i].poi_idx].result.zncc >= zncc_threshold)
 				{
-					pois_for_fit.push_back(poi2d_queue[pois_sorted_index[i].index_in_queue]);
+					pois_fit.push_back(poi_queue[pois_sorted_index[i].poi_idx]);
 				}
 				i++;
 			}
 		}
-		fit_queue_size = (int)pois_for_fit.size();
+		neighbor_num = (int)pois_fit.size();
 
 		//create matrices of displacments
-		Eigen::VectorXf u_vector(fit_queue_size);
-		Eigen::VectorXf v_vector(fit_queue_size);
-		Eigen::VectorXf w_vector(fit_queue_size);
+		Eigen::VectorXf u_vector(neighbor_num);
+		Eigen::VectorXf v_vector(neighbor_num);
 
 		//construct coefficient matrix
-		Eigen::MatrixXf coefficient_matrix = Eigen::MatrixXf::Zero(fit_queue_size, 3);
+		Eigen::MatrixXf coefficient_matrix = Eigen::MatrixXf::Zero(neighbor_num, 3);
 
-		//fill coefficient matrix, u_vector, v_vector, and w_vector
-		for (int j = 0; j < fit_queue_size; j++)
+		//fill coefficient matrix, u_vector and v_vector
+		for (int i = 0; i < neighbor_num; i++)
 		{
-			coefficient_matrix(j, 0) = 1.f;
-			coefficient_matrix(j, 1) = pois_for_fit[j].x - poi->x;
-			coefficient_matrix(j, 2) = pois_for_fit[j].y - poi->y;
+			coefficient_matrix(i, 0) = 1.f;
+			coefficient_matrix(i, 1) = pois_fit[i].x - poi->x;
+			coefficient_matrix(i, 2) = pois_fit[i].y - poi->y;
 
-			u_vector(j) = pois_for_fit[j].deformation.u;
-			v_vector(j) = pois_for_fit[j].deformation.v;
+			u_vector(i) = pois_fit[i].deformation.u;
+			v_vector(i) = pois_fit[i].deformation.v;
 		}
 
-		//solve the equations to obtain gradients of u, v, and w
+		//solve the equations to obtain gradients of u and v
 		Eigen::VectorXf u_gradient = coefficient_matrix.colPivHouseholderQr().solve(u_vector);
 		Eigen::VectorXf v_gradient = coefficient_matrix.colPivHouseholderQr().solve(v_vector);
 		float ux = u_gradient(1, 0);
@@ -274,24 +259,33 @@ namespace opencorr
 		float vx = v_gradient(1, 0);
 		float vy = v_gradient(2, 0);
 
-		//calculate the strains and save them for output
-		poi->strain.exx = ux + 0.5f * (ux * ux + vx * vx);
-		poi->strain.eyy = vy + 0.5f * (uy * uy + vy * vy);
-		poi->strain.exy = 0.5f * (uy + vx + uy * ux + vy * vx);
+		if (approximation == 1)
+		{
+			//calculate the Cauchy strain and save them for output
+			poi->strain.exx = ux;
+			poi->strain.eyy = vy;
+			poi->strain.exy = 0.5f * (uy + vx);
+		}
+		if (approximation == 2)
+		{
+			//calculate the Green strain and save them for output
+			poi->strain.exx = ux + 0.5f * (ux * ux + vx * vx);
+			poi->strain.eyy = vy + 0.5f * (uy * uy + vy * vy);
+			poi->strain.exy = 0.5f * (uy + vx + uy * ux + vy * vx);
+		}
 	}
 
 	void Strain::compute(std::vector<POI2D>& poi_queue)
 	{
 		int queue_length = (int)poi_queue.size();
 #pragma omp parallel for
-		for (int i = 0; i < queue_length; ++i)
+		for (int i = 0; i < queue_length; i++)
 		{
-			compute(&poi_queue[i]);
+			compute(&poi_queue[i], poi_queue);
 		}
 	}
 
-	//calculation of Green-Lagrangian strain
-	void Strain::compute(POI2DS* poi)
+	void Strain::compute(POI2DS* poi, std::vector<POI2DS>& poi_queue)
 	{
 		//get instance of NearestNeighbor according to thread id
 		NearestNeighbor* neighbor_search = getInstance(omp_get_thread_num());
@@ -300,80 +294,97 @@ namespace opencorr
 		Point3D current_point(poi->x, poi->y, 0.f);
 
 		//POI queue for displacment field fitting
-		std::vector<POI2DS> pois_for_fit;
+		std::vector<POI2DS> pois_fit;
 
 		//search the neighbor keypoints in a subregion of given radius
-		std::vector<std::pair<uint32_t, float>> current_matches;
-		int fit_queue_size = neighbor_search->radiusSearch(current_point, current_matches);
-		if (fit_queue_size >= min_neighbor_num)
+		std::vector<nanoflann::ResultItem<uint32_t, float>> current_matches;
+		int neighbor_num = neighbor_search->radiusSearch(current_point, current_matches);
+		if (neighbor_num >= min_neighbor_num)
 		{
-			for (int i = 0; i < fit_queue_size; i++)
+			for (int i = 0; i < neighbor_num; i++)
 			{
-				if (poi2ds_queue[current_matches[i].first].result.r1r2_zncc >= zncc_threshold
-					&& poi2ds_queue[current_matches[i].first].result.r1t1_zncc >= zncc_threshold
-					&& poi2ds_queue[current_matches[i].first].result.r1t2_zncc >= zncc_threshold)
+				if (poi_queue[current_matches[i].first].result.r1r2_zncc >= zncc_threshold
+					&& poi_queue[current_matches[i].first].result.r1t1_zncc >= zncc_threshold
+					&& poi_queue[current_matches[i].first].result.r1t2_zncc >= zncc_threshold)
 				{
-					pois_for_fit.push_back(poi2ds_queue[current_matches[i].first]);
+					pois_fit.push_back(poi_queue[current_matches[i].first]);
 				}
 			}
 		}
-		fit_queue_size = (int)pois_for_fit.size();
+		else //try KNN search if the obtained neighbor POIs are not enough
+		{
+			std::vector<POI2DS>().swap(pois_fit);
+
+			std::vector<uint32_t> k_neighbors_idx;
+			std::vector<float> squared_distance;
+			neighbor_num = neighbor_search->knnSearch(current_point, k_neighbors_idx, squared_distance);
+
+			for (int i = 0; i < neighbor_num; i++)
+			{
+				if (poi_queue[current_matches[i].first].result.r1r2_zncc >= zncc_threshold
+					&& poi_queue[current_matches[i].first].result.r1t1_zncc >= zncc_threshold
+					&& poi_queue[current_matches[i].first].result.r1t2_zncc >= zncc_threshold)
+				{
+					pois_fit.push_back(poi_queue[k_neighbors_idx[i]]);
+				}
+			}
+		}
+		neighbor_num = (int)pois_fit.size();
 
 		//use brutal force search in case of insufficient neighbor POIs for fitting
-		if (fit_queue_size < min_neighbor_num)
+		if (neighbor_num < min_neighbor_num)
 		{
-			std::vector<POI2DS>().swap(pois_for_fit);
+			std::vector<POI2DS>().swap(pois_fit);
 			std::vector<PointIndex> pois_sorted_index;
 
-			//sort the poi queue in a descendent order of distance to the POI
-			int queue_size = (int)poi2ds_queue.size();
-			for (int i = 0; i < queue_size; ++i)
+			//sort the poi queue in a descending order of distance to the POI
+			int queue_size = (int)poi_queue.size();
+			for (int i = 0; i < queue_size; i++)
 			{
-				Point2D distance = poi2ds_queue[i] - (Point2D)*poi;
+				Point2D distance = poi_queue[i] - (Point2D)*poi;
 				PointIndex current_poi_idx;
-				current_poi_idx.index_in_queue = i;
-				current_poi_idx.distance_to_poi = distance.vectorNorm();
+				current_poi_idx.poi_idx = i;
+				current_poi_idx.distance = distance.vectorNorm();
 				pois_sorted_index.push_back(current_poi_idx);
 			}
 
 			std::sort(pois_sorted_index.begin(), pois_sorted_index.end(), sortByDistance);
 
 			//pick the neighbor POIs for facet fitting
-			int sorted_index_size = (int)pois_sorted_index.size();
 			int i = 0;
-			while (i < sorted_index_size && (pois_sorted_index[i].distance_to_poi < subregion_radius || pois_for_fit.size() <= min_neighbor_num))
+			while (i < queue_size && (pois_sorted_index[i].distance < subregion_radius || pois_fit.size() < min_neighbor_num))
 			{
-				if (poi2ds_queue[pois_sorted_index[i].index_in_queue].result.r1r2_zncc >= zncc_threshold
-					&& poi2ds_queue[pois_sorted_index[i].index_in_queue].result.r1t1_zncc >= zncc_threshold
-					&& poi2ds_queue[pois_sorted_index[i].index_in_queue].result.r1t2_zncc >= zncc_threshold)
+				if (poi_queue[pois_sorted_index[i].poi_idx].result.r1r2_zncc >= zncc_threshold
+					&& poi_queue[pois_sorted_index[i].poi_idx].result.r1t1_zncc >= zncc_threshold
+					&& poi_queue[pois_sorted_index[i].poi_idx].result.r1t2_zncc >= zncc_threshold)
 				{
-					pois_for_fit.push_back(poi2ds_queue[pois_sorted_index[i].index_in_queue]);
+					pois_fit.push_back(poi_queue[pois_sorted_index[i].poi_idx]);
 				}
 				i++;
 			}
 		}
-		fit_queue_size = (int)pois_for_fit.size();
+		neighbor_num = (int)pois_fit.size();
 
 		//create matrices of displacments
-		Eigen::VectorXf u_vector(fit_queue_size);
-		Eigen::VectorXf v_vector(fit_queue_size);
-		Eigen::VectorXf w_vector(fit_queue_size);
+		Eigen::VectorXf u_vector(neighbor_num);
+		Eigen::VectorXf v_vector(neighbor_num);
+		Eigen::VectorXf w_vector(neighbor_num);
 
 		//construct coefficient matrix
-		Eigen::MatrixXf coefficient_matrix = Eigen::MatrixXf::Zero(fit_queue_size, 4);
+		Eigen::MatrixXf coefficient_matrix = Eigen::MatrixXf::Zero(neighbor_num, 4);
 
 		//fill coefficient matrix, u_vector, v_vector, and w_vector
-		for (int j = 0; j < fit_queue_size; j++)
+		for (int i = 0; i < neighbor_num; i++)
 		{
-			Point3D current_pt_3d = pois_for_fit[j].ref_coor - poi->ref_coor;
-			coefficient_matrix(j, 0) = 1.f;
-			coefficient_matrix(j, 1) = current_pt_3d.x;
-			coefficient_matrix(j, 2) = current_pt_3d.y;
-			coefficient_matrix(j, 3) = current_pt_3d.z;
+			Point3D current_pt_3d = pois_fit[i].ref_coor - poi->ref_coor;
+			coefficient_matrix(i, 0) = 1.f;
+			coefficient_matrix(i, 1) = current_pt_3d.x;
+			coefficient_matrix(i, 2) = current_pt_3d.y;
+			coefficient_matrix(i, 3) = current_pt_3d.z;
 
-			u_vector(j) = pois_for_fit[j].deformation.u;
-			v_vector(j) = pois_for_fit[j].deformation.v;
-			w_vector(j) = pois_for_fit[j].deformation.w;
+			u_vector(i) = pois_fit[i].deformation.u;
+			v_vector(i) = pois_fit[i].deformation.v;
+			w_vector(i) = pois_fit[i].deformation.w;
 		}
 
 		//solve the equations to obtain gradients of u, v, and w
@@ -390,27 +401,38 @@ namespace opencorr
 		float wy = w_gradient(2, 0);
 		float wz = w_gradient(3, 0);
 
-		//calculate the strains and save them for output
-		poi->strain.exx = ux + 0.5f * (ux * ux + vx * vx + wx * wx);
-		poi->strain.eyy = vy + 0.5f * (uy * uy + vy * vy + wy * wy);
-		poi->strain.ezz = wz + 0.5f * (uz * uz + vz * vz + wz * wz);
-		poi->strain.exy = 0.5f * (uy + vx + uy * ux + vy * vx + wy * wx);
-		poi->strain.eyz = 0.5f * (vz + wy + uz * uy + vz * vy + wz * wy);
-		poi->strain.ezx = 0.5f * (wx + uz + ux * uz + vx * vz + wx * wz);
+		if (approximation == 1)
+		{
+			//calculate the Cauchy strain and save them for output
+			poi->strain.exx = ux;
+			poi->strain.eyy = vy;
+			poi->strain.ezz = wz;
+			poi->strain.exy = 0.5f * (uy + vx);
+			poi->strain.eyz = 0.5f * (vz + wy);
+			poi->strain.ezx = 0.5f * (wx + uz);
+		}
+		if (approximation == 2)
+		{
+			poi->strain.exx = ux + 0.5f * (ux * ux + vx * vx + wx * wx);
+			poi->strain.eyy = vy + 0.5f * (uy * uy + vy * vy + wy * wy);
+			poi->strain.ezz = wz + 0.5f * (uz * uz + vz * vz + wz * wz);
+			poi->strain.exy = 0.5f * (uy + vx + uy * ux + vy * vx + wy * wx);
+			poi->strain.eyz = 0.5f * (vz + wy + uz * uy + vz * vy + wz * wy);
+			poi->strain.ezx = 0.5f * (wx + uz + ux * uz + vx * vz + wx * wz);
+		}
 	}
 
 	void Strain::compute(std::vector<POI2DS>& poi_queue)
 	{
 		int queue_length = (int)poi_queue.size();
 #pragma omp parallel for
-		for (int i = 0; i < queue_length; ++i)
+		for (int i = 0; i < queue_length; i++)
 		{
-			compute(&poi_queue[i]);
+			compute(&poi_queue[i], poi_queue);
 		}
 	}
 
-	//calculation of Green-Lagrangian strain
-	void Strain::compute(POI3D* poi)
+	void Strain::compute(POI3D* poi, std::vector<POI3D>& poi_queue)
 	{
 		//get instance of NearestNeighbor according to thread id
 		NearestNeighbor* neighbor_search = getInstance(omp_get_thread_num());
@@ -419,75 +441,90 @@ namespace opencorr
 		Point3D current_point(poi->x, poi->y, poi->z);
 
 		//POI queue for displacment field fitting
-		std::vector<POI3D> pois_for_fit;
+		std::vector<POI3D> pois_fit;
 
 		//search the neighbor keypoints in a subregion of given radius
-		std::vector<std::pair<uint32_t, float>> current_matches;
-		int fit_queue_size = neighbor_search->radiusSearch(current_point, current_matches);
-		if (fit_queue_size >= min_neighbor_num)
+		std::vector<nanoflann::ResultItem<uint32_t, float>> current_matches;
+		int neighbor_num = neighbor_search->radiusSearch(current_point, current_matches);
+		if (neighbor_num >= min_neighbor_num)
 		{
-			for (int i = 0; i < fit_queue_size; i++)
+			for (int i = 0; i < neighbor_num; i++)
 			{
-				if (poi3d_queue[current_matches[i].first].result.zncc >= zncc_threshold)
+				if (poi_queue[current_matches[i].first].result.zncc >= zncc_threshold)
 				{
-					pois_for_fit.push_back(poi3d_queue[current_matches[i].first]);
+					pois_fit.push_back(poi_queue[current_matches[i].first]);
 				}
 			}
 		}
-		fit_queue_size = (int)pois_for_fit.size();
+		else //try KNN search if the obtained neighbor POIs are not enough
+		{
+			std::vector<POI3D>().swap(pois_fit);
+
+			std::vector<uint32_t> k_neighbors_idx;
+			std::vector<float> squared_distance;
+			neighbor_num = neighbor_search->knnSearch(current_point, k_neighbors_idx, squared_distance);
+
+			for (int i = 0; i < neighbor_num; i++)
+			{
+				if (poi_queue[k_neighbors_idx[i]].result.zncc >= zncc_threshold)
+				{
+					pois_fit.push_back(poi_queue[k_neighbors_idx[i]]);
+				}
+			}
+		}
+		neighbor_num = (int)pois_fit.size();
 
 		//use brutal force search in case of insufficient neighbor POIs for fitting
-		if (fit_queue_size < min_neighbor_num)
+		if (neighbor_num < min_neighbor_num)
 		{
-			std::vector<POI3D>().swap(pois_for_fit);
+			std::vector<POI3D>().swap(pois_fit);
 			std::vector<PointIndex> pois_sorted_index;
 
 			//sort the poi queue in a descendent order of distance to the POI
-			int queue_size = (int)poi3d_queue.size();
-			for (int i = 0; i < queue_size; ++i)
+			int queue_size = (int)poi_queue.size();
+			for (int i = 0; i < queue_size; i++)
 			{
-				Point3D distance = poi3d_queue[i] - (Point3D)*poi;
+				Point3D distance = poi_queue[i] - (Point3D)*poi;
 				PointIndex current_poi_idx;
-				current_poi_idx.index_in_queue = i;
-				current_poi_idx.distance_to_poi = distance.vectorNorm();
+				current_poi_idx.poi_idx = i;
+				current_poi_idx.distance = distance.vectorNorm();
 				pois_sorted_index.push_back(current_poi_idx);
 			}
 
 			std::sort(pois_sorted_index.begin(), pois_sorted_index.end(), sortByDistance);
 
 			//pick the neighbor POIs for facet fitting
-			int sorted_index_size = (int)pois_sorted_index.size();
 			int i = 0;
-			while (i < sorted_index_size && (pois_sorted_index[i].distance_to_poi < subregion_radius || pois_for_fit.size() <= min_neighbor_num))
+			while (i < queue_size && (pois_sorted_index[i].distance < subregion_radius || pois_fit.size() <= min_neighbor_num))
 			{
-				if (poi3d_queue[pois_sorted_index[i].index_in_queue].result.zncc >= zncc_threshold)
+				if (poi_queue[pois_sorted_index[i].poi_idx].result.zncc >= zncc_threshold)
 				{
-					pois_for_fit.push_back(poi3d_queue[pois_sorted_index[i].index_in_queue]);
+					pois_fit.push_back(poi_queue[pois_sorted_index[i].poi_idx]);
 				}
 				i++;
 			}
 		}
-		fit_queue_size = (int)pois_for_fit.size();
+		neighbor_num = (int)pois_fit.size();
 
 		//create matrices of displacments
-		Eigen::VectorXf u_vector(fit_queue_size);
-		Eigen::VectorXf v_vector(fit_queue_size);
-		Eigen::VectorXf w_vector(fit_queue_size);
+		Eigen::VectorXf u_vector(neighbor_num);
+		Eigen::VectorXf v_vector(neighbor_num);
+		Eigen::VectorXf w_vector(neighbor_num);
 
 		//construct coefficient matrix
-		Eigen::MatrixXf coefficient_matrix = Eigen::MatrixXf::Zero(fit_queue_size, 4);
+		Eigen::MatrixXf coefficient_matrix = Eigen::MatrixXf::Zero(neighbor_num, 4);
 
 		//fill coefficient matrix, u_vector, v_vector, and w_vector
-		for (int j = 0; j < fit_queue_size; j++)
+		for (int i = 0; i < neighbor_num; i++)
 		{
-			coefficient_matrix(j, 0) = 1.f;
-			coefficient_matrix(j, 1) = pois_for_fit[j].x - poi->x;
-			coefficient_matrix(j, 2) = pois_for_fit[j].y - poi->y;
-			coefficient_matrix(j, 3) = pois_for_fit[j].z - poi->z;
+			coefficient_matrix(i, 0) = 1.f;
+			coefficient_matrix(i, 1) = pois_fit[i].x - poi->x;
+			coefficient_matrix(i, 2) = pois_fit[i].y - poi->y;
+			coefficient_matrix(i, 3) = pois_fit[i].z - poi->z;
 
-			u_vector(j) = pois_for_fit[j].deformation.u;
-			v_vector(j) = pois_for_fit[j].deformation.v;
-			w_vector(j) = pois_for_fit[j].deformation.w;
+			u_vector(i) = pois_fit[i].deformation.u;
+			v_vector(i) = pois_fit[i].deformation.v;
+			w_vector(i) = pois_fit[i].deformation.w;
 		}
 
 		//solve the equations to obtain gradients of u, v, and w
@@ -504,29 +541,41 @@ namespace opencorr
 		float wy = w_gradient(2, 0);
 		float wz = w_gradient(3, 0);
 
-		//calculate the strains and save them for output
-		poi->strain.exx = ux + 0.5f * (ux * ux + vx * vx + wx * wx);
-		poi->strain.eyy = vy + 0.5f * (uy * uy + vy * vy + wy * wy);
-		poi->strain.ezz = wz + 0.5f * (uz * uz + vz * vz + wz * wz);
-		poi->strain.exy = 0.5f * (uy + vx + uy * ux + vy * vx + wy * wx);
-		poi->strain.eyz = 0.5f * (vz + wy + uz * uy + vz * vy + wz * wy);
-		poi->strain.ezx = 0.5f * (wx + uz + ux * uz + vx * vz + wx * wz);
+		if (approximation == 1)
+		{
+			//calculate the Cauchy strain and save them for output
+			poi->strain.exx = ux;
+			poi->strain.eyy = vy;
+			poi->strain.ezz = wz;
+			poi->strain.exy = 0.5f * (uy + vx);
+			poi->strain.eyz = 0.5f * (vz + wy);
+			poi->strain.ezx = 0.5f * (wx + uz);
+		}
+		if (approximation == 2)
+		{
+			poi->strain.exx = ux + 0.5f * (ux * ux + vx * vx + wx * wx);
+			poi->strain.eyy = vy + 0.5f * (uy * uy + vy * vy + wy * wy);
+			poi->strain.ezz = wz + 0.5f * (uz * uz + vz * vz + wz * wz);
+			poi->strain.exy = 0.5f * (uy + vx + uy * ux + vy * vx + wy * wx);
+			poi->strain.eyz = 0.5f * (vz + wy + uz * uy + vz * vy + wz * wy);
+			poi->strain.ezx = 0.5f * (wx + uz + ux * uz + vx * vz + wx * wz);
+		}
 	}
 
 	void Strain::compute(std::vector<POI3D>& poi_queue)
 	{
 		int queue_length = (int)poi_queue.size();
 #pragma omp parallel for
-		for (int i = 0; i < queue_length; ++i)
+		for (int i = 0; i < queue_length; i++)
 		{
-			compute(&poi_queue[i]);
+			compute(&poi_queue[i], poi_queue);
 		}
 	}
 
 
 	bool sortByDistance(const PointIndex& p1, const PointIndex& p2)
 	{
-		return p1.distance_to_poi < p2.distance_to_poi;
+		return p1.distance < p2.distance;
 	}
 
 }//namespace opencorr

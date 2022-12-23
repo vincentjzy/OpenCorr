@@ -19,10 +19,6 @@
 
 #include "oc_array.h"
 #include "oc_calibration.h"
-#include "oc_dic.h"
-#include "oc_icgn.h"
-#include "oc_image.h"
-#include "oc_poi.h"
 #include "oc_point.h"
 
 namespace opencorr
@@ -30,20 +26,23 @@ namespace opencorr
 	class Stereovision
 	{
 	protected:
-		Calibration* view1_cam = nullptr; //intrinsics and extrinsics of the principal camera
+		Calibration* view1_cam = nullptr; //intrinsics and extrinsics of the primary camera
 		Calibration* view2_cam = nullptr; //intrinsics and extrinsics of the secondary camera
 		int thread_number; //CPU thread number
 
 	public:
+		Eigen::Matrix3f fundamental_matrix; //fundamental matrix of binocular stereovision system
+
 		Stereovision(Calibration* view1_cam, Calibration* view2_cam, int thread_number);
 		~Stereovision();
 
 		void updateCameras(Calibration* view1_cam, Calibration* view2_cam);
+		void updateFundementalMatrix();
 		void prepare();
 
 		Point3D reconstruct(Point2D& view1_2d_point, Point2D& view2_2d_point);
 		void reconstruct(std::vector<Point2D>& view1_2d_point_queue, std::vector<Point2D>& view2_2d_point_queue, std::vector<Point3D>& space_3d_point_queue);
-
 	};
+
 }//namespace opencorr
 #endif //_STEREOVISION_H_

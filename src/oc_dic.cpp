@@ -16,37 +16,48 @@
 
 namespace opencorr
 {
-	DIC::DIC() {
-	}
+	DIC::DIC() {}
 
-	void DIC::setImages(Image2D& ref_img, Image2D& tar_img) {
+	void DIC::setImages(Image2D& ref_img, Image2D& tar_img)
+	{
 		this->ref_img = &ref_img;
 		this->tar_img = &tar_img;
 	}
 
-	void DIC::setSubsetRadii(int subset_radius_x, int subset_radius_y) {
+	void DIC::setSubsetRadius(int subset_radius_x, int subset_radius_y)
+	{
 		this->subset_radius_x = subset_radius_x;
 		this->subset_radius_y = subset_radius_y;
 	}
 
-	void DIC::prepare() {
-	}
+	void DIC::prepare() {}
 
-	//digital volume correlation----------------------------------------------------------
-	DVC::DVC() {
-	}
 
-	void DVC::setImages(Image3D& ref_img, Image3D& tar_img) {
+	DVC::DVC() {}
+
+	void DVC::setImages(Image3D& ref_img, Image3D& tar_img)
+	{
 		this->ref_img = &ref_img;
 		this->tar_img = &tar_img;
 	}
-	void DVC::setSubsetRadii(int radius_x, int radius_y, int radius_z) {
+
+	void DVC::setSubsetRadius(int radius_x, int radius_y, int radius_z)
+	{
 		subset_radius_x = radius_x;
 		subset_radius_y = radius_y;
 		subset_radius_z = radius_z;
 
 	}
-	void DVC::prepare() {
+	void DVC::prepare() {}
+
+
+	bool sortByZNCC(const POI2D& p1, const POI2D& p2) {
+		return p1.result.zncc > p2.result.zncc;
+	}
+
+	bool sortByDistance(const KeypointIndex& kp1, const KeypointIndex& kp2)
+	{
+		return kp1.distance < kp2.distance;
 	}
 
 }//namespace opencorr

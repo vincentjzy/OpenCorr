@@ -12,27 +12,30 @@
  * More information about OpenCorr can be found at https://www.opencorr.org/
  */
 
-#include <omp.h>
 #include "oc_gradient.h"
 
 namespace opencorr
 {
-	Gradient2D4::Gradient2D4(Image2D& image) {
+	//order of derivative: 1, order of accuracy: 4
+	Gradient2D4::Gradient2D4(Image2D& image)
+	{
 		grad_img = &image;
 	}
 
-	Gradient2D4::~Gradient2D4() {
-	}
+	Gradient2D4::~Gradient2D4() {}
 
-	void Gradient2D4::getGradientX() {
+	void Gradient2D4::getGradientX()
+	{
 		int height = grad_img->height;
 		int width = grad_img->width;
 
 		gradient_x = Eigen::MatrixXf::Zero(height, width);
 
 #pragma omp parallel for
-		for (int r = 0; r < height; r++) {
-			for (int c = 2; c < width - 2; c++) {
+		for (int r = 0; r < height; r++)
+		{
+			for (int c = 2; c < width - 2; c++)
+			{
 				float result = 0.0f;
 				result -= grad_img->eg_mat(r, c + 2) / 12.f;
 				result += grad_img->eg_mat(r, c + 1) * (2.f / 3.f);
@@ -43,15 +46,18 @@ namespace opencorr
 		}
 	}
 
-	void Gradient2D4::getGradientY() {
+	void Gradient2D4::getGradientY()
+	{
 		int height = grad_img->height;
 		int width = grad_img->width;
 
 		gradient_y = Eigen::MatrixXf::Zero(height, width);
 
 #pragma omp parallel for
-		for (int r = 2; r < height - 2; r++) {
-			for (int c = 0; c < width; c++) {
+		for (int r = 2; r < height - 2; r++)
+		{
+			for (int c = 0; c < width; c++)
+			{
 				float result = 0.0f;
 				result -= grad_img->eg_mat(r + 2, c) / 12.f;
 				result += grad_img->eg_mat(r + 1, c) * (2.f / 3.f);
@@ -62,19 +68,23 @@ namespace opencorr
 		}
 	}
 
-	void Gradient2D4::getGradientXY() {
+	void Gradient2D4::getGradientXY()
+	{
 		int height = grad_img->height;
 		int width = grad_img->width;
 
 		gradient_xy = Eigen::MatrixXf::Zero(height, width);
 
-		if (gradient_x.rows() != height || gradient_x.cols() != width) {
+		if (gradient_x.rows() != height || gradient_x.cols() != width)
+		{
 			getGradientX();
 		}
 
 #pragma omp parallel for
-		for (int r = 2; r < height - 2; r++) {
-			for (int c = 0; c < width; c++) {
+		for (int r = 2; r < height - 2; r++)
+		{
+			for (int c = 0; c < width; c++)
+			{
 				float result = 0.0f;
 				result -= gradient_x(r + 2, c) / 12.f;
 				result += gradient_x(r + 1, c) * (2.f / 3.f);
@@ -85,32 +95,46 @@ namespace opencorr
 		}
 	}
 
-	Gradient3D4::Gradient3D4(Image3D& image) {
+	Gradient3D4::Gradient3D4(Image3D& image)
+	{
 		grad_img = &image;
 	}
 
-	Gradient3D4::~Gradient3D4() {
+	Gradient3D4::~Gradient3D4()
+	{
 		if (gradient_x != nullptr)
+		{
 			delete3D(gradient_x);
+		}
 		if (gradient_y != nullptr)
+		{
 			delete3D(gradient_y);
+		}
 		if (gradient_z != nullptr)
+		{
 			delete3D(gradient_z);
+		}
 	}
 
-	void Gradient3D4::getGradientX() {
+	void Gradient3D4::getGradientX()
+	{
 		int dim_x = grad_img->dim_x;
 		int dim_y = grad_img->dim_y;
 		int dim_z = grad_img->dim_z;
 
 		if (gradient_x != nullptr)
+		{
 			delete3D(gradient_x);
+		}
 		gradient_x = new3D(dim_z, dim_y, dim_x);
 
 #pragma omp parallel for
-		for (int i = 0; i < dim_z; i++) {
-			for (int j = 0; j < dim_y; j++) {
-				for (int k = 2; k < dim_x - 2; k++) {
+		for (int i = 0; i < dim_z; i++)
+		{
+			for (int j = 0; j < dim_y; j++)
+			{
+				for (int k = 2; k < dim_x - 2; k++)
+				{
 					float result = 0.0f;
 					result -= grad_img->vol_mat[i][j][k + 2] / 12.f;
 					result += grad_img->vol_mat[i][j][k + 1] * (2.f / 3.f);
@@ -122,19 +146,25 @@ namespace opencorr
 		}
 	}
 
-	void Gradient3D4::getGradientY() {
+	void Gradient3D4::getGradientY()
+	{
 		int dim_x = grad_img->dim_x;
 		int dim_y = grad_img->dim_y;
 		int dim_z = grad_img->dim_z;
 
 		if (gradient_y != nullptr)
+		{
 			delete3D(gradient_y);
+		}
 		gradient_y = new3D(dim_z, dim_y, dim_x);
 
 #pragma omp parallel for
-		for (int k = 0; k < dim_x; k++) {
-			for (int i = 0; i < dim_z; i++) {
-				for (int j = 2; j < dim_y - 2; j++) {
+		for (int k = 0; k < dim_x; k++)
+		{
+			for (int i = 0; i < dim_z; i++)
+			{
+				for (int j = 2; j < dim_y - 2; j++)
+				{
 					float result = 0.0f;
 					result -= grad_img->vol_mat[i][j + 2][k] / 12.f;
 					result += grad_img->vol_mat[i][j + 1][k] * (2.f / 3.f);
@@ -146,19 +176,25 @@ namespace opencorr
 		}
 	}
 
-	void Gradient3D4::getGradientZ() {
+	void Gradient3D4::getGradientZ()
+	{
 		int dim_x = grad_img->dim_x;
 		int dim_y = grad_img->dim_y;
 		int dim_z = grad_img->dim_z;
 
 		if (gradient_z != nullptr)
+		{
 			delete3D(gradient_z);
+		}
 		gradient_z = new3D(dim_z, dim_y, dim_x);
 
 #pragma omp parallel for
-		for (int j = 0; j < dim_y; j++) {
-			for (int k = 0; k < dim_x; k++) {
-				for (int i = 2; i < dim_z - 2; i++) {
+		for (int j = 0; j < dim_y; j++)
+		{
+			for (int k = 0; k < dim_x; k++)
+			{
+				for (int i = 2; i < dim_z - 2; i++)
+				{
 					float result = 0.0f;
 					result -= grad_img->vol_mat[i + 2][j][k] / 12.f;
 					result += grad_img->vol_mat[i + 1][j][k] * (2.f / 3.f);

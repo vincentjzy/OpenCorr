@@ -2,15 +2,13 @@
 
 # OpenCorr： An open source C++ library for digital image correlation 
 
-OpenCorr is an open source C++ library for development of 2D, 3D/stereo, and volumetric digital image correlation (DIC). It aims to provide a developer-friendly, lightweight, and efficient kit to the users who are willing to study the state-of-the-art algorithms of DIC and DVC (digital volume correlation), or to create DIC/DVC programs for their specific applications.
-
-OpenCorr is under construction. More functions, including the GPU accelerated modules will be released soon. Thus, update of both codes and webpages will be frequent in the following months until we reach a stable version with relatively complete documentation.
+OpenCorr is an open source C++ library for research and development of 2D, 3D/stereo, and volumetric digital image correlation (DIC). It aims to provide a developer-friendly, lightweight, and efficient kit to the users who are willing to study the state-of-the-art algorithms of DIC and DVC (digital volume correlation), or to create DIC and DVC programs for their specific applications.
 
 Comments and suggestions are most welcome. You may reach us via
 
 1. Email: zhenyujiang (at) scut.edu.cn;
 2. Discussion in GitHub repository;
-3. QQ group: 597895040
+3. Tencent QQ group: 597895040
 
 Users can also access the information of OpenCorr via website [opencorr.org](http://opencorr.org) .
 
@@ -41,6 +39,8 @@ Users can also access the information of OpenCorr via website [opencorr.org](htt
 >2022.10.13, Fix the VRAM leak issue of GPU accelerated ICGN module.
 >
 >2022.10.21, Fix the conflict of calling NearestNeighbor instance by multiple threads in modules FeatureAffine and Strain.
+>
+>2022.12.23, Release of OpenCorr 1.0. Modules Feature and FeatureAffine are upgraded by introducing calsses SIFT3D and FeatureAffine3D, respectively. The codes, examples, and documents are thoroughly updated.
 
 # Instructions
 

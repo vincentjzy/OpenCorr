@@ -17,7 +17,6 @@
 #ifndef _NEAREST_NEIGHBORS_H_
 #define _NEAREST_NEIGHBORS_H_
 
-#include <vector>
 #include <nanoflann.hpp>
 
 #include "oc_poi.h"
@@ -25,28 +24,39 @@
 
 namespace opencorr
 {
-	struct Point {
+	struct Point
+	{
 		float x, y, z;
 	};
 
-	struct PointCloud {
+	struct PointCloud
+	{
 
-		using coord_t = float;  //!< The type of each coordinate
+		using coord_t = float;  //the type of each coordinate
 
 		std::vector<Point> pts;
 
 		//return the number of points
-		inline size_t kdtree_get_point_count() const { return pts.size(); }
+		inline size_t kdtree_get_point_count() const
+		{
+			return pts.size();
+		}
 
 		//return the dim'th component of the idx'th point
 		inline float kdtree_get_pt(const size_t idx, const size_t dim) const
 		{
 			if (dim == 0)
+			{
 				return pts[idx].x;
+			}
 			else if (dim == 1)
+			{
 				return pts[idx].y;
+			}
 			else
+			{
 				return pts[idx].z;
+			}
 		}
 
 		//optional bounding-box computation
@@ -57,12 +67,13 @@ namespace opencorr
 		}
 	};
 
-	class NearestNeighbor {
+	class NearestNeighbor
+	{
 	protected:
 		PointCloud point_cloud;
 		float search_radius;
 		int search_k;
-		float query_coor[3] = { 0 };
+		float query_coor[3] = { 0.f };
 
 		nanoflann::KDTreeSingleIndexAdaptor<nanoflann::L2_Simple_Adaptor<float, PointCloud>, PointCloud, 3 /* dim */>* kdt_index;
 
@@ -81,9 +92,14 @@ namespace opencorr
 		void setSearchK(int search_k);
 
 		void constructKdTree();
-		int radiusSearch(Point3D query_point, std::vector<std::pair<uint32_t, float>>& matches);
+
+		int radiusSearch(Point3D query_point, std::vector<nanoflann::ResultItem<uint32_t, float>>& matches);
+		int radiusSearch(Point3D query_point, float search_radius, std::vector<nanoflann::ResultItem<uint32_t, float>>& matches);
+
 		int knnSearch(Point3D query_point, std::vector<uint32_t>& k_neighbors_idx, std::vector<float>& kp_squared_distance);
+		int knnSearch(Point3D query_point, int search_k, std::vector<uint32_t>& k_neighbors_idx, std::vector<float>& kp_squared_distance);
 	};
+
 }//namespace opencorr
 
 #endif //_NEAREST_NEIGHBORS_H_

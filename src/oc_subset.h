@@ -45,7 +45,6 @@ namespace opencorr
 		Point3D center;
 		int radius_x, radius_y, radius_z;
 		int dim_x, dim_y, dim_z;
-		float intensity_mean;
 
 		float*** vol_mat = nullptr;
 

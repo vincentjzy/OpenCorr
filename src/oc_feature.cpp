@@ -16,7 +16,14 @@
 
 namespace opencorr
 {
-	void Feature2D::setImages(Image2D& ref_img, Image2D& tar_img) {
+	void Feature2D::setImages(Image2D& ref_img, Image2D& tar_img)
+	{
+		this->ref_img = &ref_img;
+		this->tar_img = &tar_img;
+	}
+
+	void Feature3D::setImages(Image3D& ref_img, Image3D& tar_img)
+	{
 		this->ref_img = &ref_img;
 		this->tar_img = &tar_img;
 	}

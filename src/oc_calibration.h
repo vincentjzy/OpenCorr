@@ -22,8 +22,10 @@
 
 namespace opencorr
 {
-	union CameraIntrinsics {
-		struct {
+	union CameraIntrinsics
+	{
+		struct
+		{
 			float fx, fy, fs;
 			float cx, cy;
 			float k1, k2, k3, k4, k5, k6;
@@ -32,8 +34,10 @@ namespace opencorr
 		float cam_i[13];
 	};
 
-	union CameraExtrinsics {
-		struct {
+	union CameraExtrinsics
+	{
+		struct
+		{
 			float tx, ty, tz;
 			float rx, ry, rz;
 		};
@@ -54,7 +58,7 @@ namespace opencorr
 		float convergence; //convergence criterion in undistortion
 		int iteration; //stop condition in undistortion
 
-		//map of distorted coordinates in image coordinate system corresponding to the integral pixel coordinates in sensor system
+		//map of distorted coordinates in image system corresponding to the integral pixel coordinates in sensor system
 		Eigen::MatrixXf map_x;
 		Eigen::MatrixXf map_y;
 
@@ -66,9 +70,12 @@ namespace opencorr
 		void updateRotationMatrix();
 		void updateTranslationVector();
 		void updateProjectionMatrix();
+		void updateMatrices();
 		void updateCalibration(CameraIntrinsics& intrinsics, CameraExtrinsics& extrinsics);
 
-		//set convergence criterion and stop condition
+		//get and set convergence criterion and stop condition
+		float getConvergence() const;
+		int getIteration() const;
 		void setUndistortion(float convergence, int iteration);
 
 		//convert the coordinate between image/retina system and sensor/pixel system
@@ -81,9 +88,9 @@ namespace opencorr
 
 		//distort the coordinate of a point in image coordinate system
 		Point2D distort(Point2D& point);
-		//correction procedure based on interpolation
-		Point2D undistort(Point2D& point);
 
+		//undistortion throught interpolation on image-sensor coordinate map
+		Point2D undistort(Point2D& point);
 	};
 
 } //opencorr

@@ -28,7 +28,10 @@
 
 namespace opencorr
 {
-	//the 1st shape function of 2D case
+	//this part of module is the implementation of
+	//Z. Jiang et al, Optics and Lasers in Engineering (2015) 65: 93-102.
+	//https://doi.org/10.1016/j.optlaseng.2014.06.011
+
 	class ICGN2D1_
 	{
 	public:
@@ -40,19 +43,20 @@ namespace opencorr
 
 		static ICGN2D1_* allocate(int subset_radius_x, int subset_radius_y);
 		static void release(ICGN2D1_* instance);
+		static void update(ICGN2D1_* instance, int subset_radius_x, int subset_radius_y);
 	};
 
 	class ICGN2D1 : public DIC
 	{
 	private:
-		Interpolation2D* tar_interp;
-		Gradient2D4* ref_gradient;
+		Interpolation2D* tar_interp; //interpolation for generating target subset during iteration
+		Gradient2D4* ref_gradient; //gradient for calculating Hessian matrix of reference subset
 
 		float conv_criterion; //convergence criterion: norm of maximum deformation increment in subset
 		float stop_condition; //stop condition: max iteration
 
-		std::vector<ICGN2D1_*> instance_pool;
-		ICGN2D1_* getInstance(int tid);
+		std::vector<ICGN2D1_*> instance_pool; //pool of instances for multi-thread processing
+		ICGN2D1_* getInstance(int tid); //get an instance according to the number of current thread id
 
 	public:
 		ICGN2D1(int subset_radius_x, int subset_radius_y, float conv_criterion, float stop_condition, int thread_number);
@@ -69,7 +73,12 @@ namespace opencorr
 		void setIteration(POI2D* poi);
 	};
 
-	//the 2nd shape function of 2D case
+
+
+	//this part of module is the implementation of
+	//Y. Gao et al, Optics and Lasers in Engineering (2015) 65: 73-80.
+	//https://doi.org/10.1016/j.optlaseng.2014.05.013
+
 	class ICGN2D2_
 	{
 	public:
@@ -77,10 +86,11 @@ namespace opencorr
 		Subset2D* tar_subset;
 		Eigen::MatrixXf error_img;
 		Matrix12f hessian, inv_hessian;
-		float*** sd_img;  //steepest descent image
+		float*** sd_img;
 
 		static ICGN2D2_* allocate(int subset_radius_x, int subset_radius_y);
 		static void release(ICGN2D2_* instance);
+		static void update(ICGN2D2_* instance, int subset_radius_x, int subset_radius_y);
 	};
 
 	class ICGN2D2 : public DIC
@@ -89,20 +99,19 @@ namespace opencorr
 		Interpolation2D* tar_interp;
 		Gradient2D4* ref_gradient;
 
-		float conv_criterion; //convergence criterion: norm of maximum deformation increment in subset
-		float stop_condition; //stop condition: max iteration
+		float conv_criterion;
+		float stop_condition;
 
 		std::vector<ICGN2D2_*> instance_pool;
 		ICGN2D2_* getInstance(int tid);
 
 	public:
-		ICGN2D2(int thread_number);
 		ICGN2D2(int subset_radius_x, int subset_radius_y, float conv_criterion, float stop_condition, int thread_number);
 		~ICGN2D2();
 
-		void prepareRef(); //calculate gradient maps of ref image
-		void prepareTar(); //calculate interpolation coefficient look_up table of tar image
-		void prepare(); //calculate gradient maps of ref image and interpolation coefficient look_up table of tar image
+		void prepareRef();
+		void prepareTar();
+		void prepare();
 
 		void compute(POI2D* poi);
 		void compute(std::vector<POI2D>& poi_queue);
@@ -111,7 +120,12 @@ namespace opencorr
 		void setIteration(POI2D* poi);
 	};
 
-	//the 1st shape function of 3D case
+
+
+	//the 3D part of module is the implementation of
+	//J. Yang et al, Optics and Lasers in Engineering (2021) 136: 106323.
+	//https://doi.org/10.1016/j.optlaseng.2020.106323
+
 	class ICGN3D1_
 	{
 	public:
@@ -123,19 +137,20 @@ namespace opencorr
 
 		static ICGN3D1_* allocate(int subset_radius_x, int subset_radius_y, int subset_radius_z);
 		static void release(ICGN3D1_* instance);
+		static void update(ICGN3D1_* instance, int subset_radius_x, int subset_radius_y, int subset_radius_z);
 	};
 
 	class ICGN3D1 : public DVC
 	{
 	private:
-		Interpolation3D* tar_interp;
-		Gradient3D4* ref_gradient;
+		Interpolation3D* tar_interp; //interpolation for generating target subset during iteration
+		Gradient3D4* ref_gradient; //gradient for calculating Hessian matrix of reference subset
 
 		float conv_criterion; //convergence criterion: norm of maximum displacement increment in subset
 		float stop_condition; //stop condition: max iteration
 
-		std::vector<ICGN3D1_*> instance_pool;
-		ICGN3D1_* getInstance(int tid);
+		std::vector<ICGN3D1_*> instance_pool; //pool of instances for multi-thread processing
+		ICGN3D1_* getInstance(int tid); //get an instance according to the number of current thread id
 
 	public:
 		ICGN3D1(int subset_radius_x, int subset_radius_y, int subset_radius_z,

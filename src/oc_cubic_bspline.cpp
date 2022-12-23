@@ -12,81 +12,100 @@
  * More information about OpenCorr can be found at https://www.opencorr.org/
  */
 
-#include <cmath>
-#include <omp.h>
 #include "oc_cubic_bspline.h"
 
 namespace opencorr
 {
 	//bicubic B-spline interpolation
-	BicubicBspline::BicubicBspline(Image2D& image) :lookup_table(nullptr) {
+	BicubicBspline::BicubicBspline(Image2D& image) :interp_coefficient(nullptr)
+	{
 		interp_img = &image;
 	}
 
-	BicubicBspline::~BicubicBspline() {
-		if (lookup_table != nullptr)
-			delete4D(lookup_table);
+	BicubicBspline::~BicubicBspline()
+	{
+		if (interp_coefficient != nullptr)
+			delete4D(interp_coefficient);
 	}
 
-	void BicubicBspline::prepare() {
-		if (lookup_table != nullptr) {
-			delete4D(lookup_table);
+	void BicubicBspline::prepare()
+	{
+		if (interp_coefficient != nullptr)
+		{
+			delete4D(interp_coefficient);
 		}
+
 		int height = interp_img->height;
 		int width = interp_img->width;
-		if (height < 5 || width < 5) {
+		if (height < 5 || width < 5)
+		{
 			std::cerr << "Too small image:" << width << ", " << height << std::endl;
 		}
-		lookup_table = new4D(height, width, 4, 4);
+		interp_coefficient = new4D(height, width, 4, 4);
 
 #pragma omp parallel for
-		for (int r = 1; r < height - 2; r++) {
-			for (int c = 1; c < width - 2; c++) {
-				float matrix_g[4][4] = { 0 };
-				float matrix_b[4][4] = { 0 };
-				for (int i = 0; i < 4; i++) {
+		for (int r = 1; r < height - 2; r++)
+		{
+			for (int c = 1; c < width - 2; c++)
+			{
+				float matrix_g[4][4] = { 0.f };
+				float matrix_b[4][4] = { 0.f };
+				for (int i = 0; i < 4; i++)
+				{
 					for (int j = 0; j < 4; j++) {
 						matrix_g[i][j] = interp_img->eg_mat(r - 1 + i, c - 1 + j);
 					}
 				}
 
-				for (int k = 0; k < 4; k++) {
-					for (int l = 0; l < 4; l++) {
-						for (int m = 0; m < 4; m++) {
-							for (int n = 0; n < 4; n++) {
+				for (int k = 0; k < 4; k++)
+				{
+					for (int l = 0; l < 4; l++)
+					{
+						for (int m = 0; m < 4; m++)
+						{
+							for (int n = 0; n < 4; n++)
+							{
 								matrix_b[k][l] += CONTROL_MATRIX[k][m] * CONTROL_MATRIX[l][n] * matrix_g[n][m];
 							}
 						}
 					}
 				}
 
-				for (int k = 0; k < 4; k++) {
-					for (int l = 0; l < 4; l++) {
-						lookup_table[r][c][k][l] = 0;
-						for (int m = 0; m < 4; m++) {
-							for (int n = 0; n < 4; n++) {
-								lookup_table[r][c][k][l] += FUNCTION_MATRIX[k][m] * FUNCTION_MATRIX[l][n] * matrix_b[n][m];
+				for (int k = 0; k < 4; k++)
+				{
+					for (int l = 0; l < 4; l++)
+					{
+						interp_coefficient[r][c][k][l] = 0;
+						for (int m = 0; m < 4; m++)
+						{
+							for (int n = 0; n < 4; n++)
+							{
+								interp_coefficient[r][c][k][l] += FUNCTION_MATRIX[k][m] * FUNCTION_MATRIX[l][n] * matrix_b[n][m];
 							}
 						}
 					}
 				}
 
-				for (int k = 0; k < 2; k++) {
-					for (int l = 0; l < 4; l++) {
-						float buffer = lookup_table[r][c][k][l];
-						lookup_table[r][c][k][l] = lookup_table[r][c][3 - k][3 - l];
-						lookup_table[r][c][3 - k][3 - l] = buffer;
+				for (int k = 0; k < 2; k++)
+				{
+					for (int l = 0; l < 4; l++)
+					{
+						float buffer = interp_coefficient[r][c][k][l];
+						interp_coefficient[r][c][k][l] = interp_coefficient[r][c][3 - k][3 - l];
+						interp_coefficient[r][c][3 - k][3 - l] = buffer;
 					}
 				}
 			}
 		}
 	}
 
-	float BicubicBspline::compute(Point2D& location) {
+	float BicubicBspline::compute(Point2D& location)
+	{
 
 		if (location.x < 0 || location.y < 0 || location.x >= interp_img->width || location.y >= interp_img->height
-			|| std::isnan(location.x) || std::isnan(location.y)) {
-			return 0.f;
+			|| std::isnan(location.x) || std::isnan(location.y))
+		{
+			return -1.f;
 		}
 
 		int y_integral = (int)floor(location.y);
@@ -102,7 +121,7 @@ namespace opencorr
 		float y3_decimal = y2_decimal * y_decimal;
 
 		float value = 0.f;
-		float**& coefficient = lookup_table[y_integral][x_integral];
+		float**& coefficient = interp_coefficient[y_integral][x_integral];
 
 		value += coefficient[0][0];
 		value += coefficient[0][1] * x_decimal;
@@ -129,25 +148,31 @@ namespace opencorr
 
 
 	//tricubic B-spline interpolation
-	TricubicBspline::TricubicBspline(Image3D& image) :interp_coefficient(nullptr) {
+	TricubicBspline::TricubicBspline(Image3D& image) :interp_coefficient(nullptr)
+	{
 		interp_img = &image;
 	}
 
-	TricubicBspline::~TricubicBspline() {
-		if (interp_coefficient != nullptr) {
+	TricubicBspline::~TricubicBspline()
+	{
+		if (interp_coefficient != nullptr)
+		{
 			delete3D(interp_coefficient);
 		}
 	}
 
-	void TricubicBspline::prepare() {
-		if (interp_coefficient != nullptr) {
+	void TricubicBspline::prepare()
+	{
+		if (interp_coefficient != nullptr)
+		{
 			delete3D(interp_coefficient);
 		}
+
 		int dim_x = interp_img->dim_x;
 		int dim_y = interp_img->dim_y;
 		int dim_z = interp_img->dim_z;
-
-		if (dim_x < 15 || dim_y < 15 || dim_z < 15) {
+		if (dim_x < 15 || dim_y < 15 || dim_z < 15)
+		{
 			std::cerr << "Too small volume image:" << dim_x << ", " << dim_y << ", " << dim_z << std::endl;
 		}
 		interp_coefficient = new3D(dim_z, dim_y, dim_x);
@@ -155,9 +180,12 @@ namespace opencorr
 
 		//convolution along x-axis
 #pragma omp parallel for
-		for (int i = 0; i < dim_z; i++) {
-			for (int j = 0; j < dim_y; j++) {
-				for (int k = 7; k < dim_x - 7; k++) {
+		for (int i = 0; i < dim_z; i++)
+		{
+			for (int j = 0; j < dim_y; j++)
+			{
+				for (int k = 7; k < dim_x - 7; k++)
+				{
 					interp_coefficient[i][j][k] = BSPLINE_PREFILTER[0] * interp_img->vol_mat[i][j][k] +
 						BSPLINE_PREFILTER[1] * (interp_img->vol_mat[i][j][k - 1] + interp_img->vol_mat[i][j][k + 1]) +
 						BSPLINE_PREFILTER[2] * (interp_img->vol_mat[i][j][k - 2] + interp_img->vol_mat[i][j][k + 2]) +
@@ -167,7 +195,8 @@ namespace opencorr
 						BSPLINE_PREFILTER[6] * (interp_img->vol_mat[i][j][k - 6] + interp_img->vol_mat[i][j][k + 6]) +
 						BSPLINE_PREFILTER[7] * (interp_img->vol_mat[i][j][k - 7] + interp_img->vol_mat[i][j][k + 7]);
 				}
-				for (int k = 0; k < 7; k++) {
+				for (int k = 0; k < 7; k++)
+				{
 					interp_coefficient[i][j][k] = BSPLINE_PREFILTER[0] * interp_img->vol_mat[i][j][k] +
 						BSPLINE_PREFILTER[1] * (interp_img->vol_mat[i][j][getHigh(k - 1, 0)] + interp_img->vol_mat[i][j][k + 1]) +
 						BSPLINE_PREFILTER[2] * (interp_img->vol_mat[i][j][getHigh(k - 2, 0)] + interp_img->vol_mat[i][j][k + 2]) +
@@ -177,7 +206,8 @@ namespace opencorr
 						BSPLINE_PREFILTER[6] * (interp_img->vol_mat[i][j][getHigh(k - 6, 0)] + interp_img->vol_mat[i][j][k + 6]) +
 						BSPLINE_PREFILTER[7] * (interp_img->vol_mat[i][j][getHigh(k - 7, 0)] + interp_img->vol_mat[i][j][k + 7]);
 				}
-				for (int k = dim_x - 7; k < dim_x; k++) {
+				for (int k = dim_x - 7; k < dim_x; k++)
+				{
 					interp_coefficient[i][j][k] = BSPLINE_PREFILTER[0] * interp_img->vol_mat[i][j][k] +
 						BSPLINE_PREFILTER[1] * (interp_img->vol_mat[i][j][k - 1] + interp_img->vol_mat[i][j][getLow(k + 1, dim_x - 1)]) +
 						BSPLINE_PREFILTER[2] * (interp_img->vol_mat[i][j][k - 2] + interp_img->vol_mat[i][j][getLow(k + 2, dim_x - 1)]) +
@@ -192,9 +222,12 @@ namespace opencorr
 
 		//convolution along y-axis
 #pragma omp parallel for
-		for (int k = 0; k < dim_x; k++) {
-			for (int i = 0; i < dim_z; i++) {
-				for (int j = 7; j < dim_y - 7; j++) {
+		for (int k = 0; k < dim_x; k++)
+		{
+			for (int i = 0; i < dim_z; i++)
+			{
+				for (int j = 7; j < dim_y - 7; j++)
+				{
 					conv_buffer[i][j][k] = BSPLINE_PREFILTER[0] * interp_coefficient[i][j][k] +
 						BSPLINE_PREFILTER[1] * (interp_coefficient[i][j - 1][k] + interp_coefficient[i][j + 1][k]) +
 						BSPLINE_PREFILTER[2] * (interp_coefficient[i][j - 2][k] + interp_coefficient[i][j + 2][k]) +
@@ -204,7 +237,8 @@ namespace opencorr
 						BSPLINE_PREFILTER[6] * (interp_coefficient[i][j - 6][k] + interp_coefficient[i][j + 6][k]) +
 						BSPLINE_PREFILTER[7] * (interp_coefficient[i][j - 7][k] + interp_coefficient[i][j + 7][k]);
 				}
-				for (int j = 0; j < 7; j++) {
+				for (int j = 0; j < 7; j++)
+				{
 					conv_buffer[i][j][k] = BSPLINE_PREFILTER[0] * interp_coefficient[i][j][k] +
 						BSPLINE_PREFILTER[1] * (interp_coefficient[i][getHigh(j - 1, 0)][k] + interp_coefficient[i][j + 1][k]) +
 						BSPLINE_PREFILTER[2] * (interp_coefficient[i][getHigh(j - 2, 0)][k] + interp_coefficient[i][j + 2][k]) +
@@ -214,7 +248,8 @@ namespace opencorr
 						BSPLINE_PREFILTER[6] * (interp_coefficient[i][getHigh(j - 6, 0)][k] + interp_coefficient[i][j + 6][k]) +
 						BSPLINE_PREFILTER[7] * (interp_coefficient[i][getHigh(j - 7, 0)][k] + interp_coefficient[i][j + 7][k]);
 				}
-				for (int j = dim_y - 7; j < dim_y; j++) {
+				for (int j = dim_y - 7; j < dim_y; j++)
+				{
 					conv_buffer[i][j][k] = BSPLINE_PREFILTER[0] * interp_coefficient[i][j][k] +
 						BSPLINE_PREFILTER[1] * (interp_coefficient[i][j - 1][k] + interp_coefficient[i][getLow(j + 1, dim_y - 1)][k]) +
 						BSPLINE_PREFILTER[2] * (interp_coefficient[i][j - 2][k] + interp_coefficient[i][getLow(j + 2, dim_y - 1)][k]) +
@@ -229,9 +264,12 @@ namespace opencorr
 
 		//convolution along z-axis
 #pragma omp parallel for
-		for (int j = 0; j < dim_y; j++) {
-			for (int k = 0; k < dim_x; k++) {
-				for (int i = 7; i < dim_z - 7; i++) {
+		for (int j = 0; j < dim_y; j++)
+		{
+			for (int k = 0; k < dim_x; k++)
+			{
+				for (int i = 7; i < dim_z - 7; i++)
+				{
 					interp_coefficient[i][j][k] = BSPLINE_PREFILTER[0] * conv_buffer[i][j][k] +
 						BSPLINE_PREFILTER[1] * (conv_buffer[i - 1][j][k] + conv_buffer[i + 1][j][k]) +
 						BSPLINE_PREFILTER[2] * (conv_buffer[i - 2][j][k] + conv_buffer[i + 2][j][k]) +
@@ -241,7 +279,8 @@ namespace opencorr
 						BSPLINE_PREFILTER[6] * (conv_buffer[i - 6][j][k] + conv_buffer[i + 6][j][k]) +
 						BSPLINE_PREFILTER[7] * (conv_buffer[i - 7][j][k] + conv_buffer[i + 7][j][k]);
 				}
-				for (int i = 0; i < 7; i++) {
+				for (int i = 0; i < 7; i++)
+				{
 					interp_coefficient[i][j][k] = BSPLINE_PREFILTER[0] * conv_buffer[i][j][k] +
 						BSPLINE_PREFILTER[1] * (conv_buffer[getHigh(i - 1, 0)][j][k] + conv_buffer[i + 1][j][k]) +
 						BSPLINE_PREFILTER[2] * (conv_buffer[getHigh(i - 2, 0)][j][k] + conv_buffer[i + 2][j][k]) +
@@ -251,7 +290,8 @@ namespace opencorr
 						BSPLINE_PREFILTER[6] * (conv_buffer[getHigh(i - 6, 0)][j][k] + conv_buffer[i + 6][j][k]) +
 						BSPLINE_PREFILTER[7] * (conv_buffer[getHigh(i - 7, 0)][j][k] + conv_buffer[i + 7][j][k]);
 				}
-				for (int i = dim_z - 7; i < dim_z; i++) {
+				for (int i = dim_z - 7; i < dim_z; i++)
+				{
 					interp_coefficient[i][j][k] = BSPLINE_PREFILTER[0] * conv_buffer[i][j][k] +
 						BSPLINE_PREFILTER[1] * (conv_buffer[i - 1][j][k] + conv_buffer[getLow(i + 1, dim_z - 1)][j][k]) +
 						BSPLINE_PREFILTER[2] * (conv_buffer[i - 2][j][k] + conv_buffer[getLow(i + 2, dim_z - 1)][j][k]) +
@@ -266,12 +306,13 @@ namespace opencorr
 		delete3D(conv_buffer);
 	}
 
-	float TricubicBspline::compute(Point3D& location) {
-
+	float TricubicBspline::compute(Point3D& location)
+	{
 		if (location.x < 1 || location.y < 1 || location.z < 1 || location.x >= (interp_img->dim_x - 2)
 			|| location.y >= (interp_img->dim_y - 2) || location.z >= (interp_img->dim_z - 2)
-			|| std::isnan(location.x) || std::isnan(location.y) || std::isnan(location.z)) {
-			return 0.f;
+			|| std::isnan(location.x) || std::isnan(location.y) || std::isnan(location.z))
+		{
+			return -1.f;
 		}
 
 		int x_integral = (int)floor(location.x);
@@ -300,8 +341,10 @@ namespace opencorr
 		basis_z[2] = basis2(z_decimal);
 		basis_z[3] = basis3(z_decimal);
 
-		for (int i = 0; i < 4; i++) {
-			for (int j = 0; j < 4; j++) {
+		for (int i = 0; i < 4; i++)
+		{
+			for (int j = 0; j < 4; j++)
+			{
 				sum_x[j] = basis_x[0] * interp_coefficient[z_integral + i - 1][y_integral + j - 1][x_integral - 1]
 					+ basis_x[1] * interp_coefficient[z_integral + i - 1][y_integral + j - 1][x_integral]
 					+ basis_x[2] * interp_coefficient[z_integral + i - 1][y_integral + j - 1][x_integral + 1]
@@ -310,6 +353,22 @@ namespace opencorr
 			sum_y[i] = basis_y[0] * sum_x[0] + basis_y[1] * sum_x[1] + basis_y[2] * sum_x[2] + basis_y[3] * sum_x[3];
 		}
 		float value = basis_z[0] * sum_y[0] + basis_z[1] * sum_y[1] + basis_z[2] * sum_y[2] + basis_z[3] * sum_y[3];
+
+		return value;
+	}
+
+	int getLow(int x, int y)
+	{
+		int value;
+		value = x < y ? x : y;
+
+		return value;
+	}
+
+	int getHigh(int x, int y)
+	{
+		int value;
+		value = x > y ? x : y;
 
 		return value;
 	}

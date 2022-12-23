@@ -24,6 +24,13 @@
 
 namespace opencorr
 {
+	//structure for brute force searching
+	struct KeypointIndex
+	{
+		int kp_idx; //index in keypoint queue
+		float distance; //Euclidean distance to the POI
+	};
+
 	class DIC
 	{
 	public:
@@ -37,7 +44,7 @@ namespace opencorr
 		virtual ~DIC() = default;
 
 		void setImages(Image2D& ref_img, Image2D& tar_img);
-		void setSubsetRadii(int radius_x, int radius_y);
+		void setSubsetRadius(int radius_x, int radius_y);
 
 		virtual void prepare();
 		virtual void compute(POI2D* poi) = 0;
@@ -58,12 +65,16 @@ namespace opencorr
 		virtual ~DVC() = default;
 
 		void setImages(Image3D& ref_img, Image3D& tar_img);
-		void setSubsetRadii(int radius_x, int radius_y, int radius_z);
+		void setSubsetRadius(int radius_x, int radius_y, int radius_z);
 
 		virtual void prepare();
 		virtual void compute(POI3D* POI) = 0;
 		virtual void compute(std::vector<POI3D>& poi_queue) = 0;
 	};
+
+	bool sortByZNCC(const POI2D& p1, const POI2D& p2);
+
+	bool sortByDistance(const KeypointIndex& kp1, const KeypointIndex& kp2);
 
 }//namespace opencorr
 

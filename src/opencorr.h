@@ -23,6 +23,7 @@
 #include "oc_deformation.h"
 #include "oc_dic.h"
 #include "oc_epipolar_search.h"
+#include "oc_feature.h"
 #include "oc_feature_affine.h"
 #include "oc_fftcc.h"
 #include "oc_gradient.h"

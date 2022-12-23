@@ -22,6 +22,10 @@
 
 namespace opencorr
 {
+	//the module is the implementation of
+	//B. Fornberg, Mathematics of Computation (1988) 184(51): 699-706.
+	//https://doi.org/10.1090/S0025-5718-1988-0935077-0
+
 	class Gradient2D4
 	{
 	protected:

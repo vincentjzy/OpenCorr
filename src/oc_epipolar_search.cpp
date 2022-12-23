@@ -12,35 +12,36 @@
  * More information about OpenCorr can be found at https://www.opencorr.org/
  */
 
-#include <algorithm>
-#include <omp.h>
-#include <vector>
-
 #include "oc_epipolar_search.h"
 
 namespace opencorr
 {
-	EpipolarSearch::EpipolarSearch(Calibration& view1_cam, Calibration& view2_cam, int thread_number) {
+	EpipolarSearch::EpipolarSearch(Calibration& view1_cam, Calibration& view2_cam, int thread_number)
+	{
 		this->view1_cam = view1_cam;
 		this->view2_cam = view2_cam;
 		this->thread_number = thread_number;
 	}
 
-	EpipolarSearch::~EpipolarSearch() {
-		if (icgn1 != nullptr)
-			destoryICGN();
+	EpipolarSearch::~EpipolarSearch()
+	{
+		destoryICGN();
 	}
 
-	int EpipolarSearch::getSearchRadius() const {
+	int EpipolarSearch::getSearchRadius() const
+	{
 		return search_radius;
 	}
 
-	int EpipolarSearch::getSearchStep() const {
+	int EpipolarSearch::getSearchStep() const
+	{
 		return search_step;
 	}
 
-	void EpipolarSearch::setSearch(int search_radius, int search_step) {
-		if (search_step >= search_radius) {
+	void EpipolarSearch::setSearch(int search_radius, int search_step)
+	{
+		if (search_radius < search_step)
+		{
 			std::cerr << "Search radius is less than search step" << std::endl;
 			exit(1);
 		}
@@ -48,20 +49,27 @@ namespace opencorr
 		this->search_step = search_step;
 	}
 
-	void EpipolarSearch::createICGN(int subset_radius_x, int subset_radius_y, float conv_criterion, float stop_condition) {
+	void EpipolarSearch::createICGN(int subset_radius_x, int subset_radius_y, float conv_criterion, float stop_condition)
+	{
 		icgn1 = new ICGN2D1(subset_radius_x, subset_radius_y, conv_criterion, stop_condition, thread_number);
 	}
 
-	void EpipolarSearch::prepareICGN() {
+	void EpipolarSearch::prepareICGN()
+	{
 		icgn1->setImages(*ref_img, *tar_img);
 		icgn1->prepare();
 	}
 
-	void EpipolarSearch::destoryICGN() {
-		delete icgn1;
+	void EpipolarSearch::destoryICGN()
+	{
+		if (icgn1 != nullptr)
+		{
+			delete icgn1;
+		}
 	}
 
-	void EpipolarSearch::setParallax(Point2D parallax) {
+	void EpipolarSearch::setParallax(Point2D parallax)
+	{
 		this->parallax = parallax;
 
 		parallax_x[0] = 0;
@@ -73,7 +81,8 @@ namespace opencorr
 		parallax_y[2] = parallax.y;
 	}
 
-	void EpipolarSearch::setParallax(float coefficient_x[3], float coefficient_y[3]) {
+	void EpipolarSearch::setParallax(float coefficient_x[3], float coefficient_y[3])
+	{
 		parallax_x[0] = coefficient_x[0];
 		parallax_x[1] = coefficient_x[1];
 		parallax_x[2] = coefficient_x[2];
@@ -83,24 +92,25 @@ namespace opencorr
 		parallax_y[2] = coefficient_y[2];
 	}
 
-	void EpipolarSearch::updateCameras(Calibration& view1_cam, Calibration& view2_cam) {
+	void EpipolarSearch::updateCameras(Calibration& view1_cam, Calibration& view2_cam)
+	{
 		this->view1_cam = view1_cam;
 		this->view2_cam = view2_cam;
 	}
 
-	void EpipolarSearch::updateFundementalMatrix() {
-		Calibration cam_r = view2_cam;
+	void EpipolarSearch::updateFundementalMatrix()
+	{
 		//creat transposed inverse intrinsic matrix of right camera
-		Eigen::Matrix3f right_invK_t = cam_r.intrinsic_matrix.inverse().transpose();
+		Eigen::Matrix3f right_invK_t = view2_cam.intrinsic_matrix.inverse().transpose();
 
 		//create an anti-symmetric matrix of translation vector of right camera
 		Eigen::Matrix3f right_t_antisymmetric;
-		right_t_antisymmetric << 0, -cam_r.translation_vector(2), cam_r.translation_vector(1),
-			cam_r.translation_vector(2), 0, -cam_r.translation_vector(0),
-			-cam_r.translation_vector(1), cam_r.translation_vector(0), 0;
+		right_t_antisymmetric << 0, -view2_cam.translation_vector(2), view2_cam.translation_vector(1),
+			view2_cam.translation_vector(2), 0, -view2_cam.translation_vector(0),
+			-view2_cam.translation_vector(1), view2_cam.translation_vector(0), 0;
 
 		//create essential matrix of right camera
-		Eigen::Matrix3f right_E = right_t_antisymmetric * cam_r.rotation_matrix;
+		Eigen::Matrix3f right_E = right_t_antisymmetric * view2_cam.rotation_matrix;
 
 		//creat inversed intrinsic matrix of left camera
 		Eigen::Matrix3f left_K = view1_cam.intrinsic_matrix.inverse();
@@ -108,72 +118,74 @@ namespace opencorr
 		fundamental_matrix = right_invK_t * right_E * left_K;
 	}
 
-	void EpipolarSearch::prepare() {
-		view1_cam.updateIntrinsicMatrix();
-		view1_cam.updateRotationMatrix();
-		view1_cam.updateTranslationVector();
-		view1_cam.updateProjectionMatrix();
-		view2_cam.updateIntrinsicMatrix();
-		view2_cam.updateRotationMatrix();
-		view2_cam.updateTranslationVector();
-		view2_cam.updateProjectionMatrix();
+	void EpipolarSearch::prepare()
+	{
+		view1_cam.updateMatrices();
+		view2_cam.updateMatrices();
+
 		updateFundementalMatrix();
 
 		prepareICGN();
 	}
 
-	void EpipolarSearch::compute(POI2D* poi) {
+	void EpipolarSearch::compute(POI2D* poi)
+	{
 		//estimate parallax
 		parallax.x = parallax_x[0] * (poi->x - int(ref_img->width / 2)) + parallax_x[1] * (poi->y - int(ref_img->height / 2)) + parallax_x[2];
 		parallax.y = parallax_y[0] * (poi->x - int(ref_img->width / 2)) + parallax_y[1] * (poi->y - int(ref_img->height / 2)) + parallax_y[2];
 
 		//convert locatoin of left POI to a vector
-		Eigen::Vector3f left_vector;
-		left_vector << (poi->x + poi->deformation.u), (poi->y + poi->deformation.v), 1;
+		Eigen::Vector3f view1_vector;
+		view1_vector << (poi->x + poi->deformation.u), (poi->y + poi->deformation.v), 1;
 
 		//get the projection of POI in the primary view on the epipolar line in the secondary view
-		Eigen::Vector3f right_epipolar = fundamental_matrix * left_vector;
-		float line_slope = -right_epipolar(0) / right_epipolar(1);
-		float line_intercept = -right_epipolar(2) / right_epipolar(1);
-		int x_right = (int)((line_slope * (poi->y + poi->deformation.v + parallax.y - line_intercept)
+		Eigen::Vector3f view2_epipolar = fundamental_matrix * view1_vector;
+		float line_slope = -view2_epipolar(0) / view2_epipolar(1);
+		float line_intercept = -view2_epipolar(2) / view2_epipolar(1);
+		int x_view2 = (int)((line_slope * (poi->y + poi->deformation.v + parallax.y - line_intercept)
 			+ poi->x + poi->deformation.u + parallax.x) / (line_slope * line_slope + 1));
-		int y_right = (int)(line_slope * x_right + line_intercept);
+		int y_view2 = (int)(line_slope * x_view2 + line_intercept);
 
+		//get the center of searching region
 		std::vector<POI2D> poi_candidates;
 		POI2D current_poi(poi->x, poi->y);
-		current_poi.deformation.u = x_right - poi->x;
-		current_poi.deformation.v = y_right - poi->y;
+		current_poi.deformation.u = x_view2 - poi->x;
+		current_poi.deformation.v = y_view2 - poi->y;
 		poi_candidates.push_back(current_poi);
 
-		int img_height = icgn1->ref_img->height;
-		int img_width = icgn1->ref_img->width;
+		//get the other trial locations in searching region
 		int x_trial, y_trial;
 		for (int i = search_step; i < search_radius; i += search_step) {
-			x_trial = x_right + i;
+			x_trial = x_view2 + i;
 			y_trial = (int)(line_slope * x_trial + line_intercept);
 			current_poi.deformation.u = x_trial - poi->x;
 			current_poi.deformation.v = y_trial - poi->y;
 			if (x_trial - icgn1->subset_radius_x > 0 && x_trial + icgn1->subset_radius_x < icgn1->ref_img->width - 1
-				&& y_trial - icgn1->subset_radius_y > 0 && y_trial + icgn1->subset_radius_y < icgn1->ref_img->height - 1) {
+				&& y_trial - icgn1->subset_radius_y > 0 && y_trial + icgn1->subset_radius_y < icgn1->ref_img->height - 1)
+			{
 				poi_candidates.push_back(current_poi);
 			}
 
-			x_trial = x_right - i;
+			x_trial = x_view2 - i;
 			y_trial = (int)(line_slope * x_trial + line_intercept);
 			current_poi.deformation.u = x_trial - poi->x;
 			current_poi.deformation.v = y_trial - poi->y;
 			if (x_trial - icgn1->subset_radius_x > 0 && x_trial + icgn1->subset_radius_x < icgn1->ref_img->width - 1
-				&& y_trial - icgn1->subset_radius_y > 0 && y_trial + icgn1->subset_radius_y < icgn1->ref_img->height - 1) {
+				&& y_trial - icgn1->subset_radius_y > 0 && y_trial + icgn1->subset_radius_y < icgn1->ref_img->height - 1)
+			{
 				poi_candidates.push_back(current_poi);
 			}
 		}
 
+		//coarse check using ICGN1
 		int queue_size = (int)poi_candidates.size();
 #pragma omp parallel for
-		for (int i = 0; i < queue_size; i++) {
+		for (int i = 0; i < queue_size; i++)
+		{
 			icgn1->compute(&poi_candidates[i]);
 		}
 
+		//take the one with the highest ZNCC value
 		std::sort(poi_candidates.begin(), poi_candidates.end(), sortByZNCC);
 
 		poi->deformation = poi_candidates[0].deformation;
@@ -182,14 +194,14 @@ namespace opencorr
 		poi->result = poi_candidates[0].result;
 	}
 
-	void EpipolarSearch::compute(std::vector<POI2D>& poi_queue) {
-		for (int i = 0; i < poi_queue.size(); i++) {
+	void EpipolarSearch::compute(std::vector<POI2D>& poi_queue)
+	{
+		int queue_length = (int)poi_queue.size();
+		//CAUTION: no need to use omp parallel for, as the parallelism has been implemented in the processing of each poi
+		for (int i = 0; i < queue_length; i++)
+		{
 			compute(&poi_queue[i]);
 		}
-	}
-
-	bool sortByZNCC(const POI2D& p1, const POI2D& p2) {
-		return p1.result.zncc > p2.result.zncc;
 	}
 
 }//namespace opencorr

@@ -16,8 +16,9 @@
 
 namespace opencorr
 {
-	//deformation2d 1st order
-	Deformation2D1::Deformation2D1() {
+	//2D deformation with the 1st order shape function
+	Deformation2D1::Deformation2D1()
+	{
 		u = 0.f;
 		ux = 0.f;
 		uy = 0.f;
@@ -28,7 +29,8 @@ namespace opencorr
 		setWarp();
 	}
 
-	Deformation2D1::Deformation2D1(float u, float ux, float uy, float v, float vx, float vy) {
+	Deformation2D1::Deformation2D1(float u, float ux, float uy, float v, float vx, float vy)
+	{
 		this->u = u;
 		this->ux = ux;
 		this->uy = uy;
@@ -39,7 +41,8 @@ namespace opencorr
 		setWarp();
 	}
 
-	Deformation2D1::Deformation2D1(float p[6]) {
+	Deformation2D1::Deformation2D1(float p[6])
+	{
 		u = p[0];
 		ux = p[1];
 		uy = p[2];
@@ -50,10 +53,10 @@ namespace opencorr
 		setWarp();
 	}
 
-	Deformation2D1::~Deformation2D1() {
-	}
+	Deformation2D1::~Deformation2D1() {}
 
-	void Deformation2D1::setDeformation(float u, float ux, float uy, float v, float vx, float vy) {
+	void Deformation2D1::setDeformation(float u, float ux, float uy, float v, float vx, float vy)
+	{
 		this->u = u;
 		this->ux = ux;
 		this->uy = uy;
@@ -64,7 +67,8 @@ namespace opencorr
 		setWarp();
 	}
 
-	void Deformation2D1::setDeformation(float p[6]) {
+	void Deformation2D1::setDeformation(float p[6])
+	{
 		u = p[0];
 		ux = p[1];
 		uy = p[2];
@@ -75,7 +79,8 @@ namespace opencorr
 		setWarp();
 	}
 
-	void Deformation2D1::setDeformation(Deformation2D1& another_deformation) {
+	void Deformation2D1::setDeformation(Deformation2D1& another_deformation)
+	{
 		u = another_deformation.u;
 		ux = another_deformation.ux;
 		uy = another_deformation.uy;
@@ -86,7 +91,8 @@ namespace opencorr
 		setWarp();
 	}
 
-	Point2D Deformation2D1::warp(Point2D& location) {
+	Point2D Deformation2D1::warp(Point2D& location)
+	{
 		Eigen::Vector3f point_vector;
 		point_vector(0) = location.x;
 		point_vector(1) = location.y;
@@ -98,7 +104,8 @@ namespace opencorr
 		return new_location;
 	}
 
-	void Deformation2D1::setDeformation() {
+	void Deformation2D1::setDeformation()
+	{
 		u = warp_matrix(0, 2);
 		ux = warp_matrix(0, 0) - 1;
 		uy = warp_matrix(0, 1);
@@ -107,7 +114,8 @@ namespace opencorr
 		vy = warp_matrix(1, 1) - 1;
 	}
 
-	void Deformation2D1::setWarp() {
+	void Deformation2D1::setWarp()
+	{
 		warp_matrix(0, 0) = 1 + ux;
 		warp_matrix(0, 1) = uy;
 		warp_matrix(0, 2) = u;
@@ -119,8 +127,9 @@ namespace opencorr
 		warp_matrix(2, 2) = 1.f;
 	}
 
-	//deformation2d 2nd order
-	Deformation2D2::Deformation2D2() {
+	//2D deformation with the 2nd order shape function
+	Deformation2D2::Deformation2D2()
+	{
 		u = 0.f;
 		ux = 0.f;
 		uy = 0.f;
@@ -139,7 +148,8 @@ namespace opencorr
 	}
 
 	Deformation2D2::Deformation2D2(float u, float ux, float uy, float uxx, float uxy, float uyy,
-		float v, float vx, float vy, float vxx, float vxy, float vyy) {
+		float v, float vx, float vy, float vxx, float vxy, float vyy)
+	{
 		this->u = u;
 		this->ux = ux;
 		this->uy = uy;
@@ -157,7 +167,8 @@ namespace opencorr
 		setWarp();
 	}
 
-	Deformation2D2::Deformation2D2(float p[12]) {
+	Deformation2D2::Deformation2D2(float p[12])
+	{
 		u = p[0];
 		ux = p[1];
 		uy = p[2];
@@ -175,11 +186,11 @@ namespace opencorr
 		setWarp();
 	}
 
-	Deformation2D2::~Deformation2D2() {
-	}
+	Deformation2D2::~Deformation2D2() {}
 
 	void Deformation2D2::setDeformation(float u, float ux, float uy, float uxx, float uxy, float uyy,
-		float v, float vx, float vy, float vxx, float vxy, float vyy) {
+		float v, float vx, float vy, float vxx, float vxy, float vyy)
+	{
 		this->u = u;
 		this->ux = ux;
 		this->uy = uy;
@@ -197,7 +208,8 @@ namespace opencorr
 		setWarp();
 	}
 
-	void Deformation2D2::setDeformation(float p[12]) {
+	void Deformation2D2::setDeformation(float p[12])
+	{
 		u = p[0];
 		ux = p[1];
 		uy = p[2];
@@ -215,7 +227,8 @@ namespace opencorr
 		setWarp();
 	}
 
-	void Deformation2D2::setDeformation(Deformation2D2& another_deformation) {
+	void Deformation2D2::setDeformation(Deformation2D2& another_deformation)
+	{
 		u = another_deformation.u;
 		ux = another_deformation.ux;
 		uy = another_deformation.uy;
@@ -233,7 +246,8 @@ namespace opencorr
 		setWarp();
 	}
 
-	void Deformation2D2::setDeformation(Deformation2D1& another_deformation) {
+	void Deformation2D2::setDeformation(Deformation2D1& another_deformation)
+	{
 		u = another_deformation.u;
 		ux = another_deformation.ux;
 		uy = another_deformation.uy;
@@ -251,7 +265,8 @@ namespace opencorr
 		setWarp();
 	}
 
-	Point2D Deformation2D2::warp(Point2D location) {
+	Point2D Deformation2D2::warp(Point2D location)
+	{
 		Vector6f point_vector;
 		point_vector(0) = location.x * location.x;
 		point_vector(1) = location.x * location.y;
@@ -266,7 +281,8 @@ namespace opencorr
 		return new_location;
 	}
 
-	void Deformation2D2::setDeformation() {
+	void Deformation2D2::setDeformation()
+	{
 		u = warp_matrix(3, 5);
 		ux = warp_matrix(3, 3) - 1.f;
 		uy = warp_matrix(3, 4);
@@ -282,7 +298,8 @@ namespace opencorr
 		vyy = warp_matrix(4, 2) * 2.f;
 	}
 
-	void Deformation2D2::setWarp() {
+	void Deformation2D2::setWarp()
+	{
 		// row 0, S1 - S6
 		warp_matrix(0, 0) = 1.f + 2.f * ux + ux * ux + u * uxx;
 		warp_matrix(0, 1) = 2.f * u * uxy + 2.f * (1.f + ux) * uy;
@@ -332,8 +349,9 @@ namespace opencorr
 		warp_matrix(5, 5) = 1.f;
 	}
 
-	//deformation3d 1st order
-	Deformation3D1::Deformation3D1() {
+	//3D deformation with the 1st order shape function
+	Deformation3D1::Deformation3D1()
+	{
 		u = 0.f;
 		ux = 0.f;
 		uy = 0.f;
@@ -353,7 +371,8 @@ namespace opencorr
 	}
 
 	Deformation3D1::Deformation3D1(float u, float ux, float uy, float uz,
-		float v, float vx, float vy, float vz, float w, float wx, float wy, float wz) {
+		float v, float vx, float vy, float vz, float w, float wx, float wy, float wz)
+	{
 		this->u = u;
 		this->ux = ux;
 		this->uy = uy;
@@ -372,7 +391,8 @@ namespace opencorr
 		setWarp();
 	}
 
-	Deformation3D1::Deformation3D1(float p[12]) {
+	Deformation3D1::Deformation3D1(float p[12])
+	{
 		this->u = p[0];
 		this->ux = p[1];
 		this->uy = p[2];
@@ -391,10 +411,10 @@ namespace opencorr
 		setWarp();
 	}
 
-	Deformation3D1::~Deformation3D1() {
-	}
+	Deformation3D1::~Deformation3D1() {}
 
-	void Deformation3D1::setDeformation() {
+	void Deformation3D1::setDeformation()
+	{
 		u = warp_matrix(0, 3);
 		ux = warp_matrix(0, 0) - 1;
 		uy = warp_matrix(0, 1);
@@ -412,7 +432,8 @@ namespace opencorr
 	}
 
 	void Deformation3D1::setDeformation(float u, float ux, float uy, float uz,
-		float v, float vx, float vy, float vz, float w, float wx, float wy, float wz) {
+		float v, float vx, float vy, float vz, float w, float wx, float wy, float wz)
+	{
 		this->u = u;
 		this->ux = ux;
 		this->uy = uy;
@@ -431,7 +452,8 @@ namespace opencorr
 		setWarp();
 	}
 
-	void Deformation3D1::setDeformation(float p[12]) {
+	void Deformation3D1::setDeformation(float p[12])
+	{
 		u = p[0];
 		ux = p[1];
 		uy = p[2];
@@ -450,7 +472,8 @@ namespace opencorr
 		setWarp();
 	}
 
-	void Deformation3D1::setDeformation(Deformation3D1& another_deformation) {
+	void Deformation3D1::setDeformation(Deformation3D1& another_deformation)
+	{
 		u = another_deformation.u;
 		ux = another_deformation.ux;
 		uy = another_deformation.uy;
@@ -469,7 +492,8 @@ namespace opencorr
 		setWarp();
 	}
 
-	void Deformation3D1::setWarp() {
+	void Deformation3D1::setWarp()
+	{
 		warp_matrix(0, 0) = 1 + ux;
 		warp_matrix(0, 1) = uy;
 		warp_matrix(0, 2) = uz;
@@ -491,7 +515,8 @@ namespace opencorr
 		warp_matrix(3, 3) = 1.f;
 	}
 
-	Point3D Deformation3D1::warp(Point3D& location) {
+	Point3D Deformation3D1::warp(Point3D& location)
+	{
 		Eigen::Vector4f point_vector;
 		point_vector(0) = location.x;
 		point_vector(1) = location.y;

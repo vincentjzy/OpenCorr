@@ -27,7 +27,9 @@ using std::string;
 
 namespace opencorr
 {
-	class IO2D {
+	//This module is made to input data from csv table and output data to csv data
+	class IO2D
+	{
 	private:
 		string file_path;
 		string delimiter;
@@ -46,31 +48,29 @@ namespace opencorr
 		void setWidth(int width);
 		void setHeight(int height);
 
-		//load deformation of POIs from saved date table
+		//load deformation of POIs from saved csv table
 		vector<POI2D> loadTable2D();
 
 		//load locations of POIs from csv table
-		vector<Point2D> loadPoint2D();
+		vector<Point2D> loadPoint2D(string file_path);
 
 		void saveTable2D(vector<POI2D>& poi_queue);
 		void saveDeformationTable2D(vector<POI2D>& poi_queue);
 
-		/*	variable: 'u', 'v', 'c'(zncc), 'd'(convergence), 'i'(iteration), 'f'(feature),
-			'x' (exx), 'y' (eyy), 'r' (exy) */
+		//variable: 'u', 'v', 'c'(zncc), 'd'(convergence), 'i'(iteration), 'f'(feature), 'x' (exx), 'y' (eyy), 'r' (exy)
 		void saveMap2D(vector<POI2D>& poi_queue, char variable);
-
 
 		//load deformation of POIs from saved date table
 		vector<POI2DS> loadTable2DS();
 
 		void saveTable2DS(vector<POI2DS>& poi_queue);
 
-		/*	variable: 'u', 'v', 'w', 'c'(r1r2_zncc), 'd'(r1t1_zncc), 'e'(r1t2_zncc),
-			'x' (exx), 'y' (eyy), 'z' (ezz), 'r' (exy) , 's' (eyz), 't' (ezx)*/
+		//variable: 'u', 'v', 'w', 'c'(r1r2_zncc), 'd'(r1t1_zncc), 'e'(r1t2_zncc), 'x' (exx), 'y' (eyy), 'z' (ezz), 'r' (exy) , 's' (eyz), 't' (ezx)
 		void saveMap2DS(vector<POI2DS>& poi_queue, char variable);
 	};
 
-	class IO3D {
+	class IO3D
+	{
 	private:
 		string file_path;
 		string delimiter;
@@ -96,10 +96,17 @@ namespace opencorr
 		vector<POI3D> loadTable3D();
 
 		//load locations of POIs from csv table
-		vector<Point3D> loadPoint3D();
+		vector<Point3D> loadPoint3D(string file_path);
 
 		void saveTable3D(vector<POI3D>& poi_queue);
+
+		//variable: 'u', 'v', 'w', 'c'(zncc), 'x' (exx), 'y' (eyy), 'z' (ezz), 'r' (exy) , 's' (eyz), 't' (ezx)
+		void saveMap3D(vector<POI3D>& poi_queue, char variable);
+
+		//save and load deformation of POIs into a binary matrix
 		void saveMatrixBin(vector<POI3D>& poi_queue);
+		vector<POI3D> loadMatrixBin();
+
 	};
 
 }//namespace opencorr

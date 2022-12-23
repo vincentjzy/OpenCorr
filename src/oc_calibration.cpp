@@ -12,53 +12,60 @@
  * More information about OpenCorr can be found at https://www.opencorr.org/
  */
 
-#include <cmath>
 #include "oc_calibration.h"
 
 namespace opencorr
 {
-	Calibration::Calibration() {
+	Calibration::Calibration()
+	{
 		convergence = 0.001f;
 		iteration = 40;
 	}
 
-	Calibration::Calibration(CameraIntrinsics& intrinsics, CameraExtrinsics& extrinsics) {
+	Calibration::Calibration(CameraIntrinsics& intrinsics, CameraExtrinsics& extrinsics)
+	{
 		updateCalibration(intrinsics, extrinsics);
 		convergence = 0.001f;
 		iteration = 40;
 	}
 
-	Calibration::~Calibration() {
-	}
+	Calibration::~Calibration() {}
 
-	void Calibration::updateIntrinsicMatrix() {
+	void Calibration::updateIntrinsicMatrix()
+	{
 		intrinsic_matrix.setIdentity();
 		intrinsic_matrix(0, 0) = intrinsics.fx;
 		intrinsic_matrix(0, 1) = intrinsics.fs;
 		intrinsic_matrix(0, 2) = intrinsics.cx;
 		intrinsic_matrix(1, 1) = intrinsics.fy;
 		intrinsic_matrix(1, 2) = intrinsics.cy;
-		if (intrinsic_matrix.isIdentity()) {
+		if (intrinsic_matrix.isIdentity())
+		{
 			throw std::string("Null intrinsics matrix");
 		}
 	}
 
-	void Calibration::updateRotationMatrix() {
+	void Calibration::updateRotationMatrix()
+	{
 		Eigen::Vector3f rotation_vector;
 		rotation_vector << extrinsics.rx, extrinsics.ry, extrinsics.rz;
+
 		float theta = rotation_vector.norm();
 		rotation_vector.normalize();
 		Eigen::AngleAxisf r_v(theta, rotation_vector);
+
 		rotation_matrix = r_v.toRotationMatrix();
 	}
 
-	void Calibration::updateTranslationVector() {
+	void Calibration::updateTranslationVector()
+	{
 		translation_vector(0) = extrinsics.tx;
 		translation_vector(1) = extrinsics.ty;
 		translation_vector(2) = extrinsics.tz;
 	}
 
-	void Calibration::updateProjectionMatrix() {
+	void Calibration::updateProjectionMatrix()
+	{
 		Eigen::MatrixXf rt_mat(3, 4);
 
 		rt_mat.block(0, 0, 3, 3) << rotation_matrix;
@@ -67,22 +74,40 @@ namespace opencorr
 		projection_matrix = intrinsic_matrix * rt_mat;
 	}
 
-	void Calibration::updateCalibration(CameraIntrinsics& intrinsics, CameraExtrinsics& extrinsics) {
-		this->intrinsics = intrinsics;
-		this->extrinsics = extrinsics;
-
+	void Calibration::updateMatrices()
+	{
 		updateIntrinsicMatrix();
 		updateRotationMatrix();
 		updateTranslationVector();
 		updateProjectionMatrix();
 	}
 
-	void Calibration::setUndistortion(float convergence, int iteration) {
+	void Calibration::updateCalibration(CameraIntrinsics& intrinsics, CameraExtrinsics& extrinsics)
+	{
+		this->intrinsics = intrinsics;
+		this->extrinsics = extrinsics;
+
+		updateMatrices();
+	}
+
+	float Calibration::getConvergence() const
+	{
+		return convergence;
+	}
+
+	int Calibration::getIteration() const
+	{
+		return iteration;
+	}
+
+	void Calibration::setUndistortion(float convergence, int iteration)
+	{
 		this->convergence = convergence;
 		this->iteration = iteration;
 	}
 
-	Point2D Calibration::image_to_sensor(Point2D& point) {
+	Point2D Calibration::image_to_sensor(Point2D& point)
+	{
 		float sensor_y = point.y * intrinsics.fy + intrinsics.cy;
 		float sensor_x = point.x * intrinsics.fx + point.y * intrinsics.fs + intrinsics.cx;
 
@@ -90,7 +115,8 @@ namespace opencorr
 		return sensor_coordinate;
 	}
 
-	Point2D Calibration::sensor_to_image(Point2D& point) {
+	Point2D Calibration::sensor_to_image(Point2D& point)
+	{
 		float image_y = (point.y - intrinsics.cy) / intrinsics.fy;
 		float image_x = (point.x - intrinsics.cx - intrinsics.fs * image_y) / intrinsics.fx;
 
@@ -99,7 +125,8 @@ namespace opencorr
 	}
 
 	//distort the coordinate of a point in image coordinate system
-	Point2D Calibration::distort(Point2D& point) {
+	Point2D Calibration::distort(Point2D& point)
+	{
 		//prepare the variables
 		float image_xx = point.x * point.x;
 		float image_yy = point.y * point.y;
@@ -123,15 +150,18 @@ namespace opencorr
 		return distorted_coordinate;
 	}
 
-	void Calibration::prepare(int height, int width) {
+	void Calibration::prepare(int height, int width)
+	{
 		//initialize the map of distorted coordinates in image coordinate system
 		map_x = Eigen::MatrixXf::Zero(height, width);
 		map_y = Eigen::MatrixXf::Zero(height, width);
 
 		//initialize the correction map
 #pragma omp parallel for
-		for (int r = 0; r < height; r++) {
-			for (int c = 0; c < width; c++) {
+		for (int r = 0; r < height; r++)
+		{
+			for (int c = 0; c < width; c++)
+			{
 				Point2D sensor_coordinate(c, r);
 				Point2D image_coordinate(sensor_to_image(sensor_coordinate));
 				map_x(r, c) = image_coordinate.x;
@@ -140,30 +170,37 @@ namespace opencorr
 		}
 
 #pragma omp parallel for
-		for (int r = 0; r < height; r++) {
-			for (int c = 0; c < width; c++) {
+		for (int r = 0; r < height; r++)
+		{
+			for (int c = 0; c < width; c++)
+			{
 				float deviation_y;
 				float deviation_x;
 				bool stop_iteration = false;
 				int i = 0;
 				Point2D image_coordinate(map_x(r, c), map_y(r, c));
-				while (i < iteration && stop_iteration == false) {
+
+				while (i < iteration && stop_iteration == false)
+				{
 					i++;
 					Point2D distorted_coordinate(distort(image_coordinate));
 					Point2D sensor_coordinate(image_to_sensor(distorted_coordinate));
 					deviation_y = r - sensor_coordinate.y;
 					deviation_x = c - sensor_coordinate.x;
-					if (std::isinf(deviation_x) || std::isinf(deviation_y)) {
+					if (std::isinf(deviation_x) || std::isinf(deviation_y))
+					{
 						stop_iteration = true;
 						image_coordinate.y = map_y(r, c);
 						image_coordinate.x = map_x(r, c);
 					}
-					if (fabs(deviation_x) > convergence || fabs(deviation_y) > convergence) {
+					if (fabs(deviation_x) > convergence || fabs(deviation_y) > convergence)
+					{
 						deviation_y /= intrinsics.fy;
 						image_coordinate.y += deviation_y;
 						image_coordinate.x += (deviation_x - deviation_y * intrinsics.fs) / intrinsics.fx;
 					}
-					else {
+					else
+					{
 						stop_iteration = true;
 					}
 				}
@@ -171,19 +208,27 @@ namespace opencorr
 				map_x(r, c) = image_coordinate.x;
 			}
 		}
-
 	}
 
-	Point2D Calibration::undistort(Point2D& point) {
+	Point2D Calibration::undistort(Point2D& point)
+	{
 		//deal with the points adjacent to boundary
 		if (point.x < 0)
+		{
 			point.x = 0;
+		}
 		if (point.y < 0)
+		{
 			point.y = 0;
+		}
 		if (point.x > map_x.cols() - 2)
+		{
 			point.x = (float)map_x.cols() - 2.f;
+		}
 		if (point.y > map_y.rows() - 2)
+		{
 			point.y = (float)map_y.rows() - 2.f;
+		}
 
 		//get integral part and decimal part of the coordinate
 		int y_integral = (int)floor(point.y);

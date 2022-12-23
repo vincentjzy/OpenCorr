@@ -27,9 +27,10 @@
 #include "oc_point.h"
 #include "oc_subset.h"
 
-namespace opencorr {
-
-	class FFTW {
+namespace opencorr
+{
+	class FFTW
+	{
 	public:
 		float* ref_subset;
 		float* tar_subset;
@@ -43,15 +44,23 @@ namespace opencorr {
 
 		static FFTW* allocate(int subset_radius_x, int subset_radius_y);
 		static FFTW* allocate(int subset_radius_x, int subset_radius_y, int subset_radius_z);
+
 		static void release(FFTW* instance);
 
+		static void reallocate(FFTW* instance, int subset_radius_x, int subset_radius_y);
+		static void reallocate(FFTW* instance, int subset_radius_x, int subset_radius_y, int subset_radius_z);
 	};
 
-	class FFTCC2D : public DIC {
+
+	//the 2D part of module is the implementation of
+	//Z. Jiang et al, Optics and Lasers in Engineering (2015) 65: 93-102.
+	//https://doi.org/10.1016/j.optlaseng.2014.06.011
+
+	class FFTCC2D : public DIC
+	{
 	private:
-		//pool of FFTW instances for multi-thread processing
-		std::vector<FFTW*> instance_pool;
-		FFTW* getInstance(int tid);
+		std::vector<FFTW*> instance_pool; //pool of FFTW instances for multi-thread processing
+		FFTW* getInstance(int tid); //get an instance according to the number of current thread id
 
 	public:
 		FFTCC2D(int subset_radius_x, int subset_radius_y, int thread_number);
@@ -59,16 +68,18 @@ namespace opencorr {
 
 		void compute(POI2D* poi);
 		void compute(std::vector<POI2D>& poi_queue);
-
-		//determine speckle size (rectangular box) using autocorrelation
-		Point2D determineSpeckleSize(POI2D* poi, float half_peak_ratio); // half_peak_ratio could be 1/2 or 1/e
 	};
 
-	class FFTCC3D : public DVC {
+
+	//the 3D part of module is the implementation of
+	//T. Wang et al, Experimental Mechanics (2016) 56(2): 297-309.
+	//https://doi.org/10.1007/s11340-015-0091-4
+
+	class FFTCC3D : public DVC
+	{
 	private:
-		//pool of FFTW instances for multi-thread processing
-		std::vector<FFTW*> instance_pool;
-		FFTW* getInstance(int tid);
+		std::vector<FFTW*> instance_pool; //pool of FFTW instances for multi-thread processing
+		FFTW* getInstance(int tid); //get an instance according to the number of current thread id
 
 	public:
 		FFTCC3D(int subset_radius_x, int subset_radius_y, int subset_radius_z, int thread_number);
@@ -76,9 +87,6 @@ namespace opencorr {
 
 		void compute(POI3D* poi);
 		void compute(std::vector<POI3D>& poi_queue);
-
-		//determine speckle size (cubic box) using autocorrelation
-		Point3D determineSpeckleSize(POI3D* poi, float half_peak_ratio); // half_peak_ratio could be 1/2 or 1/e
 	};
 
 }//namespace opencorr

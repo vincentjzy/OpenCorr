@@ -12,16 +12,15 @@
  * More information about OpenCorr can be found at https://www.opencorr.org/
  */
 
-#include <cmath>
-#include <iostream>
-
 #include "oc_subset.h"
 
 namespace opencorr
 {
 	//2D susbet
-	Subset2D::Subset2D(Point2D center, int radius_x, int radius_y) {
-		if (radius_x < 1 || radius_y < 1) {
+	Subset2D::Subset2D(Point2D center, int radius_x, int radius_y)
+	{
+		if (radius_x < 1 || radius_y < 1)
+		{
 			std::cerr << "Too small radius:" << radius_x << ", " << radius_y << std::endl;
 		}
 
@@ -34,12 +33,14 @@ namespace opencorr
 		eg_mat = Eigen::MatrixXf::Zero(height, width);
 	}
 
-	void Subset2D::fill(Image2D* image) {
+	void Subset2D::fill(Image2D* image)
+	{
 		Point2D topleft_point(center.x - radius_x, center.y - radius_y);
 		eg_mat << image->eg_mat.block(topleft_point.y, topleft_point.x, height, width);
 	}
 
-	float Subset2D::zeroMeanNorm() {
+	float Subset2D::zeroMeanNorm()
+	{
 		float subset_mean = eg_mat.mean();
 		eg_mat.array() -= subset_mean;
 		float subset_sum = eg_mat.squaredNorm();
@@ -47,13 +48,17 @@ namespace opencorr
 		return sqrt(subset_sum);
 	}
 
+
 	//3D subvolume
-	Subset3D::Subset3D(Point3D center, int radius_x, int radius_y, int radius_z) {
-		if (radius_x < 1 || radius_y < 1 || radius_z < 1) {
+	Subset3D::Subset3D(Point3D center, int radius_x, int radius_y, int radius_z)
+	{
+		if (radius_x < 1 || radius_y < 1 || radius_z < 1)
+		{
 			std::cerr << "Too small radius:" << radius_x << ", " << radius_y << ", " << radius_z << std::endl;
 		}
 
-		if (vol_mat != nullptr) {
+		if (vol_mat != nullptr)
+		{
 			delete3D(vol_mat);
 		}
 
@@ -64,52 +69,63 @@ namespace opencorr
 		dim_x = radius_x * 2 + 1;
 		dim_y = radius_y * 2 + 1;
 		dim_z = radius_z * 2 + 1;
-		intensity_mean = 0;
 
 		vol_mat = new3D(dim_z, dim_y, dim_x);
 	}
 
-	Subset3D::~Subset3D() {
-		if (vol_mat != nullptr) {
+	Subset3D::~Subset3D()
+	{
+		if (vol_mat != nullptr)
+		{
 			delete3D(vol_mat);
 		}
 	}
 
-	void Subset3D::fill(Image3D* image) {
+	void Subset3D::fill(Image3D* image)
+	{
 		Point3D start_point(center.x - radius_x, center.y - radius_y, center.z - radius_z);
-		for (int i = 0; i < dim_z; i++) {
-			for (int j = 0; j < dim_y; j++) {
-				for (int k = 0; k < dim_x; k++) {
+		for (int i = 0; i < dim_z; i++)
+		{
+			for (int j = 0; j < dim_y; j++)
+			{
+				for (int k = 0; k < dim_x; k++)
+				{
 					vol_mat[i][j][k] = image->vol_mat[int(start_point.z + i)][int(start_point.y + j)][int(start_point.x + k)];
 				}
 			}
 		}
 	}
 
-	float Subset3D::zeroMeanNorm() {
-		//calculate the mean value of intensity
-		intensity_mean = 0;
-		for (int i = 0; i < dim_z; i++) {
-			for (int j = 0; j < dim_y; j++) {
-				for (int k = 0; k < dim_x; k++) {
-					intensity_mean += vol_mat[i][j][k];
+	float Subset3D::zeroMeanNorm()
+	{
+		//calculate the mean of gray-scale values
+		float mean_value = 0;
+		for (int i = 0; i < dim_z; i++)
+		{
+			for (int j = 0; j < dim_y; j++)
+			{
+				for (int k = 0; k < dim_x; k++)
+				{
+					mean_value += vol_mat[i][j][k];
 				}
 			}
 		}
-		intensity_mean /= (dim_x * dim_y * dim_z);
+		mean_value /= (dim_x * dim_y * dim_z);
 
-		//make the intensity distribution zero-mean
+		//make the distribution of gray-scale values zero-mean
 		float subset_sum = 0;
-		for (int i = 0; i < dim_z; i++) {
-			for (int j = 0; j < dim_y; j++) {
-				for (int k = 0; k < dim_x; k++) {
-					vol_mat[i][j][k] -= intensity_mean;
+		for (int i = 0; i < dim_z; i++)
+		{
+			for (int j = 0; j < dim_y; j++)
+			{
+				for (int k = 0; k < dim_x; k++)
+				{
+					vol_mat[i][j][k] -= mean_value;
 					subset_sum += (vol_mat[i][j][k] * vol_mat[i][j][k]);
 				}
 			}
 		}
 
-		//return the norm
 		return sqrt(subset_sum);
 	}
 
