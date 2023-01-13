@@ -27,6 +27,8 @@ namespace opencorr
 	{
 	protected:
 		Image2D* interp_img = nullptr;
+		int width;
+		int height;
 
 	public:
 		virtual ~Interpolation2D() = default;
@@ -39,6 +41,9 @@ namespace opencorr
 	{
 	protected:
 		Image3D* interp_img = nullptr;
+		int dim_x;
+		int dim_y;
+		int dim_z;
 
 	public:
 		virtual ~Interpolation3D() = default;

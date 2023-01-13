@@ -417,7 +417,7 @@ namespace opencorr
 	{
 		int queue_length = (int)poi_queue.size();
 #pragma omp parallel for
-		for (int i = 0; i < queue_length; ++i)
+		for (int i = 0; i < queue_length; i++)
 		{
 			compute(&poi_queue[i]);
 		}

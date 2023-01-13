@@ -190,7 +190,7 @@ int main()
 
 	//store the results of stereo matching between the two reference views
 #pragma omp parallel for
-	for (int i = 0; i < queue_length; ++i)
+	for (int i = 0; i < queue_length; i++)
 	{
 		Point2D current_location(poi_queue[i].x, poi_queue[i].y);
 		Point2D current_offset(poi_queue[i].deformation.u, poi_queue[i].deformation.v);
@@ -230,7 +230,7 @@ int main()
 
 	//store the results of temporal matching
 #pragma omp parallel for
-	for (int i = 0; i < queue_length; ++i)
+	for (int i = 0; i < queue_length; i++)
 	{
 		Point2D current_location(poi_queue[i].x, poi_queue[i].y);
 		Point2D current_offset(poi_queue[i].deformation.u, poi_queue[i].deformation.v);
@@ -265,7 +265,7 @@ int main()
 
 	//combine the dispalcements obtained by stereo matching and temperoal matching
 #pragma omp parallel for
-	for (int i = 0; i < queue_length; ++i)
+	for (int i = 0; i < queue_length; i++)
 	{
 		poi_queue[i].deformation.u += poi_round_queue[i].deformation.u;
 		poi_queue[i].deformation.v += poi_round_queue[i].deformation.v;
@@ -278,7 +278,7 @@ int main()
 
 	//store the results of matching
 #pragma omp parallel for
-	for (int i = 0; i < queue_length; ++i)
+	for (int i = 0; i < queue_length; i++)
 	{
 		Point2D current_location(poi_queue[i].x, poi_queue[i].y);
 		Point2D current_offset(poi_queue[i].deformation.u, poi_queue[i].deformation.v);

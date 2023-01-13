@@ -102,7 +102,7 @@ namespace opencorr
 		{
 #pragma omp section
 			{
-				for (int i = 0; i < matches_size; ++i)
+				for (int i = 0; i < matches_size; i++)
 				{
 					if (matches[i][0].distance < matching_ratio * matches[i][1].distance)
 					{
@@ -113,7 +113,7 @@ namespace opencorr
 			}
 #pragma omp section
 			{
-				for (int j = 0; j < matches_size; ++j)
+				for (int j = 0; j < matches_size; j++)
 				{
 					if (matches[j][0].distance < matching_ratio * matches[j][1].distance)
 					{
@@ -341,9 +341,9 @@ namespace opencorr
 			0.8506508f, 0.0000000f, -0.5257311f, 0.0000000f, -0.5257311f, -0.8506508f, 0.5257311f, -0.8506508f, 0.0000000f
 		};
 
-		for (int i = 0; i < 20; ++i)
+		for (int i = 0; i < 20; i++)
 		{
-			for (int j = 0; j < 3; ++j)
+			for (int j = 0; j < 3; j++)
 			{
 				icosahedron[i].vertex_idx[j] = triangle_triplets[i * 3 + j];
 				icosahedron[i].vertices[j].x = triangle_vertices[(i * 3 + j) * 3 + 0];

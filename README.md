@@ -41,6 +41,8 @@ Users can also access the information of OpenCorr via website [opencorr.org](htt
 >2022.10.21, Fix the conflict of calling NearestNeighbor instance by multiple threads in modules FeatureAffine and Strain.
 >
 >2022.12.23, Release of OpenCorr 1.0. Modules Feature and FeatureAffine are upgraded by introducing calsses SIFT3D and FeatureAffine3D, respectively. The codes, examples, and documents are thoroughly updated.
+>
+>2023.01.13, A regular update, including (i) adding a module of Newton-Raphson algorithm (NR) for 2D DIC; (ii) giving an example of self-adaptive DIC, which can dynamically optimize the size and shape of subset at each POI; (iii) fixing a potential bug in module Interpolation; (iv) updating the codes and documents.
 
 # Instructions
 
@@ -62,7 +64,7 @@ Users can also access the information of OpenCorr via website [opencorr.org](htt
 
 # Acknowledgements
 
-OpenCorr demonstrates our exploration of DIC and DVC methods in recent years, which got financial support from National Natural Science Foundation of China. I would like to give my special thanks to two collaborators for their continuous and strong supports: Professor QIAN Kemao at Nanyang Technological University and Professor DONG Shoubin at South China University of Technology.
+OpenCorr demonstrates our exploration of DIC and DVC methods in recent years, which got continuous financial support from National Natural Science Foundation of China. I would like to give my special thanks to two collaborators for their enthusiastic support: Professor QIAN Kemao (Nanyang Technological University) and Professor DONG Shoubin (South China University of Technology).
 
 # Related publication
 
@@ -84,4 +86,6 @@ Users may refer to our papers for more information about the detailed principles
 
 [8] J. Yang, J. Huang, Z. Jiang, S. Dong, L. Tang, Y. Liu, Z. Liu, L. Zhou, 3D SIFT aided path independent digital volume correlation and its GPU acceleration, Optics and Lasers in Engineering (2021) 136: 106323. (https://doi.org/10.1016/j.optlaseng.2020.106323)
 
-[9] A. Lin, R. Li, Z. Jiang, S. Dong, Y. Liu, Z. Liu, L. Zhou, L. Tang, Path independent stereo digital image correlation with high speed and analysis resolution, Optics and Lasers in Engineering (2022) 149: 106812. (https://doi.org/10.1016/j.optlaseng.2021.106812)
+[9] L. Cai, J. Yang, S. Dong, Z. Jiang. GPU accelerated parallel reliability-guided digital volume correlation with automatic seed selection based on 3D SIFT. Parallel Computing (2021) 108: 102824. (https://doi.org/10.1016/j.parco.2021.102824)
+
+[10] A. Lin, R. Li, Z. Jiang, S. Dong, Y. Liu, Z. Liu, L. Zhou, L. Tang, Path independent stereo digital image correlation with high speed and analysis resolution, Optics and Lasers in Engineering (2022) 149: 106812. (https://doi.org/10.1016/j.optlaseng.2021.106812)

@@ -71,6 +71,10 @@ namespace opencorr
 
 		void setIteration(float conv_criterion, float stop_condition);
 		void setIteration(POI2D* poi);
+
+		//functions for self-adaptive subset
+		void compute(POI2D* poi, Point2D subset_radius);
+		void compute(std::vector<POI2D>& poi_queue, Point2D subset_radius);
 	};
 
 

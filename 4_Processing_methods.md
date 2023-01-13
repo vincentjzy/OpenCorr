@@ -175,7 +175,12 @@ It is noteworthy that the radius search is first performed in function compute(p
 ![image](./img/oc_icgn.png)
 *Figure 4.2.4. Parameters and methods included in ICGN object*
 
-(4) EpipolarSearch (oc_epipolar_search.h and oc_epipolar_search.cpp), epipolar constraint aided search for stereo matching. Figure 4.2.5 shows the parameters and methods included in this object. The method uses the epipolar constraint between the two views to search for the counterpart (in view2) of a point (in view1), narrowing the searching range within a part of epipolar. The searching range centered at the intersection of epipolar and its normal line crossing a point (estimated according to an initial displacement and a guess of parallax). Users may refer to our paper (Lin et al. Opt Laser Eng, 2022, 149: 106812) for the details of principle and implementation. The searching step is limited to several pixels (less than the convergence radius of ICGN algorithms). ICGN2D1 with lenient convergence criterion and less iteration is invoked to guarantee roughly accurate matching in trials. The result with the highest ZNCC value is reserved and can be fed into ICGN2D2 for high accuracy matching. A simple example (test_3d_reconstruction_epipolar.cpp in folder /examples) demonstrates the reconstruction of a 3D point cloud using this method. Another example (test_3d_reconstruction_epipolar_sift.cpp in folder /examples) demonstrates how to combine the EpipolarSearch and SIFT feature guided FeatureAffine to achieve significantly improved efficiency.
+(4) NR (oc_nr.h and oc_nr.cpp), forward additive Newton-Raphson algorithm. Figure 4.2.5 show the parameters and methods included in the object. NR was the dominant iterative DIC algorithm in 1990s. This classic algorithm has been superseded by ICGN due to its inferior efficiency. Thus, only NR2D1 is provided for the interest in early algorithm. The principle of NR2D1 can be found in the famous paper by Professor Bruck (Bruck et al. Exp Mech, 1989, 29(3): 261-267). A meticulous comparison between NR and ICGN is given in our paper (Chen et al. Exp Mech, 2017, 57(6): 979-996).
+
+![image](./img/oc_nr.png)
+*Figure 4.2.5. Parameters and methods included in NR object*
+
+(5) EpipolarSearch (oc_epipolar_search.h and oc_epipolar_search.cpp), epipolar constraint aided search for stereo matching. Figure 4.2.6 shows the parameters and methods included in this object. The method uses the epipolar constraint between the two views to search for the counterpart (in view2) of a point (in view1), narrowing the searching range within a part of epipolar. The searching range centered at the intersection of epipolar and its normal line crossing a point (estimated according to an initial displacement and a guess of parallax). Users may refer to our paper (Lin et al. Opt Laser Eng, 2022, 149: 106812) for the details of principle and implementation. The searching step is limited to several pixels (less than the convergence radius of ICGN algorithms). ICGN2D1 with lenient convergence criterion and less iteration is invoked to guarantee roughly accurate matching in trials. The result with the highest ZNCC value is reserved and can be fed into ICGN2D2 for high accuracy matching. A simple example (test_3d_reconstruction_epipolar.cpp in folder /examples) demonstrates the reconstruction of a 3D point cloud using this method. Another example (test_3d_reconstruction_epipolar_sift.cpp in folder /examples) demonstrates how to combine the EpipolarSearch and SIFT feature guided FeatureAffine to achieve significantly improved efficiency.
 
 Parameters:
 
@@ -187,11 +192,11 @@ Parameters:
 
 ![image](./img/oc_epipolar_search.png)
 
-*Figure 4.2.5. Parameters and methods included in EpipolarSearch object*
+*Figure 4.2.6. Parameters and methods included in EpipolarSearch object*
 
 
 
-Figure 4.2.6 shows the parameters and methods included in Strain (oc_strain.h and oc_strain.cpp), which is a module to calculate the strains based on the displacements obtained by DIC module. The method first creates local profiles of displacement components in a POI-centered subregion through polynomial fitting, and then calculates the strains according to the first order derivatives of the displacement profiles. Users may refer to the paper by Professor PAN Bing (Pan et al. Opt Eng, 2007, 46: 033601) for the details of principle. NearestNeighbor is invoked to speed up the search for neighbor POIs near the inspected POI, in a similar way in FeatureAffine. It is noteworthy that the default calculation of strains follows the definition of Cauchy strain. Users may shift to the definition of Green strains by setting parameter approximation.
+Figure 4.2.7 shows the parameters and methods included in Strain (oc_strain.h and oc_strain.cpp), which is a module to calculate the strains based on the displacements obtained by DIC module. The method first creates local profiles of displacement components in a POI-centered subregion through polynomial fitting, and then calculates the strains according to the first order derivatives of the displacement profiles. Users may refer to the paper by Professor PAN Bing (Pan et al. Opt Eng, 2007, 46: 033601) for the details of principle. NearestNeighbor is invoked to speed up the search for neighbor POIs near the inspected POI, in a similar way in FeatureAffine. It is noteworthy that the default calculation of strains follows the definition of Cauchy strain. Users may shift to the definition of Green strains by setting parameter approximation.
 
 Parameters:
 
@@ -214,4 +219,4 @@ Member functions:
 - compute(vector& poi_queue), handle a queue of POIs.
 
 ![image](./img/oc_strain.png)
-*Figure 4.2.6. Parameters and methods included in Strain object*
+*Figure 4.2.7. Parameters and methods included in Strain object*

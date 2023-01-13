@@ -156,7 +156,7 @@ namespace opencorr
 				//sort the kp queue in an ascending order of distance to the POI
 				std::vector<KeypointIndex> ref_sorted_index;
 				int queue_size = (int)ref_kp.size();
-				for (int i = 0; i < queue_size; ++i)
+				for (int i = 0; i < queue_size; i++)
 				{
 					Point2D distance = ref_kp[i] - (Point2D)*poi;
 					KeypointIndex current_kp_idx;
@@ -179,7 +179,7 @@ namespace opencorr
 			}
 
 			//convert global coordinates to the POI-centered local coordinates
-			for (int i = 0; i < neighbor_num; ++i)
+			for (int i = 0; i < neighbor_num; i++)
 			{
 				ref_candidates[i] = ref_candidates[i] - (Point2D)*poi;
 				tar_candidates[i] = tar_candidates[i] - (Point2D)*poi;
@@ -291,13 +291,190 @@ namespace opencorr
 	{
 		int queue_length = (int)poi_queue.size();
 #pragma omp parallel for
-		for (int i = 0; i < queue_length; ++i)
+		for (int i = 0; i < queue_length; i++)
 		{
 			compute(&poi_queue[i]);
 		}
 	}
 
+	//functions for self-adaptive subset
+	void FeatureAffine2D::compute(POI2D* poi, int neighbor_k, int min_radius)
+	{
+		//set instance w.r.t. thread id 
+		NearestNeighbor* neighbor_search = getInstance(omp_get_thread_num());
 
+		Point3D current_point(poi->x, poi->y, 0.f);
+		std::vector<Point2D> ref_candidates, tar_candidates;
+
+		float x_min = ref_img->width;
+		float x_max = -1;
+		float y_min = ref_img->height;
+		float y_max = -1;
+
+		//search the neighbor keypoints in a region of given radius
+		std::vector<uint32_t> k_neighbors_idx;
+		std::vector<float> kp_squared_distance;
+
+		int neighbor_num = neighbor_search->knnSearch(current_point, neighbor_k, k_neighbors_idx, kp_squared_distance);
+
+		if (neighbor_num < ransac_config.sample_mumber)
+		{
+			poi->result.zncc = -1;
+		}
+		else
+		{
+			neighbor_num = neighbor_k;
+			for (int i = 0; i < neighbor_num; i++)
+			{
+				ref_candidates.push_back(ref_kp[k_neighbors_idx[i]]);
+				tar_candidates.push_back(tar_kp[k_neighbors_idx[i]]);
+
+				x_min = ref_candidates[i].x < x_min ? ref_candidates[i].x : x_min;
+				x_max = ref_candidates[i].x > x_max ? ref_candidates[i].x : x_max;
+				y_min = ref_candidates[i].y < y_min ? ref_candidates[i].y : y_min;
+				y_max = ref_candidates[i].y > y_max ? ref_candidates[i].y : y_max;
+			}
+
+			//modify POI and subset size
+			if (poi->x >= x_min && poi->x <= x_max && poi->y >= y_min && poi->y <= y_max)
+			{
+				//if the POI is within the rectangle, set subset radius according to the farthest edges of rectangle
+				poi->subset_radius.x = abs(x_max - poi->x) > abs(poi->x - x_min) ? (int)abs(x_max - poi->x) : (int)abs(poi->x - x_min);
+				poi->subset_radius.y = abs(y_max - poi->y) > abs(poi->y - y_min) ? (int)abs(y_max - poi->y) : (int)abs(poi->y - y_min);
+			}
+			else
+			{
+				//if the POI is out of the rectangle, set the center of rectangle as the POI
+				poi->x = (int)(0.5f * (x_max + x_min));
+				poi->y = (int)(0.5f * (y_max + y_min));
+				poi->subset_radius.x = (int)(0.5f * (x_max - x_min));
+				poi->subset_radius.y = (int)(0.5f * (y_max - y_min));
+			}
+
+			//check if the radius is below the pre-defined minimum
+			poi->subset_radius.x = poi->subset_radius.x < min_radius ? min_radius : poi->subset_radius.x;
+			poi->subset_radius.y = poi->subset_radius.y < min_radius ? min_radius : poi->subset_radius.y;
+
+			//convert global coordinates to the POI-centered local coordinates
+			for (int i = 0; i < neighbor_num; i++)
+			{
+				ref_candidates[i] = ref_candidates[i] - (Point2D)*poi;
+				tar_candidates[i] = tar_candidates[i] - (Point2D)*poi;
+			}
+
+			//RANSAC procedure
+			std::vector<int> candidate_index(neighbor_num);
+			std::iota(candidate_index.begin(), candidate_index.end(), 0); //initialize the candidate_index with the integers in ascending order
+
+			int trial_counter = 0; //trial counter
+			float location_mean_error;
+			std::vector<int> max_set;
+
+			//random number generator
+			std::random_device rd;
+			std::mt19937_64 gen64(rd());
+			do
+			{
+				//randomly select samples
+				std::shuffle(candidate_index.begin(), candidate_index.end(), gen64);
+
+				Eigen::MatrixXf ref_neighbors(ransac_config.sample_mumber, 3);
+				Eigen::MatrixXf tar_neighbors(ransac_config.sample_mumber, 3);
+				for (int j = 0; j < ransac_config.sample_mumber; j++)
+				{
+					ref_neighbors(j, 0) = ref_candidates[candidate_index[j]].x;
+					ref_neighbors(j, 1) = ref_candidates[candidate_index[j]].y;
+					ref_neighbors(j, 2) = 1.f;
+					tar_neighbors(j, 0) = tar_candidates[candidate_index[j]].x;
+					tar_neighbors(j, 1) = tar_candidates[candidate_index[j]].y;
+					tar_neighbors(j, 2) = 1.f;
+				}
+				//ref * affine = tar, thus affine is the permutation of affine matrix in the paper, where Ax=x'
+				Eigen::Matrix3f affine_matrix = ref_neighbors.colPivHouseholderQr().solve(tar_neighbors);
+
+				//concensus
+				std::vector<int> trial_set;
+				location_mean_error = 0;
+				float delta_x, delta_y, estimation_error;
+				for (int j = 0; j < neighbor_num; j++)
+				{
+					delta_x = (float)(ref_candidates[candidate_index[j]].x * affine_matrix(0, 0)
+						+ ref_candidates[candidate_index[j]].y * affine_matrix(1, 0) + affine_matrix(2, 0))
+						- tar_candidates[candidate_index[j]].x;
+					delta_y = (float)(ref_candidates[candidate_index[j]].x * affine_matrix(0, 1)
+						+ ref_candidates[candidate_index[j]].y * affine_matrix(1, 1) + affine_matrix(2, 1))
+						- tar_candidates[candidate_index[j]].y;
+					Point2D cur_point(delta_x, delta_y);
+					estimation_error = cur_point.vectorNorm();
+					//check if the error is acceptable, keep the "good" points
+					if (estimation_error < ransac_config.error_threshold)
+					{
+						trial_set.push_back(candidate_index[j]);
+						location_mean_error += estimation_error;
+					}
+				}
+				//replace max_set with current trial_set if the latter is larger
+				if (trial_set.size() > max_set.size())
+				{
+					max_set.assign(trial_set.begin(), trial_set.end());
+				}
+
+				trial_counter++;
+				location_mean_error /= trial_set.size();
+			} while (trial_counter < ransac_config.trial_number &&
+				(max_set.size() < min_neighbor_num || location_mean_error > ransac_config.error_threshold / min_neighbor_num));
+
+			//calculate affine matrix according to the results of concensus
+			int max_set_size = (int)max_set.size();
+			if (max_set_size < 3) //essential condition to solve the equation
+			{
+				poi->result.zncc = -2;
+			}
+			else
+			{
+				Eigen::MatrixXf ref_neighbors(max_set_size, 3);
+				Eigen::MatrixXf tar_neighbors(max_set_size, 3);
+
+				for (int i = 0; i < max_set_size; i++)
+				{
+					ref_neighbors(i, 0) = ref_candidates[max_set[i]].x;
+					ref_neighbors(i, 1) = ref_candidates[max_set[i]].y;
+					ref_neighbors(i, 2) = 1.f;
+					tar_neighbors(i, 0) = tar_candidates[max_set[i]].x;
+					tar_neighbors(i, 1) = tar_candidates[max_set[i]].y;
+					tar_neighbors(i, 2) = 1.f;
+				}
+				//the method of least squares
+				Eigen::Matrix3f affine_matrix = ref_neighbors.colPivHouseholderQr().solve(tar_neighbors);
+
+				//calculate the 1st order deformation according to the equivalence between affine matrix and the 1st order shape function
+				poi->deformation.u = affine_matrix(2, 0);
+				poi->deformation.ux = affine_matrix(0, 0) - 1.f;
+				poi->deformation.uy = affine_matrix(1, 0);
+				poi->deformation.v = affine_matrix(2, 1);
+				poi->deformation.vx = affine_matrix(0, 1);
+				poi->deformation.vy = affine_matrix(1, 1) - 1.f;
+
+				//store results of RANSAC procedure
+				poi->result.iteration = (float)trial_counter;
+				poi->result.feature = (float)max_set_size;
+
+				poi->result.zncc = 0;
+			}
+		}
+	}
+
+	void FeatureAffine2D::compute(std::vector<POI2D>& poi_queue, int neighbor_k, int min_radius)
+	{
+		int queue_length = (int)poi_queue.size();
+		//#pragma omp parallel for
+		for (int i = 0; i < queue_length; i++)
+		{
+			compute(&poi_queue[i], neighbor_k, min_radius);
+		}
+	}
+
+	//////////////////////////////////////////////////////////////////////////////
 
 
 	NearestNeighbor* FeatureAffine3D::getInstance(int tid)
@@ -406,7 +583,7 @@ namespace opencorr
 				//sort the kp queue in an ascending order of distance to the POI
 				std::vector<KeypointIndex> ref_sorted_index;
 				int queue_size = (int)ref_kp.size();
-				for (int i = 0; i < queue_size; ++i)
+				for (int i = 0; i < queue_size; i++)
 				{
 					Point3D distance = ref_kp[i] - (Point3D)*poi;
 					KeypointIndex current_kp_idx;
@@ -429,7 +606,7 @@ namespace opencorr
 			}
 
 			//convert global coordinates to the POI-centered local coordinates
-			for (int i = 0; i < neighbor_num; ++i)
+			for (int i = 0; i < neighbor_num; i++)
 			{
 				ref_candidates[i] = ref_candidates[i] - (Point3D)*poi;
 				tar_candidates[i] = tar_candidates[i] - (Point3D)*poi;
@@ -551,7 +728,7 @@ namespace opencorr
 	{
 		int queue_length = (int)poi_queue.size();
 #pragma omp parallel for
-		for (int i = 0; i < queue_length; ++i)
+		for (int i = 0; i < queue_length; i++)
 		{
 			compute(&poi_queue[i]);
 		}

@@ -20,12 +20,16 @@ namespace opencorr
 	BicubicBspline::BicubicBspline(Image2D& image) :interp_coefficient(nullptr)
 	{
 		interp_img = &image;
+		width = image.width;
+		height = image.height;
 	}
 
 	BicubicBspline::~BicubicBspline()
 	{
 		if (interp_coefficient != nullptr)
+		{
 			delete4D(interp_coefficient);
+		}
 	}
 
 	void BicubicBspline::prepare()
@@ -35,8 +39,6 @@ namespace opencorr
 			delete4D(interp_coefficient);
 		}
 
-		int height = interp_img->height;
-		int width = interp_img->width;
 		if (height < 5 || width < 5)
 		{
 			std::cerr << "Too small image:" << width << ", " << height << std::endl;
@@ -102,7 +104,7 @@ namespace opencorr
 	float BicubicBspline::compute(Point2D& location)
 	{
 
-		if (location.x < 0 || location.y < 0 || location.x >= interp_img->width || location.y >= interp_img->height
+		if (location.x < 0 || location.y < 0 || location.x >= width || location.y >= height
 			|| std::isnan(location.x) || std::isnan(location.y))
 		{
 			return -1.f;
@@ -151,6 +153,9 @@ namespace opencorr
 	TricubicBspline::TricubicBspline(Image3D& image) :interp_coefficient(nullptr)
 	{
 		interp_img = &image;
+		dim_x = image.dim_x;
+		dim_y = image.dim_y;
+		dim_z = image.dim_z;
 	}
 
 	TricubicBspline::~TricubicBspline()
@@ -168,9 +173,6 @@ namespace opencorr
 			delete3D(interp_coefficient);
 		}
 
-		int dim_x = interp_img->dim_x;
-		int dim_y = interp_img->dim_y;
-		int dim_z = interp_img->dim_z;
 		if (dim_x < 15 || dim_y < 15 || dim_z < 15)
 		{
 			std::cerr << "Too small volume image:" << dim_x << ", " << dim_y << ", " << dim_z << std::endl;
@@ -308,8 +310,8 @@ namespace opencorr
 
 	float TricubicBspline::compute(Point3D& location)
 	{
-		if (location.x < 1 || location.y < 1 || location.z < 1 || location.x >= (interp_img->dim_x - 2)
-			|| location.y >= (interp_img->dim_y - 2) || location.z >= (interp_img->dim_z - 2)
+		if (location.x < 1 || location.y < 1 || location.z < 1
+			|| location.x >= (dim_x - 2) || location.y >= (dim_y - 2) || location.z >= (dim_z - 2)
 			|| std::isnan(location.x) || std::isnan(location.y) || std::isnan(location.z))
 		{
 			return -1.f;

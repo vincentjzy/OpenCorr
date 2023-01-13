@@ -67,6 +67,10 @@ namespace opencorr
 		void prepare();
 		void compute(POI2D* poi);
 		void compute(std::vector<POI2D>& poi_queue);
+
+		//functions for self-adaptive subset
+		void compute(POI2D* poi, int neighbor_k, int min_radius);
+		void compute(std::vector<POI2D>& poi_queue, int neighbor_k, int min_radius);
 	};
 
 
