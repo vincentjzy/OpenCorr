@@ -175,7 +175,7 @@ It is noteworthy that the radius search is first performed in function compute(p
 ![image](./img/oc_icgn.png)
 *Figure 4.2.4. Parameters and methods included in ICGN object*
 
-(4) NR (oc_nr.h and oc_nr.cpp), forward additive Newton-Raphson algorithm. Figure 4.2.5 show the parameters and methods included in the object. NR was the dominant iterative DIC algorithm in 1990s. This classic algorithm has been superseded by ICGN due to its inferior efficiency. Thus, only NR2D1 is provided for the interest in early algorithm. The principle of NR2D1 can be found in the famous paper by Professor Bruck (Bruck et al. Exp Mech, 1989, 29(3): 261-267). A meticulous comparison between NR and ICGN is given in our paper (Chen et al. Exp Mech, 2017, 57(6): 979-996).
+(4) NR (oc_nr.h and oc_nr.cpp), forward additive Newton-Raphson algorithm. Figure 4.2.5 show the parameters and methods included in the object. NR was the dominant iterative DIC algorithm in 1990s. This classic algorithm has been superseded by ICGN due to its inferior efficiency. Thus, only NR2D1 is provided for the interest in early algorithm. The principle of NR2D1 can be found in the famous paper by Professor Hugh Bruck (Bruck et al. Exp Mech, 1989, 29(3): 261-267). A meticulous comparison between NR and ICGN is given in our paper (Chen et al. Exp Mech, 2017, 57(6): 979-996).
 
 ![image](./img/oc_nr.png)
 *Figure 4.2.5. Parameters and methods included in NR object*

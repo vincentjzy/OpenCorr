@@ -48,9 +48,10 @@ Users can also access the information of OpenCorr via website [opencorr.org](htt
 
 1. [Get started](./1_Get_started.md)
 2. [Framework](./2_Framework.md)
-2. [Data structures](./3_Data_structures.md)
-2. [Processing methods](./4_Processing_methods.md)
-2. [GPU acceleration](./5_GPU_acceleration.md)
+3. [Data structures](./3_Data_structures.md)
+4. [Processing methods](./4_Processing_methods.md)
+5. [GPU acceleration](./5_GPU_acceleration.md)
+6. [Examples](./6_Examples.md)
 
 # Developers
 
@@ -59,7 +60,7 @@ Users can also access the information of OpenCorr via website [opencorr.org](htt
 - Dr WANG Tianyi, PostDoc, BrookHaven Natinoal Lab
 - Dr CHEN Wei, Chief research engineer, Midea
 - Mr HUANG Jianwen, Software engineer, SenseTime
-- Mr YANG Junrong, , Software engineer, Tencent
+- Mr YANG Junrong, Software engineer, Tencent
 - Mr LIN Aoyu, Engineer, China Southern Power Grid
 
 # Acknowledgements
@@ -92,8 +93,7 @@ Users may refer to our papers for more information about the detailed principles
 
 # Impact
 
-We are jubilant that OpenCorr helps other colleagues in their study. We would appreciate it If anyone could let us know the work not yet included in this list.
+We are jubilant that OpenCorr helps other colleagues in their study as a benchmark. We would appreciate it If anyone could let us know the work not yet included in this list.
 
 1. Yuxi Chi, Bing Pan. Accelerating parallel digital image correlation computation with feature mesh interpolation. Measurement (2022) 199: 111554.
 2. Wang Lianpo. Super-robust digital image correlation based on learning template. Optics and Lasers in Engineering (2022) 158: 107164.
-
