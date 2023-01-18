@@ -43,6 +43,8 @@ Users can also access the information of OpenCorr via website [opencorr.org](htt
 >2022.12.23, Release of OpenCorr 1.0. Modules Feature and FeatureAffine are upgraded by introducing calsses SIFT3D and FeatureAffine3D, respectively. The codes, examples, and documents are thoroughly updated.
 >
 >2023.01.13, A regular update, including (i) adding a module of Newton-Raphson algorithm (NR) for 2D DIC; (ii) giving an example of self-adaptive DIC, which can dynamically optimize the size and shape of subset at each POI; (iii) fixing a potential bug in module Interpolation; (iv) updating the codes and documents.
+>
+>2023.01.18, Add description of examples.
 
 # Instructions
 
