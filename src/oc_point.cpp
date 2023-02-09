@@ -12,6 +12,8 @@
  * More information about OpenCorr can be found at https://www.opencorr.org/
  */
 
+#include <math.h>
+
 #include "oc_point.h"
 
 namespace opencorr
