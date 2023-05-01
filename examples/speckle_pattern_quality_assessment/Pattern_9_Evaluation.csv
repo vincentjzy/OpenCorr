@@ -1,0 +1,7 @@
+initial_kps_num,deform_kps_num,deform->initial_match_nums,initial->deform_match_nums,bidirectional_match_nums,valid_match_nums,valid_match_nums_withinROI,density,evenness,DEF
+7207,7190,3707,3717,3630,,,,,
+7207,7156,3624,3612,3520,,,,,
+7207,7242,3714,3723,3651,,,,,
+7207,,,,,2729,,,,
+7207,,,,,,2564,,,
+7207,,,,,,,0.012065,1.265035,0.015262

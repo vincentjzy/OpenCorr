@@ -1,0 +1,7 @@
+initial_kps_num,deform_kps_num,deform->initial_match_nums,initial->deform_match_nums,bidirectional_match_nums,valid_match_nums,valid_match_nums_withinROI,density,evenness,DEF
+11659,11366,7355,7336,7310,,,,,
+11659,11537,7300,7293,7253,,,,,
+11659,11658,7439,7443,7399,,,,,
+11659,,,,,5888,,,,
+11659,,,,,,5393,,,
+11659,,,,,,,0.025376,1.522896,0.038645

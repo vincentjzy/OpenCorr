@@ -1,0 +1,7 @@
+initial_kps_num,deform_kps_num,deform->initial_match_nums,initial->deform_match_nums,bidirectional_match_nums,valid_match_nums,valid_match_nums_withinROI,density,evenness,DEF
+6939,6825,4417,4413,4383,,,,,
+6939,6739,4357,4342,4325,,,,,
+6939,6923,4453,4462,4429,,,,,
+6939,,,,,3554,,,,
+6939,,,,,,3346,,,
+6939,,,,,,,0.015744,1.438268,0.022645

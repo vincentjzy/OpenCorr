@@ -1,0 +1,7 @@
+initial_kps_num,deform_kps_num,deform->initial_match_nums,initial->deform_match_nums,bidirectional_match_nums,valid_match_nums,valid_match_nums_withinROI,density,evenness,DEF
+218,242,110,110,109,,,,,
+218,217,111,112,109,,,,,
+218,234,125,125,125,,,,,
+218,,,,,93,,,,
+218,,,,,,91,,,
+218,,,,,,,0.000428,1.48915,0.000638

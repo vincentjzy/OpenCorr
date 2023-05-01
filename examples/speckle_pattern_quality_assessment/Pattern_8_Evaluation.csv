@@ -1,0 +1,7 @@
+initial_kps_num,deform_kps_num,deform->initial_match_nums,initial->deform_match_nums,bidirectional_match_nums,valid_match_nums,valid_match_nums_withinROI,density,evenness,DEF
+1398,1361,630,615,596,,,,,
+1398,1346,628,612,597,,,,,
+1398,1394,671,669,654,,,,,
+1398,,,,,458,,,,
+1398,,,,,,444,,,
+1398,,,,,,,0.002089,1.108431,0.002316

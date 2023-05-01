@@ -1,0 +1,7 @@
+initial_kps_num,deform_kps_num,deform->initial_match_nums,initial->deform_match_nums,bidirectional_match_nums,valid_match_nums,valid_match_nums_withinROI,density,evenness,DEF
+9560,42631,4,3,1,,,,,
+9560,31105,4,5,3,,,,,
+9560,33068,0,3,0,,,,,
+9560,,,,,0,,,,
+9560,,,,,,0,,,
+9560,,,,,,,0,0,0
