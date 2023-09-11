@@ -1,0 +1,7 @@
+initial_kps_num,deform_kps_num,deform->initial_match_nums,initial->deform_match_nums,bidirectional_match_nums,valid_match_nums,valid_match_nums_withinROI,density,evenness,DEF
+5268,5177,3268,3256,3233,,,,,
+5268,5214,3213,3205,3176,,,,,
+5268,5328,3331,3333,3298,,,,,
+5268,,,,,2583,,,,
+5268,,,,,,2206,,,
+5268,,,,,,,0.011343,1.377520,0.015625

@@ -1,0 +1,7 @@
+initial_kps_num,deform_kps_num,deform->initial_match_nums,initial->deform_match_nums,bidirectional_match_nums,valid_match_nums,valid_match_nums_withinROI,density,evenness,DEF
+5343,5268,3314,3303,3282,,,,,
+5343,5225,3271,3272,3243,,,,,
+5343,5292,3415,3401,3385,,,,,
+5343,,,,,2657,,,,
+5343,,,,,,2341,,,
+5343,,,,,,,0.012037,1.299334,0.015640

@@ -1,0 +1,7 @@
+initial_kps_num,deform_kps_num,deform->initial_match_nums,initial->deform_match_nums,bidirectional_match_nums,valid_match_nums,valid_match_nums_withinROI,density,evenness,DEF
+3196,3160,2006,2005,1986,,,,,
+3196,3155,1982,1985,1966,,,,,
+3196,3236,2039,2037,2026,,,,,
+3196,,,,,1599,,,,
+3196,,,,,,1423,,,
+3196,,,,,,,0.007317,1.277694,0.009349

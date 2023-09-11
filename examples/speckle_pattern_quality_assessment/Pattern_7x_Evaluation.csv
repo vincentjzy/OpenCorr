@@ -1,0 +1,7 @@
+initial_kps_num,deform_kps_num,deform->initial_match_nums,initial->deform_match_nums,bidirectional_match_nums,valid_match_nums,valid_match_nums_withinROI,density,evenness,DEF
+982,960,593,599,586,,,,,
+982,987,625,630,615,,,,,
+982,981,633,643,631,,,,,
+982,,,,,476,,,,
+982,,,,,,438,,,
+982,,,,,,,0.002252,1.380228,0.003108

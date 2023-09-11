@@ -1,0 +1,7 @@
+initial_kps_num,deform_kps_num,deform->initial_match_nums,initial->deform_match_nums,bidirectional_match_nums,valid_match_nums,valid_match_nums_withinROI,density,evenness,DEF
+2978,2919,1837,1838,1825,,,,,
+2978,2882,1818,1816,1801,,,,,
+2978,2984,1898,1899,1883,,,,,
+2978,,,,,1481,,,,
+2978,,,,,,1325,,,
+2978,,,,,,,0.006813,1.263151,0.008606
