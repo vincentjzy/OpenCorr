@@ -101,7 +101,7 @@ Users may refer to our papers for more information about the detailed principles
 
 # Impact
 
-We are jubilant that OpenCorr helps other colleagues in their study as a benchmark. We would appreciate it If anyone could let us know the work not yet included in this list.
+We are jubilant at that OpenCorr helps other colleagues in their study as a software development kit or testing benchmark. We would appreciate it If anyone could let us know the work not yet included in this list.
 
 1. Yuxi Chi, Bing Pan. Accelerating parallel digital image correlation computation with feature mesh interpolation. Measurement (2022) 199: 111554. (https://doi.org/10.1016/j.measurement.2022.111554)
 2. Wang Lianpo. Super-robust digital image correlation based on learning template. Optics and Lasers in Engineering (2022) 158: 107164. (https://doi.org/10.1016/j.optlaseng.2022.107164)
