@@ -1,6 +1,6 @@
 # 1. Get started
 
-OpenCorr is developed and tested in Microsoft Visual Studio 2019 (VS, community version) on Windows 10. The codes, following the standard of ISO C++ 14, can be compiled using other C++ compiler like GCC, or on other OS like Linux/Unix. Developers working on Linux/Unix may refer to a sample of CMake script ([https://github.com/vincentjzy/OpenCorr/examples/CMakeLists.txt](https://github.com/vincentjzy/OpenCorr/examples/CMakeLists.txt)). To work with this library, users are supposed to have basic knowledge and skill about integrated development environment like VS. The building environment requires four open source libraries:
+OpenCorr is developed and tested in Microsoft Visual Studio 2019 (VS, community version) on Windows 10. The environment is updated to VS 2022 and Windows 11 now. The codes, following the standard of ISO C++ 14, can be compiled using other C++ compiler like GCC, or on other OS like Linux/Unix. Developers working on Linux/Unix may refer to a sample of CMake script ([https://github.com/vincentjzy/OpenCorr/examples/CMakeLists.txt](https://github.com/vincentjzy/OpenCorr/examples/CMakeLists.txt)). To work with this library, users are supposed to have basic knowledge and skill about integrated development environment like VS. The building environment requires four open source libraries:
 
 - Eigen 3.4.0 ([eigen.tuxfamily.org](http://eigen.tuxfamily.org)), used for basic operations of 2D matrix.
 - OpenCV 4.6.0 ([opencv.org](http://opencv.org)), used to read images, extract and match the 2D image features.

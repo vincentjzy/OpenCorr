@@ -20,9 +20,9 @@ This example combines modules FFTCC and NR with the 1st order shape function. It
 
 This example uses module Strain to calculate strains based on the displacements determined by test_2d_dic_fftcc_icgn1.cpp. Module Strain can also be invoked right after other DIC modules, as demonstrated in test_2d_dic_fftcc_nr1.cpp.
 
-5. test_2d_dic_gpu_icgn2.cpp
+5. test_2d_dic_gpu_icgn.cpp
 
-This example is similar to test_2d_dic_sift_icgn2.cpp, but ICGN is accelerated by GPU.
+This example demonstrates the use of GPU accelerated ICGN (ICGNGPU) with shape functions of the 1st and the 2nd order.
 
 6. test_2d_dic_self_adaptive_subset.cpp
 
@@ -59,3 +59,7 @@ This example uses module FeatureAffine to roughly estimate the sub-pixel deforma
 3. test_dvc_strain.cpp
 
 This example uses module Strain to calculate strains based on the displacements determined by test_dvc_sift_icgn1.cpp.
+
+4. test_dvc_gpu_icgn.cpp
+
+This example demonstrates the use of GPU accelerated ICGN with shape functions of the 1st order (ICGN3D1GPU) for DVC. It also gives a comparison between the CPU version and GPU version.

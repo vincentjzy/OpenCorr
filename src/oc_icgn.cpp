@@ -194,9 +194,10 @@ namespace opencorr
 
 					for (int i = 0; i < 6; i++)
 					{
-						for (int j = 0; j < 6; j++)
+						for (int j = 0; j < i + 1; j++)
 						{
 							cur_instance->hessian(i, j) += (cur_instance->sd_img[r][c][i] * cur_instance->sd_img[r][c][j]);
+							cur_instance->hessian(j, i) = cur_instance->hessian(i, j);
 						}
 					}
 				}
@@ -209,8 +210,7 @@ namespace opencorr
 			cur_instance->tar_subset->center = (Point2D)*poi;
 
 			//get initial guess
-			Deformation2D1 p_initial(poi->deformation.u, poi->deformation.ux, poi->deformation.uy,
-				poi->deformation.v, poi->deformation.vx, poi->deformation.vy);
+			Deformation2D1 p_initial(poi->deformation.u, poi->deformation.ux, poi->deformation.uy, poi->deformation.v, poi->deformation.vx, poi->deformation.vy);
 
 			//IC-GN iteration
 			int iteration_counter = 0; //initialize iteration counter
@@ -218,9 +218,11 @@ namespace opencorr
 			p_current.setDeformation(p_initial);
 			float dp_norm_max, znssd;
 			Point2D local_coor, warped_coor, global_coor;
+
 			do
 			{
 				iteration_counter++;
+
 				//reconstruct target subset
 				for (int r = 0; r < subset_height; r++)
 				{
@@ -235,6 +237,7 @@ namespace opencorr
 						cur_instance->tar_subset->eg_mat(r, c) = tar_interp->compute(global_coor);
 					}
 				}
+
 				float tar_mean_norm = cur_instance->tar_subset->zeroMeanNorm();
 
 				//calculate error image
@@ -278,13 +281,12 @@ namespace opencorr
 				int subset_radius_x2 = subset_radius_x * subset_radius_x;
 				int subset_radius_y2 = subset_radius_y * subset_radius_y;
 
-				dp_norm_max = 0.f;
-				dp_norm_max += p_increment.u * p_increment.u;
-				dp_norm_max += p_increment.ux * p_increment.ux * subset_radius_x2;
-				dp_norm_max += p_increment.uy * p_increment.uy * subset_radius_y2;
-				dp_norm_max += p_increment.v * p_increment.v;
-				dp_norm_max += p_increment.vx * p_increment.vx * subset_radius_x2;
-				dp_norm_max += p_increment.vy * p_increment.vy * subset_radius_y2;
+				dp_norm_max = p_increment.u * p_increment.u
+					+ p_increment.ux * p_increment.ux * subset_radius_x2
+					+ p_increment.uy * p_increment.uy * subset_radius_y2
+					+ p_increment.v * p_increment.v
+					+ p_increment.vx * p_increment.vx * subset_radius_x2
+					+ p_increment.vy * p_increment.vy * subset_radius_y2;
 
 				dp_norm_max = sqrt(dp_norm_max);
 			} while (iteration_counter < stop_condition && dp_norm_max >= conv_criterion);
@@ -323,6 +325,7 @@ namespace opencorr
 			compute(&poi_queue[i]);
 		}
 	}
+
 
 	//functions for self-adaptive subset
 	void ICGN2D1::compute(POI2D* poi, Point2D subset_radius)
@@ -372,9 +375,10 @@ namespace opencorr
 
 					for (int i = 0; i < 6; i++)
 					{
-						for (int j = 0; j < 6; j++)
+						for (int j = 0; j < i + 1; j++)
 						{
 							cur_instance->hessian(i, j) += (cur_instance->sd_img[r][c][i] * cur_instance->sd_img[r][c][j]);
+							cur_instance->hessian(j, i) = cur_instance->hessian(i, j);
 						}
 					}
 				}
@@ -456,13 +460,12 @@ namespace opencorr
 				int subset_radius_x2 = poi->subset_radius.x * poi->subset_radius.x;
 				int subset_radius_y2 = poi->subset_radius.y * poi->subset_radius.y;
 
-				dp_norm_max = 0.f;
-				dp_norm_max += p_increment.u * p_increment.u;
-				dp_norm_max += p_increment.ux * p_increment.ux * subset_radius_x2;
-				dp_norm_max += p_increment.uy * p_increment.uy * subset_radius_y2;
-				dp_norm_max += p_increment.v * p_increment.v;
-				dp_norm_max += p_increment.vx * p_increment.vx * subset_radius_x2;
-				dp_norm_max += p_increment.vy * p_increment.vy * subset_radius_y2;
+				dp_norm_max = p_increment.u * p_increment.u
+					+ p_increment.ux * p_increment.ux * subset_radius_x2
+					+ p_increment.uy * p_increment.uy * subset_radius_y2
+					+ p_increment.v * p_increment.v
+					+ p_increment.vx * p_increment.vx * subset_radius_x2
+					+ p_increment.vy * p_increment.vy * subset_radius_y2;
 
 				dp_norm_max = sqrt(dp_norm_max);
 			} while (iteration < stop_condition && dp_norm_max >= conv_criterion);
@@ -684,9 +687,10 @@ namespace opencorr
 
 					for (int i = 0; i < 12; i++)
 					{
-						for (int j = 0; j < 12; j++)
+						for (int j = 0; j < i + 1; j++)
 						{
 							cur_instance->hessian(i, j) += (cur_instance->sd_img[r][c][i] * cur_instance->sd_img[r][c][j]);
+							cur_instance->hessian(j, i) = cur_instance->hessian(i, j);
 						}
 					}
 				}
@@ -769,20 +773,18 @@ namespace opencorr
 				int subset_radius_y2 = subset_radius_y * subset_radius_y;
 				int subset_radius_xy = subset_radius_x2 * subset_radius_y2;
 
-				dp_norm_max = 0.f;
-				dp_norm_max += p_increment.u * p_increment.u;
-				dp_norm_max += p_increment.ux * p_increment.ux * subset_radius_x2;
-				dp_norm_max += p_increment.uy * p_increment.uy * subset_radius_y2;
-				dp_norm_max += p_increment.uxx * p_increment.uxx * subset_radius_x2 * subset_radius_x2 / 4.f;
-				dp_norm_max += p_increment.uyy * p_increment.uyy * subset_radius_y2 * subset_radius_y2 / 4.f;
-				dp_norm_max += p_increment.uxy * p_increment.uxy * subset_radius_xy;
-
-				dp_norm_max += p_increment.v * p_increment.v;
-				dp_norm_max += p_increment.vx * p_increment.vx * subset_radius_x2;
-				dp_norm_max += p_increment.vy * p_increment.vy * subset_radius_y2;
-				dp_norm_max += p_increment.vxx * p_increment.vxx * subset_radius_x2 * subset_radius_x2 / 4.f;
-				dp_norm_max += p_increment.vyy * p_increment.vyy * subset_radius_y2 * subset_radius_y2 / 4.f;
-				dp_norm_max += p_increment.vxy * p_increment.vxy * subset_radius_xy;
+				dp_norm_max = p_increment.u * p_increment.u
+					+ p_increment.ux * p_increment.ux * subset_radius_x2
+					+ p_increment.uy * p_increment.uy * subset_radius_y2
+					+ p_increment.uxx * p_increment.uxx * subset_radius_x2 * subset_radius_x2 * 0.25f
+					+ p_increment.uyy * p_increment.uyy * subset_radius_y2 * subset_radius_y2 * 0.25f
+					+ p_increment.uxy * p_increment.uxy * subset_radius_xy
+					+ p_increment.v * p_increment.v
+					+ p_increment.vx * p_increment.vx * subset_radius_x2
+					+ p_increment.vy * p_increment.vy * subset_radius_y2
+					+ p_increment.vxx * p_increment.vxx * subset_radius_x2 * subset_radius_x2 * 0.25f
+					+ p_increment.vyy * p_increment.vyy * subset_radius_y2 * subset_radius_y2 * 0.25f
+					+ p_increment.vxy * p_increment.vxy * subset_radius_xy;
 
 				dp_norm_max = sqrt(dp_norm_max);
 			} while (iteration_counter < stop_condition && dp_norm_max >= conv_criterion);
@@ -792,15 +794,15 @@ namespace opencorr
 			poi->deformation.ux = p_current.ux;
 			poi->deformation.uy = p_current.uy;
 			poi->deformation.uxx = p_current.uxx;
-			poi->deformation.uyy = p_current.uyy;
 			poi->deformation.uxy = p_current.uxy;
+			poi->deformation.uyy = p_current.uyy;
 
 			poi->deformation.v = p_current.v;
 			poi->deformation.vx = p_current.vx;
 			poi->deformation.vy = p_current.vy;
 			poi->deformation.vxx = p_current.vxx;
-			poi->deformation.vyy = p_current.vyy;
 			poi->deformation.vxy = p_current.vxy;
+			poi->deformation.vyy = p_current.vyy;
 
 			//save the parameters for output
 			poi->result.u0 = p_initial.u;
@@ -1032,9 +1034,10 @@ namespace opencorr
 
 						for (int r = 0; r < 12; r++)
 						{
-							for (int c = 0; c < 12; c++)
+							for (int c = 0; c < r + 1; c++)
 							{
 								cur_instance->hessian(r, c) += (cur_instance->sd_img[i][j][k][r] * cur_instance->sd_img[i][j][k][c]);
+								cur_instance->hessian(c, r) = cur_instance->hessian(r, c);
 							}
 						}
 					}
