@@ -3,7 +3,7 @@
  * study and development of 2D, 3D/stereo and volumetric
  * digital image correlation.
  *
- * Copyright (C) 2021, Zhenyu Jiang <zhenyujiang@scut.edu.cn>
+ * Copyright (C) 2021-2024, Zhenyu Jiang <zhenyujiang@scut.edu.cn>
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License v. 2.0. If a copy of the MPL was not distributed with this
@@ -29,14 +29,16 @@ namespace opencorr
 		this->radius_y = radius_y;
 		width = radius_x * 2 + 1;
 		height = radius_y * 2 + 1;
+		size = height * width;
 
 		eg_mat = Eigen::MatrixXf::Zero(height, width);
 	}
 
 	void Subset2D::fill(Image2D* image)
 	{
-		Point2D topleft_point(center.x - radius_x, center.y - radius_y);
-		eg_mat << image->eg_mat.block(topleft_point.y, topleft_point.x, height, width);
+		int upperleft_y = center.y - radius_y;
+		int upperleft_x = center.x - radius_x;
+		eg_mat << image->eg_mat.block(upperleft_y, upperleft_x, height, width);
 	}
 
 	float Subset2D::zeroMeanNorm()
@@ -69,6 +71,7 @@ namespace opencorr
 		dim_x = radius_x * 2 + 1;
 		dim_y = radius_y * 2 + 1;
 		dim_z = radius_z * 2 + 1;
+		size = dim_z * dim_y * dim_x;
 
 		vol_mat = new3D(dim_z, dim_y, dim_x);
 	}
@@ -110,7 +113,7 @@ namespace opencorr
 				}
 			}
 		}
-		mean_value /= (dim_x * dim_y * dim_z);
+		mean_value /= size;
 
 		//make the distribution of gray-scale values zero-mean
 		float subset_sum = 0;

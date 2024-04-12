@@ -1,9 +1,9 @@
-﻿/*
+/*
  * This file is part of OpenCorr, an open source C++ library for
  * study and development of 2D, 3D/stereo and volumetric
  * digital image correlation.
  *
- * Copyright (C) 2021, Zhenyu Jiang <zhenyujiang@scut.edu.cn>
+ * Copyright (C) 2021-2024, Zhenyu Jiang <zhenyujiang@scut.edu.cn>
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License v. 2.0. If a copy of the MPL was not distributed with this
@@ -13,93 +13,86 @@
  */
 
 #pragma once
-
 #ifndef _ICGN_GPU_H_
 #define _ICGN_GPU_H_
 
-#ifdef OPENCORRGPU_EXPORTS
-#define OC_API __declspec(dllexport)
-#else
-#define OC_API __declspec(dllimport)
+#ifdef LIB_SELF
+#define OCAPI __declspec(dllexport)
+#else 
+#define OCAPI 
 #endif
 
 #include <vector>
-#include "oc_poi.h"
 
-namespace opencorr
+namespace opencorr_gpu
 {
-	struct Img2D
-	{
-		int width, height;
-		float* data;
-	};
-
-	struct Img3D
-	{
-		int dim_x, dim_y, dim_z;
-		float* data;
-	};
-
 	//this module is the implementation of
 	//L. Zhang et al, Optics and Lasers in Engineering (2015) 69: 7-12.
 	//https://doi.org/10.1016/j.optlaseng.2015.01.012
 
-	class OC_API ICGN2D1GPU
+	struct ICGNConfiguration
 	{
-	private:
-		void* _self;
+		int subset_rx;				//subset radius in x direction
+		int subset_ry;				//subset radius in y direction
+		int stop_condtion;			//[IC-GN] max iteration steps
+		float convergence_criterion;//[IC-GN] max norm of delta_p
 
-	public:
-		ICGN2D1GPU(int subset_radius_x, int subset_radius_y, float conv_criterion, int stop_condition);
-
-		void setImages(Img2D ref_img, Img2D tar_img);
-		void setSubset(int radius_x, int radius_y);
-		void setIteration(float convergence_criterion, int stop_condition);
-
-		void prepare();
-		void compute(std::vector<POI2D>& poi_queue);
+		ICGNConfiguration()
+		{
+			subset_rx = subset_ry = 15;
+			stop_condtion = 10;
+			convergence_criterion = 0.001f;
+		}
 	};
 
-	//this module is the implementation of
-	//A. Lin et al, Optics and Lasers in Engineering (2022) 149: 106812.
-	//https://doi.org/10.1016/j.optlaseng.2021.106812
 
-	class OC_API ICGN2D2GPU
+	struct ICGNDeformationVector
 	{
-	private:
-		void* _self;
+		float u, ux, uy, uxx, uxy, uyy;
+		float v, vx, vy, vxx, vxy, vyy;
 
-	public:
-		ICGN2D2GPU(int subset_radius_x, int subset_radius_y, float conv_criterion, int stop_condition);
-
-		void setImages(Img2D ref_img, Img2D tar_img);
-		void setSubset(int radius_x, int radius_y);
-		void setIteration(float convergence_criterion, int stop_condition);
-
-		void prepare();
-		void compute(std::vector<POI2D>& poi_queue);
+		ICGNDeformationVector()
+		{
+			u = ux = uy = uxx = uxy = uyy = 0.f;
+			v = vx = vy = vxx = vxy = vyy = 0.f;
+		}
 	};
 
-	//this module is the implementation of
-	//J. Yang et al, Optics and Lasers in Engineering (2021) 136: 106323.
-	//https://doi.org/10.1016/j.optlaseng.2020.106323
-	
-	class OC_API ICGN3D1GPU
+
+	struct ICGNPOI
 	{
-	private:
-		void* _self;
+		int x;								//[ input]
+		int y;								//[ input]
+		int iteration;						//[output][IC-GN] actual iteration steps
+		float dpNorm;						//[output][IC-GN] norm of delta_p
+		bool convergence;					//[output][IC-GN] is the convergence criterion satisfied
+		float ZNCC;							//[output] final value of zero mean normalized cross correlation
+		float xw, yw, zw;					//[output][3D RECONSTRUCT]
+		ICGNDeformationVector initial;		//[ input] initial deformation vector
+		ICGNDeformationVector final;		//[output] final deformation vector
 
-	public:
-		ICGN3D1GPU(int subset_radius_x, int subset_radius_y, int subset_radius_z, float conv_criterion, int stop_condition);
-
-		void setImages(Img3D ref_img, Img3D tar_img);
-		void setSubset(int radius_x, int radius_y, int radius_z);
-		void setIteration(float convergence_criterion, int stop_condition);
-
-		void prepare();
-		void compute(std::vector<POI3D>& poi_queue);
+		ICGNPOI(int x, int y) :x(x), y(y)
+		{
+			iteration = -1;
+			dpNorm = -1.f;
+			convergence = false;
+			ZNCC = -2.f;
+			xw = yw = zw = 0.f;
+		}
 	};
 
-}//namespace opencorr
+	struct ICGNImage
+	{
+		int w, h;		//width and height of the images to be processed
+		float* data;	//row major grayscale data, e.g. if w=10,h=10,x=3,y=1, then grayscale of image at postion (x,y) is : gray(x,y) == data[x + y * w -1] == data[12]
+
+		ICGNImage() :w(0), h(0), data(nullptr) {}
+	};
+
+	OCAPI bool ICGN2D1GPU(ICGNImage ref, ICGNImage tar, std::vector<ICGNPOI>& pois, ICGNConfiguration = ICGNConfiguration());
+
+	OCAPI bool ICGN2D2GPU(ICGNImage ref, ICGNImage tar, std::vector<ICGNPOI>& pois, ICGNConfiguration = ICGNConfiguration());
+
+}//namespace opencorr_gpu
 
 #endif //_ICGN_GPU_H_

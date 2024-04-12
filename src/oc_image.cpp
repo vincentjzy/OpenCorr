@@ -3,7 +3,7 @@
  * study and development of 2D, 3D/stereo and volumetric
  * digital image correlation.
  *
- * Copyright (C) 2021, Zhenyu Jiang <zhenyujiang@scut.edu.cn>
+ * Copyright (C) 2021-2024, Zhenyu Jiang <zhenyujiang@scut.edu.cn>
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License v. 2.0. If a copy of the MPL was not distributed with this
@@ -24,6 +24,7 @@ namespace opencorr
 		eg_mat = Eigen::MatrixXf::Zero(height, width);
 		this->width = width;
 		this->height = height;
+		size = height * width;
 	}
 
 	Image2D::Image2D(std::string file_path)
@@ -38,6 +39,7 @@ namespace opencorr
 		this->file_path = file_path;
 		width = cv_mat.cols;
 		height = cv_mat.rows;
+		size = height * width;
 		eg_mat.resize(height, width);
 
 		cv::cv2eigen(cv_mat, eg_mat);
@@ -58,6 +60,7 @@ namespace opencorr
 		{
 			width = cv_mat.cols;
 			height = cv_mat.rows;
+			size = height * width;
 			eg_mat.resize(height, width);
 		}
 
@@ -72,6 +75,7 @@ namespace opencorr
 		this->dim_x = dim_x;
 		this->dim_y = dim_y;
 		this->dim_z = dim_z;
+		size = dim_z * dim_y * dim_x;
 	}
 
 	Image3D::Image3D(std::string file_path)
@@ -130,11 +134,11 @@ namespace opencorr
 		dim_x = img_dimension[0];
 		dim_y = img_dimension[1];
 		dim_z = img_dimension[2];
+		size = dim_z * dim_y * dim_x;
 
 		//create a 3D matrix and fill it with the data (float) in binary file
 		vol_mat = new3D(dim_z, dim_y, dim_x);
-		int matrix_size = dim_z * dim_y * dim_x;
-		file_in.read((char*)**vol_mat, sizeof(float) * matrix_size);
+		file_in.read((char*)**vol_mat, sizeof(float) * size);
 
 		file_in.close();
 	}
@@ -157,10 +161,11 @@ namespace opencorr
 		dim_x = tiff_mat[0].cols;
 		dim_y = tiff_mat[0].rows;
 		dim_z = (int)tiff_mat.size();
+		size = dim_z * dim_y * dim_x;
 
 		//create a 3D matrix and fill it with the data ifnTIFF
 		vol_mat = new3D(dim_z, dim_y, dim_x);
-		int matrix_size = dim_x * dim_y * dim_z;
+
 #pragma omp parallel for
 		for (int i = 0; i < dim_z; i++)
 		{

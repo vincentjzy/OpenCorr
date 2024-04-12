@@ -3,7 +3,7 @@
  * study and development of 2D, 3D/stereo and volumetric
  * digital image correlation.
  *
- * Copyright (C) 2021, Zhenyu Jiang <zhenyujiang@scut.edu.cn>
+ * Copyright (C) 2021-2024, Zhenyu Jiang <zhenyujiang@scut.edu.cn>
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License v. 2.0. If a copy of the MPL was not distributed with this
@@ -40,13 +40,13 @@ namespace opencorr
 
 	//allocate memory for 2d, 3d, and 4d arrays
 	template <class Real>
-	void hCreatePtr(Real*& ptr, int dimension1)
+	void createPtr(Real*& ptr, int dimension1)
 	{
 		ptr = (Real*)calloc(dimension1, sizeof(Real)); //allocate the memory and initialize all the elements with zero
 	}
 
 	template <class Real>
-	void hCreatePtr(Real**& ptr, int dimension1, int dimension2)
+	void createPtr(Real**& ptr, int dimension1, int dimension2)
 	{
 		Real* ptr1d = (Real*)calloc(dimension1 * dimension2, sizeof(Real));
 		ptr = (Real**)malloc(dimension1 * sizeof(Real*));
@@ -58,7 +58,7 @@ namespace opencorr
 	}
 
 	template <class Real>
-	void hCreatePtr(Real***& ptr, int dimension1, int dimension2, int dimension3)
+	void createPtr(Real***& ptr, int dimension1, int dimension2, int dimension3)
 	{
 		Real* ptr1d = (Real*)calloc(dimension1 * dimension2 * dimension3, sizeof(Real));
 		Real** ptr2d = (Real**)malloc(dimension1 * dimension2 * sizeof(Real*));
@@ -75,7 +75,7 @@ namespace opencorr
 	}
 
 	template <class Real>
-	void hCreatePtr(Real****& ptr, int dimension1, int dimension2, int dimension3, int dimension4)
+	void createPtr(Real****& ptr, int dimension1, int dimension2, int dimension3, int dimension4)
 	{
 		Real* ptr1d = (Real*)calloc(dimension1 * dimension2 * dimension3 * dimension4, sizeof(Real));
 		Real** ptr2d = (Real**)malloc(dimension1 * dimension2 * dimension3 * sizeof(Real*));
@@ -98,14 +98,14 @@ namespace opencorr
 
 	//release memory of 2d, 3d, and 4d arrays
 	template <class Real>
-	void hDestroyPtr(Real*& ptr)
+	void destroyPtr(Real*& ptr)
 	{
 		free(ptr);
 		ptr = nullptr;
 	}
 
 	template <class Real>
-	void hDestroyPtr(Real**& ptr)
+	void destroyPtr(Real**& ptr)
 	{
 		free(ptr[0]);
 		free(ptr);
@@ -113,7 +113,7 @@ namespace opencorr
 	}
 
 	template<class Real>
-	void hDestroyPtr(Real***& ptr)
+	void destroyPtr(Real***& ptr)
 	{
 		free(ptr[0][0]);
 		free(ptr[0]);
@@ -122,7 +122,7 @@ namespace opencorr
 	}
 
 	template <class Real>
-	void hDestroyPtr(Real****& ptr)
+	void destroyPtr(Real****& ptr)
 	{
 		free(ptr[0][0][0]);
 		free(ptr[0][0]);

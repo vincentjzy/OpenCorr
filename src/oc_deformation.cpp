@@ -3,7 +3,7 @@
  * study and development of 2D, 3D/stereo and volumetric
  * digital image correlation.
  *
- * Copyright (C) 2021, Zhenyu Jiang <zhenyujiang@scut.edu.cn>
+ * Copyright (C) 2021-2024, Zhenyu Jiang <zhenyujiang@scut.edu.cn>
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License v. 2.0. If a copy of the MPL was not distributed with this
@@ -107,20 +107,20 @@ namespace opencorr
 	void Deformation2D1::setDeformation()
 	{
 		u = warp_matrix(0, 2);
-		ux = warp_matrix(0, 0) - 1;
+		ux = warp_matrix(0, 0) - 1.f;
 		uy = warp_matrix(0, 1);
 		v = warp_matrix(1, 2);
 		vx = warp_matrix(1, 0);
-		vy = warp_matrix(1, 1) - 1;
+		vy = warp_matrix(1, 1) - 1.f;
 	}
 
 	void Deformation2D1::setWarp()
 	{
-		warp_matrix(0, 0) = 1 + ux;
+		warp_matrix(0, 0) = 1.f + ux;
 		warp_matrix(0, 1) = uy;
 		warp_matrix(0, 2) = u;
 		warp_matrix(1, 0) = vx;
-		warp_matrix(1, 1) = 1 + vy;
+		warp_matrix(1, 1) = 1.f + vy;
 		warp_matrix(1, 2) = v;
 		warp_matrix(2, 0) = 0.f;
 		warp_matrix(2, 1) = 0.f;
@@ -311,7 +311,7 @@ namespace opencorr
 		// row 1, S7 - S12
 		warp_matrix(1, 0) = 0.5f * (v * uxx + 2.f * (1.f + ux) * vx + u * vxx);
 		warp_matrix(1, 1) = 1.f + uy * vx + ux * vy + v * uxy + u * vxy + vy + ux;
-		warp_matrix(1, 2) = 0.5f * (v * uyy + +2.f * uy * (1.f + vy) + u * vyy);
+		warp_matrix(1, 2) = 0.5f * (v * uyy + 2.f * uy * (1.f + vy) + u * vyy);
 		warp_matrix(1, 3) = v + v * ux + u * vx;
 		warp_matrix(1, 4) = u + v * uy + u * vy;
 		warp_matrix(1, 5) = u * v;
@@ -416,19 +416,19 @@ namespace opencorr
 	void Deformation3D1::setDeformation()
 	{
 		u = warp_matrix(0, 3);
-		ux = warp_matrix(0, 0) - 1;
+		ux = warp_matrix(0, 0) - 1.f;
 		uy = warp_matrix(0, 1);
 		uz = warp_matrix(0, 2);
 
 		v = warp_matrix(1, 3);
 		vx = warp_matrix(1, 0);
-		vy = warp_matrix(1, 1) - 1;
+		vy = warp_matrix(1, 1) - 1.f;
 		vz = warp_matrix(1, 2);
 
 		w = warp_matrix(2, 3);
 		wx = warp_matrix(2, 0);
 		wy = warp_matrix(2, 1);
-		wz = warp_matrix(2, 2) - 1;
+		wz = warp_matrix(2, 2) - 1.f;
 	}
 
 	void Deformation3D1::setDeformation(float u, float ux, float uy, float uz,
@@ -494,19 +494,19 @@ namespace opencorr
 
 	void Deformation3D1::setWarp()
 	{
-		warp_matrix(0, 0) = 1 + ux;
+		warp_matrix(0, 0) = 1.f + ux;
 		warp_matrix(0, 1) = uy;
 		warp_matrix(0, 2) = uz;
 		warp_matrix(0, 3) = u;
 
 		warp_matrix(1, 0) = vx;
-		warp_matrix(1, 1) = 1 + vy;
+		warp_matrix(1, 1) = 1.f + vy;
 		warp_matrix(1, 2) = vz;
 		warp_matrix(1, 3) = v;
 
 		warp_matrix(2, 0) = wx;
 		warp_matrix(2, 1) = wy;
-		warp_matrix(2, 2) = 1 + wz;
+		warp_matrix(2, 2) = 1.f + wz;
 		warp_matrix(2, 3) = w;
 
 		warp_matrix(3, 0) = 0.f;

@@ -3,7 +3,7 @@
  * study and development of 2D, 3D/stereo and volumetric
  * digital image correlation.
  *
- * Copyright (C) 2021, Zhenyu Jiang <zhenyujiang@scut.edu.cn>
+ * Copyright (C) 2021-2024, Zhenyu Jiang <zhenyujiang@scut.edu.cn>
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License v. 2.0. If a copy of the MPL was not distributed with this
@@ -44,9 +44,9 @@ namespace opencorr
 		virtual ~DIC() = default;
 
 		void setImages(Image2D& ref_img, Image2D& tar_img);
-		void setSubsetRadius(int radius_x, int radius_y);
+		void setSubset(int radius_x, int radius_y);
 
-		virtual void prepare();
+		virtual void prepare() = 0;
 		virtual void compute(POI2D* poi) = 0;
 		virtual void compute(std::vector<POI2D>& poi_queue) = 0;
 
@@ -65,9 +65,9 @@ namespace opencorr
 		virtual ~DVC() = default;
 
 		void setImages(Image3D& ref_img, Image3D& tar_img);
-		void setSubsetRadius(int radius_x, int radius_y, int radius_z);
+		void setSubset(int radius_x, int radius_y, int radius_z);
 
-		virtual void prepare();
+		virtual void prepare() = 0;
 		virtual void compute(POI3D* POI) = 0;
 		virtual void compute(std::vector<POI3D>& poi_queue) = 0;
 	};

@@ -3,7 +3,7 @@
  * study and development of 2D, 3D/stereo and volumetric
  * digital image correlation.
  *
- * Copyright (C) 2021, Zhenyu Jiang <zhenyujiang@scut.edu.cn>
+ * Copyright (C) 2021-2024, Zhenyu Jiang <zhenyujiang@scut.edu.cn>
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License v. 2.0. If a copy of the MPL was not distributed with this
@@ -23,6 +23,11 @@ namespace opencorr
 	}
 
 	Gradient2D4::~Gradient2D4() {}
+
+	void Gradient2D4::setImage(Image2D& image)
+	{
+		grad_img = &image;
+	}
 
 	void Gradient2D4::getGradientX()
 	{
@@ -95,6 +100,8 @@ namespace opencorr
 		}
 	}
 
+
+	//order of derivative: 1, order of accuracy: 4
 	Gradient3D4::Gradient3D4(Image3D& image)
 	{
 		grad_img = &image;
@@ -102,18 +109,30 @@ namespace opencorr
 
 	Gradient3D4::~Gradient3D4()
 	{
+		clear();
+	}
+
+	void Gradient3D4::clear()
+	{
 		if (gradient_x != nullptr)
 		{
 			delete3D(gradient_x);
 		}
+
 		if (gradient_y != nullptr)
 		{
 			delete3D(gradient_y);
 		}
+
 		if (gradient_z != nullptr)
 		{
 			delete3D(gradient_z);
 		}
+	}
+
+	void Gradient3D4::setImage(Image3D& image)
+	{
+		grad_img = &image;
 	}
 
 	void Gradient3D4::getGradientX()

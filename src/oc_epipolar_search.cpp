@@ -3,7 +3,7 @@
  * study and development of 2D, 3D/stereo and volumetric
  * digital image correlation.
  *
- * Copyright (C) 2021, Zhenyu Jiang <zhenyujiang@scut.edu.cn>
+ * Copyright (C) 2021-2024, Zhenyu Jiang <zhenyujiang@scut.edu.cn>
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License v. 2.0. If a copy of the MPL was not distributed with this
@@ -197,7 +197,7 @@ namespace opencorr
 	void EpipolarSearch::compute(std::vector<POI2D>& poi_queue)
 	{
 		int queue_length = (int)poi_queue.size();
-		//CAUTION: no need to use omp parallel for, as the parallelism has been implemented in the processing of each poi
+		//CAUTION: no need to use OMP parallel for, as the parallelism has been implemented in the processing of each POI
 		for (int i = 0; i < queue_length; i++)
 		{
 			compute(&poi_queue[i]);

@@ -3,7 +3,7 @@
  * study and development of 2D, 3D/stereo and volumetric
  * digital image correlation.
  *
- * Copyright (C) 2021, Zhenyu Jiang <zhenyujiang@scut.edu.cn>
+ * Copyright (C) 2021-2024, Zhenyu Jiang <zhenyujiang@scut.edu.cn>
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License v. 2.0. If a copy of the MPL was not distributed with this
@@ -31,21 +31,15 @@ namespace opencorr
 		BicubicBspline(Image2D& image);
 		~BicubicBspline();
 
+		void setImage(Image2D& image); //set image to process
+
 		void prepare();
 		float compute(Point2D& location);
 
 	private:
+		float**** coefficient = nullptr;
 
-		float**** interp_coefficient = nullptr;
-
-		const float CONTROL_MATRIX[4][4] =
-		{
-			{ 71.0f / 56.0f, -19.0f / 56.0f, 5 / 56.0f, -1.0f / 56.0f },
-			{ -19.0f / 56.0f, 95.0f / 56.0f, -25 / 56.0f, 5.0f / 56.0f },
-			{ 5.0f / 56.0f, -25.0f / 56.0f, 95 / 56.0f, -19.0f / 56.0f },
-			{ -1.0f / 56.0f, 5.0f / 56.0f, -19 / 56.0f, 71.0f / 56.0f }
-		};
-
+		//B
 		const float FUNCTION_MATRIX[4][4] =
 		{
 			{ -1.0f / 6.0f, 3.0f / 6.0f, -3.0f / 6.0f, 1.0f / 6.0f },
@@ -53,6 +47,25 @@ namespace opencorr
 			{ -3.0f / 6.0f, 0.0f, 3.0f / 6.0f, 0.0f },
 			{ 1.0f / 6.0f, 4.0f / 6.0f, 1.0f / 6.0f, 0.0f }
 		};
+
+		//C
+		const float CONTROL_MATRIX[4][4] =
+		{
+			{ 71.0f / 56.0f, -19.0f / 56.0f, 5.0f / 56.0f, -1.0f / 56.0f },
+			{ -19.0f / 56.0f, 95.0f / 56.0f, -25.0f / 56.0f, 5.0f / 56.0f },
+			{ 5.0f / 56.0f, -25.0f / 56.0f, 95.0f / 56.0f, -19.0f / 56.0f },
+			{ -1.0f / 56.0f, 5.0f / 56.0f, -19.0f / 56.0f, 71.0f / 56.0f }
+		};
+
+		//BC = B * C
+		const float BC_MATRIX[4][4] =
+		{
+			{ -144.0f / 336.0f, 384.0f / 336.0f, -384.0f / 336.0f, 144.0f / 336.0f },
+			{ 342.0f / 336.0f, -702.0f / 336.0f, 450.0f / 336.0f, -90.0f / 336.0f },
+			{ -198.0f / 336.0f, -18.0f / 336.0f, 270.0f / 336.0f, -54.0f / 336.0f },
+			{ 0.0f, 1.0f, 0.0f, 0.0f}
+		};
+
 	};
 
 	//the 3D part of module is the implementation of
@@ -65,11 +78,13 @@ namespace opencorr
 		TricubicBspline(Image3D& image);
 		~TricubicBspline();
 
+		void setImage(Image3D& image); //set image to process
+
 		void prepare();
 		float compute(Point3D& location);
 
 	private:
-		float*** interp_coefficient = nullptr;
+		float*** coefficient = nullptr;
 
 		//B-spline prefilter
 		const float BSPLINE_PREFILTER[8] =
@@ -85,33 +100,6 @@ namespace opencorr
 		};
 
 	};
-
-	//Four cubic B-spline basis functions when input falls in different range
-	inline float basis0(float coor_decimal)
-	{
-		return (1.f / 6.f) * (coor_decimal * (coor_decimal * (-coor_decimal + 3.f) - 3.f) + 1.f); //(1/6)*(2-(x+1))^3 for x-(-1)
-	}
-
-	inline float basis1(float coor_decimal)
-	{
-		return (1.f / 6.f) * (coor_decimal * coor_decimal * (3.f * coor_decimal - 6.f) + 4.f); //(2/3)-(1/2)*(2-x)*x^2 for x-0
-	}
-
-	inline float basis2(float coor_decimal)
-	{
-		return (1.f / 6.f) * (coor_decimal * (coor_decimal * (-3.f * coor_decimal + 3.f) + 3.f) + 1.f); //(2/3)-(1/2)*(2-(1-x))*(1-x)^2 for x-1
-	}
-
-	inline float basis3(float coor_decimal)
-	{
-		return (1.f / 6.f) * (coor_decimal * coor_decimal * coor_decimal); //(1/6)*(2-(2-x))^3 for x-2
-	}
-
-	//return the lower value of the two inputs
-	int getLow(int x, int y);
-
-	//retrun the higher value of the two inputs
-	int getHigh(int x, int y);
 
 }//namespace opencorr
 

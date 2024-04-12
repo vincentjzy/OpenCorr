@@ -3,7 +3,7 @@
  * study and development of 2D, 3D/stereo and volumetric
  * digital image correlation.
  *
- * Copyright (C) 2021, Zhenyu Jiang <zhenyujiang@scut.edu.cn>
+ * Copyright (C) 2021-2024, Zhenyu Jiang <zhenyujiang@scut.edu.cn>
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License v. 2.0. If a copy of the MPL was not distributed with this
@@ -18,6 +18,7 @@
 
 namespace opencorr
 {
+	//2D implementation
 	NearestNeighbor* FeatureAffine2D::getInstance(int tid)
 	{
 		if (tid >= (int)instance_pool.size())
@@ -307,9 +308,9 @@ namespace opencorr
 		std::vector<Point2D> ref_candidates, tar_candidates;
 
 		float x_min = ref_img->width;
-		float x_max = -1;
+		float x_max = -1.f;
 		float y_min = ref_img->height;
-		float y_max = -1;
+		float y_max = -1.f;
 
 		//search the neighbor keypoints in a region of given radius
 		std::vector<uint32_t> k_neighbors_idx;
@@ -474,9 +475,8 @@ namespace opencorr
 		}
 	}
 
-	//////////////////////////////////////////////////////////////////////////////
-
-
+	
+	//3D implementation
 	NearestNeighbor* FeatureAffine3D::getInstance(int tid)
 	{
 		if (tid >= (int)instance_pool.size())

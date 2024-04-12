@@ -3,7 +3,7 @@
  * study and development of 2D, 3D/stereo and volumetric
  * digital image correlation.
  *
- * Copyright (C) 2021, Zhenyu Jiang <zhenyujiang@scut.edu.cn>
+ * Copyright (C) 2021-2024, Zhenyu Jiang <zhenyujiang@scut.edu.cn>
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License v. 2.0. If a copy of the MPL was not distributed with this
@@ -66,6 +66,8 @@ namespace opencorr
 		FFTCC2D(int subset_radius_x, int subset_radius_y, int thread_number);
 		~FFTCC2D();
 
+		void prepare();
+
 		void compute(POI2D* poi);
 		void compute(std::vector<POI2D>& poi_queue);
 	};
@@ -84,6 +86,8 @@ namespace opencorr
 	public:
 		FFTCC3D(int subset_radius_x, int subset_radius_y, int subset_radius_z, int thread_number);
 		~FFTCC3D();
+
+		void prepare();
 
 		void compute(POI3D* poi);
 		void compute(std::vector<POI3D>& poi_queue);

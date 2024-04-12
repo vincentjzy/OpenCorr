@@ -3,7 +3,7 @@
  * study and development of 2D, 3D/stereo and volumetric
  * digital image correlation.
  *
- * Copyright (C) 2021, Zhenyu Jiang <zhenyujiang@scut.edu.cn>
+ * Copyright (C) 2021-2024, Zhenyu Jiang <zhenyujiang@scut.edu.cn>
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License v. 2.0. If a copy of the MPL was not distributed with this
@@ -24,13 +24,12 @@ namespace opencorr
 		this->tar_img = &tar_img;
 	}
 
-	void DIC::setSubsetRadius(int subset_radius_x, int subset_radius_y)
+	void DIC::setSubset(int radius_x, int radius_y)
 	{
-		this->subset_radius_x = subset_radius_x;
-		this->subset_radius_y = subset_radius_y;
+		subset_radius_x = radius_x;
+		subset_radius_y = radius_y;
 	}
 
-	void DIC::prepare() {}
 
 
 	DVC::DVC() {}
@@ -41,14 +40,12 @@ namespace opencorr
 		this->tar_img = &tar_img;
 	}
 
-	void DVC::setSubsetRadius(int radius_x, int radius_y, int radius_z)
+	void DVC::setSubset(int radius_x, int radius_y, int radius_z)
 	{
 		subset_radius_x = radius_x;
 		subset_radius_y = radius_y;
 		subset_radius_z = radius_z;
-
 	}
-	void DVC::prepare() {}
 
 
 	bool sortByZNCC(const POI2D& p1, const POI2D& p2) {

@@ -3,7 +3,7 @@
  * study and development of 2D, 3D/stereo and volumetric
  * digital image correlation.
  *
- * Copyright (C) 2021, Zhenyu Jiang <zhenyujiang@scut.edu.cn>
+ * Copyright (C) 2021-2024, Zhenyu Jiang <zhenyujiang@scut.edu.cn>
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License v. 2.0. If a copy of the MPL was not distributed with this
@@ -159,6 +159,8 @@ namespace opencorr
 		instance_pool.clear();
 	}
 
+	void FFTCC2D::prepare() {}
+
 	FFTW* FFTCC2D::getInstance(int tid)
 	{
 		if (tid >= (int)instance_pool.size())
@@ -182,10 +184,10 @@ namespace opencorr
 		Point2D initial_displacement(poi->deformation.u, poi->deformation.v);
 
 		//initialize mean and norm in subsets
-		float ref_mean = 0;
-		float tar_mean = 0;
-		float ref_norm = 0;
-		float tar_norm = 0;
+		float ref_mean = 0.f;
+		float tar_mean = 0.f;
+		float ref_norm = 0.f;
+		float tar_norm = 0.f;
 
 		for (int r = 0; r < subset_height; r++)
 		{
@@ -231,7 +233,7 @@ namespace opencorr
 		fftwf_execute(current_instance->zncc_plan);
 
 		//search for max ZCC
-		float max_zncc = -2;
+		float max_zncc = -2.f;
 		int max_zncc_index = 0;
 		for (int i = 0; i < subset_size; i++)
 		{
@@ -299,6 +301,8 @@ namespace opencorr
 		instance_pool.clear();
 	}
 
+	void FFTCC3D::prepare() {}
+
 	FFTW* FFTCC3D::getInstance(int tid)
 	{
 		if (tid >= (int)instance_pool.size())
@@ -323,10 +327,10 @@ namespace opencorr
 		Point3D initial_displacement(poi->deformation.u, poi->deformation.v, poi->deformation.w);
 
 		//initialize mean and norm in subsets
-		float ref_mean = 0;
-		float tar_mean = 0;
-		float ref_norm = 0;
-		float tar_norm = 0;
+		float ref_mean = 0.f;
+		float tar_mean = 0.f;
+		float ref_norm = 0.f;
+		float tar_norm = 0.f;
 
 		for (int i = 0; i < subset_dim_z; i++)
 		{
@@ -375,7 +379,7 @@ namespace opencorr
 		fftwf_execute(current_instance->zncc_plan);
 
 		//search for max ZCC
-		float max_zncc = -2;
+		float max_zncc = -2.f;
 		int max_zncc_index = 0;
 		for (int i = 0; i < subset_size; i++)
 		{

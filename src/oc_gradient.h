@@ -3,7 +3,7 @@
  * study and development of 2D, 3D/stereo and volumetric
  * digital image correlation.
  *
- * Copyright (C) 2021, Zhenyu Jiang <zhenyujiang@scut.edu.cn>
+ * Copyright (C) 2021-2024, Zhenyu Jiang <zhenyujiang@scut.edu.cn>
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License v. 2.0. If a copy of the MPL was not distributed with this
@@ -39,6 +39,8 @@ namespace opencorr
 		Gradient2D4(Image2D& image);
 		~Gradient2D4();
 
+		void setImage(Image2D& image); //set image to process
+
 		void getGradientX(); //create an array of gradient_x
 		void getGradientY(); //create an array of gradient_y
 		void getGradientXY(); //create an array of gradient_xy
@@ -56,6 +58,9 @@ namespace opencorr
 
 		Gradient3D4(Image3D& image);
 		~Gradient3D4();
+
+		void clear(); //clear all data
+		void setImage(Image3D& image); //set image to process
 
 		void getGradientX(); //create an array of gradient_x
 		void getGradientY(); //create an array of gradient_y

@@ -3,7 +3,7 @@
  * study and development of 2D, 3D/stereo and volumetric
  * digital image correlation.
  *
- * Copyright (C) 2021, Zhenyu Jiang <zhenyujiang@scut.edu.cn>
+ * Copyright (C) 2021-2024, Zhenyu Jiang <zhenyujiang@scut.edu.cn>
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License v. 2.0. If a copy of the MPL was not distributed with this
@@ -23,12 +23,11 @@
 
 namespace opencorr
 {
+	//2D
 	class Interpolation2D
 	{
 	protected:
 		Image2D* interp_img = nullptr;
-		int width;
-		int height;
 
 	public:
 		virtual ~Interpolation2D() = default;
@@ -37,13 +36,11 @@ namespace opencorr
 		virtual float compute(Point2D& location) = 0;
 	};
 
+	//3D
 	class Interpolation3D
 	{
 	protected:
 		Image3D* interp_img = nullptr;
-		int dim_x;
-		int dim_y;
-		int dim_z;
 
 	public:
 		virtual ~Interpolation3D() = default;
