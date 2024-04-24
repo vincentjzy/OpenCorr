@@ -83,7 +83,7 @@ namespace opencorr
 	}
 
 	NR2D1::NR2D1(int subset_radius_x, int subset_radius_y, float conv_criterion, float stop_condition, int thread_number)
-		: tar_gradient(nullptr)
+		: tar_gradient(nullptr), tar_interp(nullptr), tar_interp_x(nullptr), tar_interp_y(nullptr)
 	{
 		this->subset_radius_x = subset_radius_x;
 		this->subset_radius_y = subset_radius_y;
