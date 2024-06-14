@@ -156,7 +156,7 @@ namespace opencorr
 			FFTW::release(instance);
 			delete instance;
 		}
-		instance_pool.clear();
+		std::vector<FFTW*>().swap(instance_pool);
 	}
 
 	void FFTCC2D::prepare() {}
@@ -298,7 +298,7 @@ namespace opencorr
 			FFTW::release(instance);
 			delete instance;
 		}
-		instance_pool.clear();
+		std::vector<FFTW*>().swap(instance_pool);
 	}
 
 	void FFTCC3D::prepare() {}

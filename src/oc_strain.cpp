@@ -26,10 +26,10 @@ namespace opencorr
 		return instance_pool[tid];
 	}
 
-	Strain::Strain(float subregion_radius, int min_neighbor_num, int thread_number)
+	Strain::Strain(float subregion_radius, int neighbor_number_min, int thread_number)
 	{
 		setSubregionRadius(subregion_radius);
-		setMinNeighborNumer(min_neighbor_num);
+		setMinNeighborNumer(neighbor_number_min);
 
 		setZnccThreshold(0.9f);
 		setDescription(1);
@@ -49,7 +49,7 @@ namespace opencorr
 		{
 			delete instance;
 		}
-		instance_pool.clear();
+		std::vector<NearestNeighbor*>().swap(instance_pool);
 	}
 
 	float Strain::getSubregionRadius() const
@@ -59,7 +59,7 @@ namespace opencorr
 
 	int Strain::getMinNeighborNumber() const
 	{
-		return min_neighbor_num;
+		return neighbor_number_min;
 	}
 
 	float Strain::getZnccThreshold() const
@@ -72,9 +72,9 @@ namespace opencorr
 		this->subregion_radius = subregion_radius;
 	}
 
-	void Strain::setMinNeighborNumer(int min_neighbor_num)
+	void Strain::setMinNeighborNumer(int neighbor_number_min)
 	{
-		this->min_neighbor_num = min_neighbor_num;
+		this->neighbor_number_min = neighbor_number_min;
 	}
 
 	void Strain::setZnccThreshold(float zncc_threshold)
@@ -94,22 +94,14 @@ namespace opencorr
 
 	void Strain::prepare(std::vector<POI2D>& poi_queue)
 	{
-		int queue_size = (int)poi_queue.size();
-		std::vector<Point2D> pt_queue;
-		pt_queue.resize(queue_size);
-#pragma omp parallel for
-		for (int i = 0; i < queue_size; i++)
-		{
-			pt_queue[i].x = poi_queue[i].x;
-			pt_queue[i].y = poi_queue[i].y;
-		}
-
 #pragma omp parallel for
 		for (int i = 0; i < thread_number; i++)
 		{
-			instance_pool[i]->assignPoints(pt_queue);
+			instance_pool[i]->clear();
+
+			instance_pool[i]->assignPoints(poi_queue);
 			instance_pool[i]->setSearchRadius(subregion_radius);
-			instance_pool[i]->setSearchK(min_neighbor_num);
+			instance_pool[i]->setSearchK(neighbor_number_min);
 			instance_pool[i]->constructKdTree();
 		}
 	}
@@ -129,32 +121,25 @@ namespace opencorr
 #pragma omp parallel for
 		for (int i = 0; i < thread_number; i++)
 		{
+			instance_pool[i]->clear();
+
 			instance_pool[i]->assignPoints(pt_queue);
 			instance_pool[i]->setSearchRadius(subregion_radius);
-			instance_pool[i]->setSearchK(min_neighbor_num);
+			instance_pool[i]->setSearchK(neighbor_number_min);
 			instance_pool[i]->constructKdTree();
 		}
 	}
 
 	void Strain::prepare(std::vector<POI3D>& poi_queue)
 	{
-		int queue_size = (int)poi_queue.size();
-		std::vector<Point3D> pt_queue;
-		pt_queue.resize(queue_size);
-#pragma omp parallel for
-		for (int i = 0; i < queue_size; i++)
-		{
-			pt_queue[i].x = poi_queue[i].x;
-			pt_queue[i].y = poi_queue[i].y;
-			pt_queue[i].z = poi_queue[i].z;
-		}
-
 #pragma omp parallel for
 		for (int i = 0; i < thread_number; i++)
 		{
-			instance_pool[i]->assignPoints(pt_queue);
+			instance_pool[i]->clear();
+
+			instance_pool[i]->assignPoints(poi_queue);
 			instance_pool[i]->setSearchRadius(subregion_radius);
-			instance_pool[i]->setSearchK(min_neighbor_num);
+			instance_pool[i]->setSearchK(neighbor_number_min);
 			instance_pool[i]->constructKdTree();
 		}
 	}
@@ -173,7 +158,7 @@ namespace opencorr
 		//search the neighbor POIs in a subregion of given radius
 		std::vector<nanoflann::ResultItem<uint32_t, float>> current_matches;
 		int neighbor_num = neighbor_search->radiusSearch(current_point, current_matches);
-		if (neighbor_num >= min_neighbor_num)
+		if (neighbor_num >= neighbor_number_min)
 		{
 			for (int i = 0; i < neighbor_num; i++)
 			{
@@ -202,7 +187,7 @@ namespace opencorr
 		neighbor_num = (int)pois_fit.size();
 
 		//use brutal force search in case of insufficient neighbor POIs for fitting
-		if (neighbor_num < min_neighbor_num)
+		if (neighbor_num < neighbor_number_min)
 		{
 			std::vector<POI2D>().swap(pois_fit);
 			std::vector<PointIndex> pois_sorted_index;
@@ -222,7 +207,7 @@ namespace opencorr
 
 			//pick the neighbor POIs for facet fitting
 			int i = 0;
-			while (i < queue_size && (pois_sorted_index[i].distance < subregion_radius || pois_fit.size() < min_neighbor_num))
+			while (i < queue_size && (pois_sorted_index[i].distance < subregion_radius || pois_fit.size() < neighbor_number_min))
 			{
 				if (poi_queue[pois_sorted_index[i].poi_idx].result.zncc >= zncc_threshold)
 				{
@@ -232,6 +217,13 @@ namespace opencorr
 			}
 		}
 		neighbor_num = (int)pois_fit.size();
+
+		//terminate the procedure if there are insufficient neighbors for strain calculation
+		if (neighbor_num < neighbor_number_min)
+		{
+			poi->result.zncc = -7.f;
+			return;
+		}
 
 		//create matrices of displacments
 		Eigen::VectorXf u_vector(neighbor_num);
@@ -281,7 +273,10 @@ namespace opencorr
 #pragma omp parallel for
 		for (int i = 0; i < queue_length; i++)
 		{
-			compute(&poi_queue[i], poi_queue);
+			if (poi_queue[i].result.zncc >= zncc_threshold)
+			{
+				compute(&poi_queue[i], poi_queue);
+			}
 		}
 	}
 
@@ -299,7 +294,7 @@ namespace opencorr
 		//search the neighbor keypoints in a subregion of given radius
 		std::vector<nanoflann::ResultItem<uint32_t, float>> current_matches;
 		int neighbor_num = neighbor_search->radiusSearch(current_point, current_matches);
-		if (neighbor_num >= min_neighbor_num)
+		if (neighbor_num >= neighbor_number_min)
 		{
 			for (int i = 0; i < neighbor_num; i++)
 			{
@@ -321,9 +316,9 @@ namespace opencorr
 
 			for (int i = 0; i < neighbor_num; i++)
 			{
-				if (poi_queue[current_matches[i].first].result.r1r2_zncc >= zncc_threshold
-					&& poi_queue[current_matches[i].first].result.r1t1_zncc >= zncc_threshold
-					&& poi_queue[current_matches[i].first].result.r1t2_zncc >= zncc_threshold)
+				if (poi_queue[k_neighbors_idx[i]].result.r1r2_zncc >= zncc_threshold
+					&& poi_queue[k_neighbors_idx[i]].result.r1t1_zncc >= zncc_threshold
+					&& poi_queue[k_neighbors_idx[i]].result.r1t2_zncc >= zncc_threshold)
 				{
 					pois_fit.push_back(poi_queue[k_neighbors_idx[i]]);
 				}
@@ -332,7 +327,7 @@ namespace opencorr
 		neighbor_num = (int)pois_fit.size();
 
 		//use brutal force search in case of insufficient neighbor POIs for fitting
-		if (neighbor_num < min_neighbor_num)
+		if (neighbor_num < neighbor_number_min)
 		{
 			std::vector<POI2DS>().swap(pois_fit);
 			std::vector<PointIndex> pois_sorted_index;
@@ -352,7 +347,7 @@ namespace opencorr
 
 			//pick the neighbor POIs for facet fitting
 			int i = 0;
-			while (i < queue_size && (pois_sorted_index[i].distance < subregion_radius || pois_fit.size() < min_neighbor_num))
+			while (i < queue_size && (pois_sorted_index[i].distance < subregion_radius || pois_fit.size() < neighbor_number_min))
 			{
 				if (poi_queue[pois_sorted_index[i].poi_idx].result.r1r2_zncc >= zncc_threshold
 					&& poi_queue[pois_sorted_index[i].poi_idx].result.r1t1_zncc >= zncc_threshold
@@ -364,6 +359,13 @@ namespace opencorr
 			}
 		}
 		neighbor_num = (int)pois_fit.size();
+
+		//terminate the procedure if there are insufficient neighbors for strain calculation
+		if (neighbor_num < neighbor_number_min)
+		{
+			poi->result.r1t2_zncc = -7.f;
+			return;
+		}
 
 		//create matrices of displacments
 		Eigen::VectorXf u_vector(neighbor_num);
@@ -428,7 +430,12 @@ namespace opencorr
 #pragma omp parallel for
 		for (int i = 0; i < queue_length; i++)
 		{
-			compute(&poi_queue[i], poi_queue);
+			if (poi_queue[i].result.r1r2_zncc >= zncc_threshold
+				&& poi_queue[i].result.r1t1_zncc >= zncc_threshold
+				&& poi_queue[i].result.r1t2_zncc >= zncc_threshold)
+			{
+				compute(&poi_queue[i], poi_queue);
+			}
 		}
 	}
 
@@ -446,7 +453,7 @@ namespace opencorr
 		//search the neighbor keypoints in a subregion of given radius
 		std::vector<nanoflann::ResultItem<uint32_t, float>> current_matches;
 		int neighbor_num = neighbor_search->radiusSearch(current_point, current_matches);
-		if (neighbor_num >= min_neighbor_num)
+		if (neighbor_num >= neighbor_number_min)
 		{
 			for (int i = 0; i < neighbor_num; i++)
 			{
@@ -475,7 +482,7 @@ namespace opencorr
 		neighbor_num = (int)pois_fit.size();
 
 		//use brutal force search in case of insufficient neighbor POIs for fitting
-		if (neighbor_num < min_neighbor_num)
+		if (neighbor_num < neighbor_number_min)
 		{
 			std::vector<POI3D>().swap(pois_fit);
 			std::vector<PointIndex> pois_sorted_index;
@@ -495,7 +502,7 @@ namespace opencorr
 
 			//pick the neighbor POIs for facet fitting
 			int i = 0;
-			while (i < queue_size && (pois_sorted_index[i].distance < subregion_radius || pois_fit.size() <= min_neighbor_num))
+			while (i < queue_size && (pois_sorted_index[i].distance < subregion_radius || pois_fit.size() <= neighbor_number_min))
 			{
 				if (poi_queue[pois_sorted_index[i].poi_idx].result.zncc >= zncc_threshold)
 				{
@@ -505,6 +512,13 @@ namespace opencorr
 			}
 		}
 		neighbor_num = (int)pois_fit.size();
+
+		//terminate the procedure if there are insufficient neighbors for strain calculation
+		if (neighbor_num < neighbor_number_min)
+		{
+			poi->result.zncc = -7.f;
+			return;
+		}
 
 		//create matrices of displacments
 		Eigen::VectorXf u_vector(neighbor_num);
@@ -568,7 +582,10 @@ namespace opencorr
 #pragma omp parallel for
 		for (int i = 0; i < queue_length; i++)
 		{
-			compute(&poi_queue[i], poi_queue);
+			if (poi_queue[i].result.zncc >= zncc_threshold)
+			{
+				compute(&poi_queue[i], poi_queue);
+			}
 		}
 	}
 

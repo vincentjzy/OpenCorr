@@ -118,14 +118,14 @@ int main()
 	//save the map of u-component
 	file_path = tar_image_path.substr(0, tar_image_path.find_last_of(".")) + "_fftcc_icgn1_r16_u.csv";
 	in_out.setPath(file_path);
-	char var_char = 'u';
-	in_out.saveMap2D(poi_queue, var_char);
+	OutputVariable out_var = u;
+	in_out.saveMap2D(poi_queue, out_var);
 
 	//save the map of v-component
 	file_path = tar_image_path.substr(0, tar_image_path.find_last_of(".")) + "_fftcc_icgn1_r16_v.csv";
 	in_out.setPath(file_path);
-	var_char = 'v';
-	in_out.saveMap2D(poi_queue, var_char);
+	out_var = v;
+	in_out.saveMap2D(poi_queue, out_var);
 
 	//save the computation time
 	file_path = tar_image_path.substr(0, tar_image_path.find_last_of(".")) + "_fftcc_icgn1_r16_time.csv";

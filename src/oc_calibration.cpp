@@ -90,6 +90,12 @@ namespace opencorr
 		updateMatrices();
 	}
 
+	void Calibration::clear()
+	{
+		std::fill(std::begin(intrinsics.cam_i), std::end(intrinsics.cam_i), 0.f);
+		std::fill(std::begin(extrinsics.cam_e), std::end(extrinsics.cam_e), 0.f);
+	}
+
 	float Calibration::getConvergence() const
 	{
 		return convergence;

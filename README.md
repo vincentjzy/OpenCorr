@@ -49,6 +49,8 @@ Users can also access the information of OpenCorr via website [opencorr.org](htt
 >2023.03.06, A research paper titled "OpenCorr: An open source library for research and development of digital image correlation" is published in Optics and Lasers in Engineering.
 >
 >2024.02.07, Major update of ICGN module: (i) GPU accelerated ICGN (ICGNGPU) has been completely reconstructed, adding the function of DVC. The calling method of ICGNGPU is now similar to the CPU version. Most of redundant data conversion and transfer are eliminated. Two examples are added to the folder /examples to demonstrate the use of ICGNGPU. (ii) CPU version is modified to improve the efficiency.
+>
+>2024.06.14, Release GUI of OpenCorr. Codes and examples are modified.
 
 # Instructions
 
@@ -58,6 +60,7 @@ Users can also access the information of OpenCorr via website [opencorr.org](htt
 4. [Processing methods](./4_Processing_methods.md)
 5. [GPU acceleration](./5_GPU_acceleration.md)
 6. [Examples](./6_Examples.md)
+7. [Software with GUI](./7_Software_with_GUI.md)
 
 # Developers
 
@@ -68,6 +71,8 @@ Users can also access the information of OpenCorr via website [opencorr.org](htt
 - Mr HUANG Jianwen, Software engineer, SenseTime
 - Mr YANG Junrong, Software engineer, Tencent
 - Mr LIN Aoyu, Engineer, China Southern Power Grid
+- Mr LI Rui, PhD candidate, South China University of Technology
+- Mr REN Haoqiang, PhD candidate, South China University of Technology
 
 # Acknowledgements
 
@@ -117,6 +122,9 @@ We are jubilant at that OpenCorr helps other colleagues in their study as a soft
 9. Hengrui Cui, Zhoumo Zeng, Jian Li, Hui Zhang, Fenglong Yang, Shili Chen. The effect of error coefficient matrices and correlation criteria on dic computation errors. Optics and Lasers in Engineering (2024) 174: 107954. (https://doi.org/10.1016/j.optlaseng.2023.107954)
 10. Datao Li, Xiahui Wei, Yingrong Gao, Jinsong Jiang, Wei Xia, Binhua Wang. Investigations on tensile mechanical properties of rigid insulation tile materials at elevated temperatures based on digital image correlation algorithm. Construction and Building Materials (2024) 413: 134925. (https://doi.org/10.1016/j.conbuildmat.2024.134925)
 11. Jiashuai Yang, Kemao Qian, Lianpo Wang. R3-DICnet: an end-to-end recursive residual refinement DIC network for larger deformation measurement. Optics Express (2024) 32(1): 907-921. (https://doi.org/10.1364/OE.505655)
+12. Yahong Feng, Lianpo Wang. Stereo-DICNet: An efficient and unified speckle matching network for stereo digital image correlation measurement. Optics and Lasers in Engineering (2024) 179: 108267. (https://doi.org/10.1016/j.optlaseng.2024.108267)
+13. Longyong Tong, Hang Zhou, Brian Sheil. Multicore CPU-based parallel computing accelerated digital image correlation for large soil deformations measurement. Computers and Geotechnics (2024) 166: 106027. (https://doi.org/10.1016/j.compgeo.2023.106027)
+14. Siqi Wang, Zehui Zhu, Tao Ma, Jianwei Fan. Asphalt concrete characterization using digital image correlation: A systematic review of best practices, applications, and future vision. Journal of Testing and Evaluation (2024) 52(4): 20230485. (https://doi.org/10.1520/JTE20230485)
 
 Counting of visitors started from 03 Aug, 2023
 ![Visitor Count](https://profile-counter.glitch.me/vincentjzy/count.svg)

@@ -43,7 +43,7 @@ namespace opencorr
 		if (search_radius < search_step)
 		{
 			std::cerr << "Search radius is less than search step" << std::endl;
-			exit(1);
+			return;
 		}
 		this->search_radius = search_radius;
 		this->search_step = search_step;

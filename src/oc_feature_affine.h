@@ -21,8 +21,6 @@
 #include "oc_dic.h"
 #include "oc_image.h"
 #include "oc_nearest_neighbor.h"
-#include "oc_poi.h"
-#include "oc_point.h"
 
 namespace opencorr
 {
@@ -46,8 +44,11 @@ namespace opencorr
 
 	protected:
 		float neighbor_search_radius; //seaching radius for mached keypoints around a POI
-		int min_neighbor_num; //minimum number of neighbors required by RANSAC
+		int neighbor_number_min; //minimum number of neighbors required by RANSAC
 		RansacConfig ransac_config;
+
+		int subset_feature_min; //minimum neighbor included in self-adaptive subset
+		int subset_radius_min; //minimum radius of self-adaptive subset
 
 	public:
 		std::vector<Point2D> ref_kp; //matched keypoints in ref image
@@ -60,17 +61,14 @@ namespace opencorr
 		float getSearchRadius() const;
 		int getMinNeighborNumber() const;
 
-		void setSearchParameters(float neighbor_search_radius, int min_neighbor_num);
+		void setSearchParameters(float neighbor_search_radius, int neighbor_number_min);
 		void setRansacConfig(RansacConfig ransac_config);
+		void setSubsetAdjustment(int feature_min, int radius_min); //set parameters for self-adaptive subset adjustment
 
 		void setKeypointPair(std::vector<Point2D>& ref_kp, std::vector<Point2D>& tar_kp);
 		void prepare();
 		void compute(POI2D* poi);
 		void compute(std::vector<POI2D>& poi_queue);
-
-		//functions for self-adaptive subset
-		void compute(POI2D* poi, int neighbor_k, int min_radius);
-		void compute(std::vector<POI2D>& poi_queue, int neighbor_k, int min_radius);
 	};
 
 
@@ -86,7 +84,7 @@ namespace opencorr
 
 	protected:
 		float neighbor_search_radius; //seaching radius for mached keypoints around a POI
-		int min_neighbor_num; //minimum number of neighbors required by RANSAC
+		int neighbor_number_min; //minimum number of neighbors required by RANSAC
 		RansacConfig ransac_config;
 
 	public:
@@ -100,7 +98,7 @@ namespace opencorr
 		float getSearchRadius() const;
 		int getMinNeighborNumber() const;
 
-		void setSearchParameters(float neighbor_search_radius, int min_neighbor_num);
+		void setSearchParameters(float neighbor_search_radius, int neighbor_number_min);
 		void setRansacConfig(RansacConfig ransac_config);
 
 		void setKeypointPair(std::vector<Point3D>& ref_kp, std::vector<Point3D>& tar_kp);

@@ -4,7 +4,7 @@ GPU accelerated modules currently include ICGN2D algorithm (with shape functions
 Requirements:
 
 - Hardware: NVIDIA graphics card with memory greater than 2GB
-- Software: Windows OS, CUDA ToolKit 12.3
+- Software: Windows 10 or newer, CUDA ToolKit 12.3 or new
 
 GPU accelerated ICGN module consists of three files: head (opencorr_gpu.h), static library (OpenCorrGPU.lib), and dynamic link library (OpenCorrGPU.dll). The configuration in Visual Studio can be summarized as four steps:
 

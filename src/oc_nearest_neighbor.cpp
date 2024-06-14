@@ -106,6 +106,19 @@ namespace opencorr
 		kdt_index = new kdTree(3 /*dim*/, point_cloud, { 10 /* max leaf */ });
 	}
 
+	void NearestNeighbor::clear()
+	{
+		if (!point_cloud.pts.empty())
+		{
+			std::vector<Point>().swap(point_cloud.pts);
+		}
+		if (kdt_index != nullptr)
+		{
+			delete kdt_index;
+			kdt_index = nullptr;
+		}
+	}
+
 	int NearestNeighbor::radiusSearch(Point3D query_point, std::vector<nanoflann::ResultItem<uint32_t, float>>& matches)
 	{
 		float squared_radius = search_radius * search_radius;
@@ -138,38 +151,38 @@ namespace opencorr
 		return num_matches;
 	}
 
-	int NearestNeighbor::knnSearch(Point3D query_point, std::vector<uint32_t>& k_neighbors_idx, std::vector<float>& kp_squared_distance)
+	int NearestNeighbor::knnSearch(Point3D query_point, std::vector<uint32_t>& k_neighbor_idx, std::vector<float>& k_squared_distance)
 	{
-		k_neighbors_idx.resize(search_k);
-		kp_squared_distance.resize(search_k);
+		k_neighbor_idx.resize(search_k);
+		k_squared_distance.resize(search_k);
 
 		query_coor[0] = query_point.x;
 		query_coor[1] = query_point.y;
 		query_coor[2] = query_point.z;
 
-		int num_matches = (int)kdt_index->knnSearch(&query_coor[0], search_k, &k_neighbors_idx[0], &kp_squared_distance[0]);
+		int num_matches = (int)kdt_index->knnSearch(&query_coor[0], search_k, &k_neighbor_idx[0], &k_squared_distance[0]);
 
 		//in case of insufficient keypoints in the tree than requested
-		k_neighbors_idx.resize(num_matches);
-		kp_squared_distance.resize(num_matches);
+		k_neighbor_idx.resize(num_matches);
+		k_squared_distance.resize(num_matches);
 
 		return num_matches;
 	}
 
-	int NearestNeighbor::knnSearch(Point3D query_point, int search_k, std::vector<uint32_t>& k_neighbors_idx, std::vector<float>& kp_squared_distance)
+	int NearestNeighbor::knnSearch(Point3D query_point, int search_k, std::vector<uint32_t>& k_neighbor_idx, std::vector<float>& k_squared_distance)
 	{
-		k_neighbors_idx.resize(search_k);
-		kp_squared_distance.resize(search_k);
+		k_neighbor_idx.resize(search_k);
+		k_squared_distance.resize(search_k);
 
 		query_coor[0] = query_point.x;
 		query_coor[1] = query_point.y;
 		query_coor[2] = query_point.z;
 
-		int num_matches = (int)kdt_index->knnSearch(&query_coor[0], search_k, &k_neighbors_idx[0], &kp_squared_distance[0]);
+		int num_matches = (int)kdt_index->knnSearch(&query_coor[0], search_k, &k_neighbor_idx[0], &k_squared_distance[0]);
 
 		//in case of insufficient keypoints in the tree than requested
-		k_neighbors_idx.resize(num_matches);
-		kp_squared_distance.resize(num_matches);
+		k_neighbor_idx.resize(num_matches);
+		k_squared_distance.resize(num_matches);
 
 		return num_matches;
 	}

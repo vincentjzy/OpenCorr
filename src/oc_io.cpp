@@ -23,12 +23,12 @@ namespace opencorr
 
 	IO2D::~IO2D() {}
 
-	string IO2D::getPath() const
+	std::string IO2D::getPath() const
 	{
 		return file_path;
 	}
 
-	string IO2D::getDelimiter() const
+	std::string IO2D::getDelimiter() const
 	{
 		return delimiter;
 	}
@@ -43,12 +43,12 @@ namespace opencorr
 		return height;
 	}
 
-	void IO2D::setPath(string file_path)
+	void IO2D::setPath(std::string file_path)
 	{
 		this->file_path = file_path;
 	}
 
-	void IO2D::setDelimiter(string delimiter)
+	void IO2D::setDelimiter(std::string delimiter)
 	{
 		this->delimiter = delimiter;
 	}
@@ -63,20 +63,203 @@ namespace opencorr
 		this->height = height;
 	}
 
-	vector<POI2D> IO2D::loadTable2D()
+	std::vector<Point2D> IO2D::loadPoint2D(std::string file_path)
 	{
 		std::ifstream file_in(file_path);
-		if (!file_in)
+		if (!file_in.is_open())
 		{
 			std::cerr << "failed to read file " << file_path << std::endl;
 		}
 
-		string data_line;
+		std::string data_line;
 		getline(file_in, data_line);
-		vector<POI2D> poi_queue;
+		std::vector<Point2D> point_queue;
 		size_t position1, position2;
-		string variable;
-		vector<float> key_buffer;
+		std::string variable;
+		std::vector<float> key_buffer;
+		int point_number = 0;
+
+		while (getline(file_in, data_line))
+		{
+			point_number++;
+			position1 = 0;
+			position2 = 0;
+			std::vector<float>().swap(key_buffer);
+
+			position2 = data_line.find(delimiter, position1);
+			if (position2 == std::string::npos)
+			{
+				std::cerr << "failed to read POI at line: " << point_number << std::endl;
+			}
+
+			variable = data_line.substr(position1, position2 - position1);
+			if (!variable.empty())
+			{
+				key_buffer.push_back(std::stof(variable));
+			}
+
+			position1 = position2 + delimiter.length();
+			position2 = data_line.length();
+			variable = data_line.substr(position1, position2 - position1);
+			if (!variable.empty())
+			{
+				key_buffer.push_back(std::stof(variable));
+			}
+
+			float x = key_buffer[0];
+			float y = key_buffer[1];
+			Point2D current_point(x, y);
+
+			point_queue.push_back(current_point);
+		}
+		file_in.close();
+
+		return point_queue;
+	}
+
+	void IO2D::savePoint2D(std::vector<Point2D> point_queue, std::string file_path)
+	{
+		std::ofstream file_out(file_path);
+		file_out.setf(std::ios::fixed);
+		file_out << std::setprecision(4);
+
+		if (file_out.is_open())
+		{
+			file_out << "x" << delimiter;
+			file_out << "y" << delimiter;
+			file_out << std::endl;
+
+			for (std::vector<Point2D>::iterator iter = point_queue.begin(); iter != point_queue.end(); iter++)
+			{
+				file_out << iter->x << delimiter;
+				file_out << iter->y << delimiter;
+				file_out << std::endl;
+			}
+		}
+		file_out.close();
+	}
+
+	void IO2D::loadCalibration(Calibration& calibration_cam1, Calibration& calibration_cam2, std::string file_path)
+	{
+		std::ifstream file_in(file_path);
+		if (!file_in.is_open())
+		{
+			std::cerr << "failed to read file " << file_path << std::endl;
+		}
+
+		std::string data_line;
+		getline(file_in, data_line);
+		size_t position1, position2;
+		std::string variable;
+
+		//read intrinsics
+		for (int i = 0; i < 13; i++)
+		{
+			getline(file_in, data_line);
+			position1 = 0;
+			position2 = 0;
+			position2 = data_line.find(delimiter, position1);
+			if (position2 == std::string::npos)
+			{
+				std::cerr << "failed to read parameter at line: " << i << std::endl;
+			}
+
+			//read parameter for cam1
+			position1 = position2 + delimiter.length();
+			position2 = data_line.find(delimiter, position1);
+			if (position2 == std::string::npos)
+			{
+				std::cerr << "failed to read parameter at line: " << i << std::endl;
+			}
+			else
+			{
+				variable = data_line.substr(position1, position2 - position1);
+				if (!variable.empty())
+				{
+					calibration_cam1.intrinsics.cam_i[i] = std::stof(variable);
+				}
+				else
+				{
+					std::cerr << "failed to read parameter at line: " << i << std::endl;
+				}
+			}
+
+			//read parameter for cam2
+			position1 = position2 + delimiter.length();
+			position2 = data_line.length();
+			variable = data_line.substr(position1, position2 - position1);
+			if (!variable.empty())
+			{
+				calibration_cam2.intrinsics.cam_i[i] = std::stof(variable);
+			}
+			else
+			{
+				std::cerr << "failed to read parameter at line: " << i << std::endl;
+			}
+		}
+
+		//read extrinsics
+		for (int i = 0; i < 6; i++)
+		{
+			getline(file_in, data_line);
+			position1 = 0;
+			position2 = 0;
+			position2 = data_line.find(delimiter, position1);
+			if (position2 == std::string::npos)
+			{
+				std::cerr << "failed to read parameter at line: " << i << std::endl;
+			}
+
+			//read parameter for cam1
+			position1 = position2 + delimiter.length();
+			position2 = data_line.find(delimiter, position1);
+			if (position2 == std::string::npos)
+			{
+				std::cerr << "failed to read parameter at line: " << i << std::endl;
+			}
+			else
+			{
+				variable = data_line.substr(position1, position2 - position1);
+				if (!variable.empty())
+				{
+					calibration_cam1.extrinsics.cam_e[i] = std::stof(variable);
+				}
+				else
+				{
+					std::cerr << "failed to read parameter at line: " << i << std::endl;
+				}
+			}
+
+			//read parameter for cam2
+			position1 = position2 + delimiter.length();
+			position2 = data_line.length();
+			variable = data_line.substr(position1, position2 - position1);
+			if (!variable.empty())
+			{
+				calibration_cam2.extrinsics.cam_e[i] = std::stof(variable);
+			}
+			else
+			{
+				std::cerr << "failed to read parameter at line: " << i << std::endl;
+			}
+		}
+		file_in.close();
+	}
+
+	std::vector<POI2D> IO2D::loadTable2D()
+	{
+		std::ifstream file_in(file_path);
+		if (!file_in.is_open())
+		{
+			std::cerr << "failed to read file " << file_path << std::endl;
+		}
+
+		std::string data_line;
+		getline(file_in, data_line);
+		std::vector<POI2D> poi_queue;
+		size_t position1, position2;
+		std::string variable;
+		std::vector<float> key_buffer;
 
 		while (getline(file_in, data_line))
 		{
@@ -86,7 +269,7 @@ namespace opencorr
 			do
 			{
 				position2 = data_line.find(delimiter, position1);
-				if (position2 == string::npos)
+				if (position2 == std::string::npos)
 				{
 					position2 = data_line.length();
 				}
@@ -121,6 +304,10 @@ namespace opencorr
 				current_POI.strain.e[i] = key_buffer[current_index + i];
 			}
 
+			current_index += array_size;
+			current_POI.subset_radius.x = key_buffer[current_index];
+			current_POI.subset_radius.y = key_buffer[current_index + 1];
+
 			poi_queue.push_back(current_POI);
 		}
 		file_in.close();
@@ -128,61 +315,7 @@ namespace opencorr
 		return poi_queue;
 	}
 
-	vector<Point2D> IO2D::loadPoint2D(string file_path)
-	{
-		std::ifstream file_in(file_path);
-		if (!file_in)
-		{
-			std::cerr << "failed to read file " << file_path << std::endl;
-		}
-
-		string data_line;
-		getline(file_in, data_line);
-		vector<Point2D> point_queue;
-		size_t position1, position2;
-		string variable;
-		vector<float> key_buffer;
-		int point_number = 0;
-
-		while (getline(file_in, data_line))
-		{
-			point_number++;
-			position1 = 0;
-			position2 = 0;
-			std::vector<float>().swap(key_buffer);
-
-			position2 = data_line.find(delimiter, position1);
-			if (position2 == string::npos)
-			{
-				std::cerr << "failed to read POI at line: " << point_number << std::endl;
-			}
-
-			variable = data_line.substr(position1, position2 - position1);
-			if (!variable.empty())
-			{
-				key_buffer.push_back(std::stof(variable));
-			}
-
-			position1 = position2 + delimiter.length();
-			position2 = data_line.length();
-			variable = data_line.substr(position1, position2 - position1);
-			if (!variable.empty())
-			{
-				key_buffer.push_back(std::stof(variable));
-			}
-
-			float x = key_buffer[0];
-			float y = key_buffer[1];
-			Point2D current_point(x, y);
-
-			point_queue.push_back(current_point);
-		}
-		file_in.close();
-
-		return point_queue;
-	}
-
-	void IO2D::saveTable2D(vector<POI2D>& poi_queue)
+	void IO2D::saveTable2D(std::vector<POI2D>& poi_queue)
 	{
 		std::ofstream file_out(file_path);
 		file_out.setf(std::ios::fixed);
@@ -211,7 +344,7 @@ namespace opencorr
 			file_out << "subset_ry" << delimiter;
 			file_out << std::endl;
 
-			for (vector<POI2D>::iterator iter = poi_queue.begin(); iter != poi_queue.end(); iter++)
+			for (std::vector<POI2D>::iterator iter = poi_queue.begin(); iter != poi_queue.end(); iter++)
 			{
 				file_out << iter->x << delimiter;
 				file_out << iter->y << delimiter;
@@ -239,7 +372,7 @@ namespace opencorr
 		file_out.close();
 	}
 
-	void IO2D::saveDeformationTable2D(vector<POI2D>& poi_queue)
+	void IO2D::saveDeformationTable2D(std::vector<POI2D>& poi_queue)
 	{
 		std::ofstream file_out(file_path);
 		file_out.setf(std::ios::fixed);
@@ -268,7 +401,7 @@ namespace opencorr
 			file_out << "subset_ry" << delimiter;
 			file_out << std::endl;
 
-			for (vector<POI2D>::iterator iter = poi_queue.begin(); iter != poi_queue.end(); iter++)
+			for (std::vector<POI2D>::iterator iter = poi_queue.begin(); iter != poi_queue.end(); iter++)
 			{
 				file_out << iter->x << delimiter;
 				file_out << iter->y << delimiter;
@@ -278,6 +411,7 @@ namespace opencorr
 				{
 					file_out << iter->deformation.p[i] << delimiter;
 				}
+
 				file_out << iter->subset_radius.x << delimiter;
 				file_out << iter->subset_radius.y << delimiter;
 				file_out << std::endl;
@@ -286,7 +420,7 @@ namespace opencorr
 		file_out.close();
 	}
 
-	void IO2D::saveMap2D(vector<POI2D>& poi_queue, char variable)
+	void IO2D::saveMap2D(std::vector<POI2D>& poi_queue, OutputVariable variable)
 	{
 		int height = getHeight();
 		int width = getWidth();
@@ -294,55 +428,55 @@ namespace opencorr
 
 		switch (variable)
 		{
-		case 'u':
+		case u:
 			for (int i = 0; i < poi_queue.size(); i++)
 			{
 				output_map((int)poi_queue[i].y, (int)poi_queue[i].x) = poi_queue[i].deformation.u;
 			}
 			break;
-		case 'v':
+		case v:
 			for (int i = 0; i < poi_queue.size(); i++)
 			{
 				output_map((int)poi_queue[i].y, (int)poi_queue[i].x) = poi_queue[i].deformation.v;
 			}
 			break;
-		case 'c': //ZNCC value
+		case zncc: //ZNCC value
 			for (int i = 0; i < poi_queue.size(); i++)
 			{
 				output_map((int)poi_queue[i].y, (int)poi_queue[i].x) = poi_queue[i].result.zncc;
 			}
 			break;
-		case 'd': //final ||delta_p||
+		case deformation_increment: //final ||delta_p||
 			for (int i = 0; i < poi_queue.size(); i++)
 			{
 				output_map((int)poi_queue[i].y, (int)poi_queue[i].x) = poi_queue[i].result.convergence;
 			}
 			break;
-		case 'i': //iteration steps
+		case iteration_step: //iteration steps
 			for (int i = 0; i < poi_queue.size(); i++)
 			{
 				output_map((int)poi_queue[i].y, (int)poi_queue[i].x) = poi_queue[i].result.iteration;
 			}
 			break;
-		case 'f': //number of neighbor features
+		case feature_nearby: //number of neighbor features
 			for (int i = 0; i < poi_queue.size(); i++)
 			{
 				output_map((int)poi_queue[i].y, (int)poi_queue[i].x) = poi_queue[i].result.feature;
 			}
 			break;
-		case 'x': //strain exx
+		case e_xx: //strain exx
 			for (int i = 0; i < poi_queue.size(); i++)
 			{
 				output_map((int)poi_queue[i].y, (int)poi_queue[i].x) = poi_queue[i].strain.exx;
 			}
 			break;
-		case 'y': //strain eyy
+		case e_yy: //strain eyy
 			for (int i = 0; i < poi_queue.size(); i++)
 			{
 				output_map((int)poi_queue[i].y, (int)poi_queue[i].x) = poi_queue[i].strain.eyy;
 			}
 			break;
-		case 'r': //strain exy
+		case e_xy: //strain exy
 			for (int i = 0; i < poi_queue.size(); i++)
 			{
 				output_map((int)poi_queue[i].y, (int)poi_queue[i].x) = poi_queue[i].strain.exy;
@@ -369,30 +503,30 @@ namespace opencorr
 		file_out.close();
 	}
 
-	vector<POI2DS> IO2D::loadTable2DS()
+	std::vector<POI2DS> IO2D::loadTable2DS()
 	{
 		std::ifstream file_in(file_path);
-		if (!file_in)
+		if (!file_in.is_open())
 		{
 			std::cerr << "failed to read file " << file_path << std::endl;
 		}
 
-		string data_line;
+		std::string data_line;
 		getline(file_in, data_line);
-		vector<POI2DS> poi_queue;
+		std::vector<POI2DS> poi_queue;
 		size_t position1, position2;
-		string variable;
-		vector<float> key_buffer;
+		std::string variable;
+		std::vector<float> key_buffer;
 
 		while (getline(file_in, data_line))
 		{
 			position1 = 0;
 			position2 = 0;
-			vector<float>().swap(key_buffer);
+			std::vector<float>().swap(key_buffer);
 			do
 			{
 				position2 = data_line.find(delimiter, position1);
-				if (position2 == string::npos)
+				if (position2 == std::string::npos)
 				{
 					position2 = data_line.length();
 				}
@@ -440,6 +574,10 @@ namespace opencorr
 				current_POI.strain.e[i] = key_buffer[current_index + i];
 			}
 
+			current_index += array_size;
+			current_POI.subset_radius.x = key_buffer[current_index];
+			current_POI.subset_radius.y = key_buffer[current_index + 1];
+
 			poi_queue.push_back(current_POI);
 		}
 		file_in.close();
@@ -447,7 +585,7 @@ namespace opencorr
 		return poi_queue;
 	}
 
-	void IO2D::saveTable2DS(vector<POI2DS>& poi_queue)
+	void IO2D::saveTable2DS(std::vector<POI2DS>& poi_queue)
 	{
 		std::ofstream file_out(file_path);
 		file_out.setf(std::ios::fixed);
@@ -491,7 +629,7 @@ namespace opencorr
 			file_out << "subset_ry" << delimiter;
 			file_out << std::endl;
 
-			for (vector<POI2DS>::iterator iter = poi_queue.begin(); iter != poi_queue.end(); iter++)
+			for (std::vector<POI2DS>::iterator iter = poi_queue.begin(); iter != poi_queue.end(); iter++)
 			{
 				file_out << iter->x << delimiter;
 				file_out << iter->y << delimiter;
@@ -521,6 +659,7 @@ namespace opencorr
 				{
 					file_out << iter->strain.e[i] << delimiter;
 				}
+
 				file_out << iter->subset_radius.x << delimiter;
 				file_out << iter->subset_radius.y << delimiter;
 				file_out << std::endl;
@@ -529,7 +668,7 @@ namespace opencorr
 		file_out.close();
 	}
 
-	void IO2D::saveMap2DS(vector<POI2DS>& poi_queue, char variable)
+	void IO2D::saveMap2DS(std::vector<POI2DS>& poi_queue, OutputVariable  variable)
 	{
 		int height = getHeight();
 		int width = getWidth();
@@ -537,73 +676,73 @@ namespace opencorr
 
 		switch (variable)
 		{
-		case 'u':
+		case u:
 			for (int i = 0; i < poi_queue.size(); i++)
 			{
 				output_map((int)poi_queue[i].y, (int)poi_queue[i].x) = poi_queue[i].deformation.u;
 			}
 			break;
-		case 'v':
+		case v:
 			for (int i = 0; i < poi_queue.size(); i++)
 			{
 				output_map((int)poi_queue[i].y, (int)poi_queue[i].x) = poi_queue[i].deformation.v;
 			}
 			break;
-		case 'w':
+		case w:
 			for (int i = 0; i < poi_queue.size(); i++)
 			{
 				output_map((int)poi_queue[i].y, (int)poi_queue[i].x) = poi_queue[i].deformation.w;
 			}
 			break;
-		case 'c': //ZNCC value in matching between the two reference images
+		case zncc_r1r2: //ZNCC value in matching between the two reference images
 			for (int i = 0; i < poi_queue.size(); i++)
 			{
 				output_map((int)poi_queue[i].y, (int)poi_queue[i].x) = poi_queue[i].result.r1r2_zncc;
 			}
 			break;
-		case 'd': //ZNCC value in matching between the reference image and the target image from same view
+		case zncc: //ZNCC value in matching between the reference image and the target image from same view
 			for (int i = 0; i < poi_queue.size(); i++)
 			{
 				output_map((int)poi_queue[i].y, (int)poi_queue[i].x) = poi_queue[i].result.r1t1_zncc;
 			}
 			break;
-		case 'e': //ZNCC value in matching between the reference image and the target image from different views
+		case zncc_r1t2: //ZNCC value in matching between the reference image and the target image from different views
 			for (int i = 0; i < poi_queue.size(); i++)
 			{
 				output_map((int)poi_queue[i].y, (int)poi_queue[i].x) = poi_queue[i].result.r1t2_zncc;
 			}
 			break;
-		case 'x': //strain exx
+		case e_xx: //strain exx
 			for (int i = 0; i < poi_queue.size(); i++)
 			{
 				output_map((int)poi_queue[i].y, (int)poi_queue[i].x) = poi_queue[i].strain.exx;
 			}
 			break;
-		case 'y': //strain eyy
+		case e_yy: //strain eyy
 			for (int i = 0; i < poi_queue.size(); i++)
 			{
 				output_map((int)poi_queue[i].y, (int)poi_queue[i].x) = poi_queue[i].strain.eyy;
 			}
 			break;
-		case 'z': //strain ezz
+		case e_zz: //strain ezz
 			for (int i = 0; i < poi_queue.size(); i++)
 			{
 				output_map((int)poi_queue[i].y, (int)poi_queue[i].x) = poi_queue[i].strain.ezz;
 			}
 			break;
-		case 'r': //strain exy
+		case e_xy: //strain exy
 			for (int i = 0; i < poi_queue.size(); i++)
 			{
 				output_map((int)poi_queue[i].y, (int)poi_queue[i].x) = poi_queue[i].strain.exy;
 			}
 			break;
-		case 's': //strain eyz
+		case e_yz: //strain eyz
 			for (int i = 0; i < poi_queue.size(); i++)
 			{
 				output_map((int)poi_queue[i].y, (int)poi_queue[i].x) = poi_queue[i].strain.eyz;
 			}
 			break;
-		case 't': //strain ezx
+		case e_zx: //strain ezx
 			for (int i = 0; i < poi_queue.size(); i++)
 			{
 				output_map((int)poi_queue[i].y, (int)poi_queue[i].x) = poi_queue[i].strain.ezx;
@@ -636,22 +775,22 @@ namespace opencorr
 
 	IO3D::~IO3D() {}
 
-	string IO3D::getPath() const
+	std::string IO3D::getPath() const
 	{
 		return file_path;
 	}
 
-	string IO3D::getDelimiter() const
+	std::string IO3D::getDelimiter() const
 	{
 		return delimiter;
 	}
 
-	void IO3D::setPath(string file_path)
+	void IO3D::setPath(std::string file_path)
 	{
 		this->file_path = file_path;
 	}
 
-	void IO3D::setDelimiter(string delimiter)
+	void IO3D::setDelimiter(std::string delimiter)
 	{
 		this->delimiter = delimiter;
 	}
@@ -686,30 +825,122 @@ namespace opencorr
 		this->dim_z = dim_z;
 	}
 
-	vector<POI3D> IO3D::loadTable3D()
+	std::vector<Point3D> IO3D::loadPoint3D(std::string file_path)
 	{
 		std::ifstream file_in(file_path);
-		if (!file_in)
+		if (!file_in.is_open())
 		{
 			std::cerr << "failed to read file " << file_path << std::endl;
 		}
 
-		string data_line;
+		std::string data_line;
 		getline(file_in, data_line);
-		vector<POI3D> poi_queue;
+		std::vector<Point3D> point_queue;
 		size_t position1, position2;
-		string variable;
-		vector<float> key_buffer;
+		std::string variable;
+		std::vector<float> key_buffer;
+		int point_number = 0;
+
+		while (getline(file_in, data_line))
+		{
+			point_number++;
+			position1 = 0;
+			position2 = 0;
+			std::vector<float>().swap(key_buffer);
+
+			//get x
+			position2 = data_line.find(delimiter, position1);
+			if (position2 == std::string::npos)
+			{
+				std::cerr << "failed to read POI at line: " << point_number << std::endl;
+			}
+			else
+			{
+				variable = data_line.substr(position1, position2 - position1);
+				if (!variable.empty())
+				{
+					key_buffer.push_back(std::stof(variable));
+				}
+
+				//get y
+				position1 = position2 + delimiter.length();
+				position2 = data_line.find(delimiter, position1);
+				variable = data_line.substr(position1, position2 - position1);
+				if (!variable.empty())
+				{
+					key_buffer.push_back(std::stof(variable));
+				}
+
+				//get z
+				position1 = position2 + delimiter.length();
+				position2 = data_line.length();
+				variable = data_line.substr(position1, position2 - position1);
+				if (!variable.empty())
+				{
+					key_buffer.push_back(std::stof(variable));
+				}
+
+				float x = key_buffer[0];
+				float y = key_buffer[1];
+				float z = key_buffer[2];
+				Point3D current_point(x, y, z);
+
+				point_queue.push_back(current_point);
+			}
+		}
+		file_in.close();
+
+		return point_queue;
+	}
+
+	void IO3D::savePoint3D(std::vector<Point3D> poi_queue, std::string file_path)
+	{
+		std::ofstream file_out(file_path);
+		file_out.setf(std::ios::fixed);
+		file_out << std::setprecision(4);
+
+		if (file_out.is_open())
+		{
+			file_out << "x" << delimiter;
+			file_out << "y" << delimiter;
+			file_out << "z" << delimiter;
+			file_out << std::endl;
+
+			for (std::vector<Point3D>::iterator iter = poi_queue.begin(); iter != poi_queue.end(); iter++)
+			{
+				file_out << iter->x << delimiter;
+				file_out << iter->y << delimiter;
+				file_out << iter->z << delimiter;
+				file_out << std::endl;
+			}
+		}
+		file_out.close();
+	}
+
+	std::vector<POI3D> IO3D::loadTable3D()
+	{
+		std::ifstream file_in(file_path);
+		if (!file_in.is_open())
+		{
+			std::cerr << "failed to read file " << file_path << std::endl;
+		}
+
+		std::string data_line;
+		getline(file_in, data_line);
+		std::vector<POI3D> poi_queue;
+		size_t position1, position2;
+		std::string variable;
+		std::vector<float> key_buffer;
 
 		while (getline(file_in, data_line))
 		{
 			position1 = 0;
 			position2 = 0;
-			vector<float>().swap(key_buffer);
+			std::vector<float>().swap(key_buffer);
 			do
 			{
 				position2 = data_line.find(delimiter, position1);
-				if (position2 == string::npos)
+				if (position2 == std::string::npos)
 				{
 					position2 = data_line.length();
 				}
@@ -770,73 +1001,7 @@ namespace opencorr
 		return poi_queue;
 	}
 
-	vector<Point3D> IO3D::loadPoint3D(string file_path)
-	{
-		std::ifstream file_in(file_path);
-		if (!file_in)
-		{
-			std::cerr << "failed to read file " << file_path << std::endl;
-		}
-
-		string data_line;
-		getline(file_in, data_line);
-		vector<Point3D> point_queue;
-		size_t position1, position2;
-		string variable;
-		vector<float> key_buffer;
-		int point_number = 0;
-
-		while (getline(file_in, data_line))
-		{
-			point_number++;
-			position1 = 0;
-			position2 = 0;
-			vector<float>().swap(key_buffer);
-
-			//get x
-			position2 = data_line.find(delimiter, position1);
-			if (position2 == string::npos)
-			{
-				std::cerr << "failed to read POI at line: " << point_number << std::endl;
-			}
-
-			variable = data_line.substr(position1, position2 - position1);
-			if (!variable.empty())
-			{
-				key_buffer.push_back(std::stof(variable));
-			}
-
-			//get y
-			position1 = position2 + delimiter.length();
-			position2 = data_line.find(delimiter, position1);
-			variable = data_line.substr(position1, position2 - position1);
-			if (!variable.empty())
-			{
-				key_buffer.push_back(std::stof(variable));
-			}
-
-			//get z
-			position1 = position2 + delimiter.length();
-			position2 = data_line.length();
-			variable = data_line.substr(position1, position2 - position1);
-			if (!variable.empty())
-			{
-				key_buffer.push_back(std::stof(variable));
-			}
-
-			float x = key_buffer[0];
-			float y = key_buffer[1];
-			float z = key_buffer[2];
-			Point3D current_point(x, y, z);
-
-			point_queue.push_back(current_point);
-		}
-		file_in.close();
-
-		return point_queue;
-	}
-
-	void IO3D::saveTable3D(vector<POI3D>& poi_queue)
+	void IO3D::saveTable3D(std::vector<POI3D>& poi_queue)
 	{
 		std::ofstream file_out(file_path);
 		file_out.setf(std::ios::fixed);
@@ -882,7 +1047,7 @@ namespace opencorr
 			file_out << "subset_rz" << delimiter;
 			file_out << std::endl;
 
-			for (vector<POI3D>::iterator iter = poi_queue.begin(); iter != poi_queue.end(); iter++)
+			for (std::vector<POI3D>::iterator iter = poi_queue.begin(); iter != poi_queue.end(); iter++)
 			{
 				file_out << iter->x << delimiter;
 				file_out << iter->y << delimiter;
@@ -923,68 +1088,86 @@ namespace opencorr
 		file_out.close();
 	}
 
-	void IO3D::saveMap3D(vector<POI3D>& poi_queue, char variable)
+	void IO3D::saveMap3D(std::vector<POI3D>& poi_queue, OutputVariable variable)
 	{
 		int queue_length = (int)poi_queue.size();
 		float*** output_map = new3D(getDimZ(), getDimY(), getDimX());
 
 		switch (variable)
 		{
-		case 'u':
+		case u:
 			for (int i = 0; i < queue_length; i++)
 			{
 				output_map[(int)poi_queue[i].z][(int)poi_queue[i].y][(int)poi_queue[i].x] = poi_queue[i].deformation.u;
 			}
 			break;
-		case 'v':
+		case v:
 			for (int i = 0; i < queue_length; i++)
 			{
 				output_map[(int)poi_queue[i].z][(int)poi_queue[i].y][(int)poi_queue[i].x] = poi_queue[i].deformation.v;
 			}
 			break;
-		case 'w':
+		case w:
 			for (int i = 0; i < queue_length; i++)
 			{
 				output_map[(int)poi_queue[i].z][(int)poi_queue[i].y][(int)poi_queue[i].x] = poi_queue[i].deformation.w;
 			}
 			break;
-		case 'c': //ZNCC value
+		case zncc: //ZNCC value
 			for (int i = 0; i < queue_length; i++)
 			{
 				output_map[(int)poi_queue[i].z][(int)poi_queue[i].y][(int)poi_queue[i].x] = poi_queue[i].result.zncc;
 			}
 			break;
-		case 'x': //strain exx
+		case iteration_step: //iteration step
+			for (int i = 0; i < queue_length; i++)
+			{
+				output_map[(int)poi_queue[i].z][(int)poi_queue[i].y][(int)poi_queue[i].x] = poi_queue[i].result.iteration;
+			}
+			break;
+		case deformation_increment: //deformation increment
+			for (int i = 0; i < queue_length; i++)
+			{
+				output_map[(int)poi_queue[i].z][(int)poi_queue[i].y][(int)poi_queue[i].x] = poi_queue[i].result.convergence;
+			}
+			break;
+		case feature_nearby: //features nearby
+			for (int i = 0; i < queue_length; i++)
+			{
+				output_map[(int)poi_queue[i].z][(int)poi_queue[i].y][(int)poi_queue[i].x] = poi_queue[i].result.feature;
+			}
+			break;
+		case e_xx: //strain exx
 			for (int i = 0; i < queue_length; i++)
 			{
 				output_map[(int)poi_queue[i].z][(int)poi_queue[i].y][(int)poi_queue[i].x] = poi_queue[i].strain.exx;
 			}
 			break;
-		case 'y': //strain eyy
+		case e_yy: //strain eyy
 			for (int i = 0; i < queue_length; i++)
 			{
 				output_map[(int)poi_queue[i].z][(int)poi_queue[i].y][(int)poi_queue[i].x] = poi_queue[i].strain.eyy;
 			}
 			break;
-		case 'z': //strain ezz
+		case e_zz: //strain ezz
 			for (int i = 0; i < queue_length; i++)
 			{
 				output_map[(int)poi_queue[i].z][(int)poi_queue[i].y][(int)poi_queue[i].x] = poi_queue[i].strain.ezz;
 			}
 			break;
-		case 'r': //strain exy
+		case e_xy: //strain exy
 			for (int i = 0; i < queue_length; i++)
 			{
 				output_map[(int)poi_queue[i].z][(int)poi_queue[i].y][(int)poi_queue[i].x] = poi_queue[i].strain.exy;
 			}
 			break;
-		case 's': //strain eyz
+		case e_yz: //strain eyz
 			for (int i = 0; i < queue_length; i++)
 			{
 				output_map[(int)poi_queue[i].z][(int)poi_queue[i].y][(int)poi_queue[i].x] = poi_queue[i].strain.eyz;
 			}
 			break;
-		case 't': //strain ezx
+		case e_zx: //strain ezx
 			for (int i = 0; i < queue_length; i++)
 			{
 				output_map[(int)poi_queue[i].z][(int)poi_queue[i].y][(int)poi_queue[i].x] = poi_queue[i].strain.ezx;
@@ -1016,7 +1199,7 @@ namespace opencorr
 		file_out.close();
 	}
 
-	void IO3D::saveMatrixBin(vector<POI3D>& poi_queue)
+	void IO3D::saveMatrixBin(std::vector<POI3D>& poi_queue)
 	{
 		std::ofstream file_out;
 		file_out.open(file_path, std::ios::out | std::ios::binary);
@@ -1035,7 +1218,7 @@ namespace opencorr
 		head_info[3] = dim_z;
 
 		//create a 1D array and fill it with output data of POIs
-		int result_length = 7;
+		int result_length = 8;
 		int data_length = result_length * queue_length;
 		float* data_array = new float[data_length];
 
@@ -1048,6 +1231,7 @@ namespace opencorr
 			data_array[i * result_length + 4] = poi_queue[i].deformation.v;
 			data_array[i * result_length + 5] = poi_queue[i].deformation.w;
 			data_array[i * result_length + 6] = poi_queue[i].result.zncc;
+			data_array[i * result_length + 7] = poi_queue[i].result.convergence;
 		}
 
 		//write head information
@@ -1061,10 +1245,10 @@ namespace opencorr
 		delete[] data_array;
 	}
 
-	vector<POI3D> IO3D::loadMatrixBin()
+	std::vector<POI3D> IO3D::loadMatrixBin()
 	{
 		std::ifstream file_in(file_path);
-		if (!file_in)
+		if (!file_in.is_open())
 		{
 			std::cerr << "failed to open file " << file_path << std::endl;
 		}
@@ -1077,13 +1261,13 @@ namespace opencorr
 		setDimY(head_info[2]);
 		setDimZ(head_info[3]);
 
-		int result_length = 7;
+		int result_length = 8;
 		int data_length = result_length * queue_length;
 		float* data_array = new float[data_length];
 		file_in.read((char*)data_array, sizeof(float) * data_length);
 		file_in.close();
 
-		vector<POI3D> poi_queue;
+		std::vector<POI3D> poi_queue;
 		POI3D empty_poi(0, 0, 0);
 		poi_queue.resize(queue_length, empty_poi);
 
@@ -1096,6 +1280,7 @@ namespace opencorr
 			poi_queue[i].deformation.v = data_array[i * result_length + 4];
 			poi_queue[i].deformation.w = data_array[i * result_length + 5];
 			poi_queue[i].result.zncc = data_array[i * result_length + 6];
+			poi_queue[i].result.convergence = data_array[i * result_length + 7];
 		}
 
 		delete[] data_array;

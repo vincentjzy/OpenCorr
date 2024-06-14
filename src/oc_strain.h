@@ -39,7 +39,7 @@ namespace opencorr
 
 	protected:
 		float subregion_radius; //radius of subregion
-		int min_neighbor_num; //minimum number of neighbor POI required by fitting
+		int neighbor_number_min; //minimum number of neighbor POI required by fitting
 		float zncc_threshold; //POI with ZNCC above this threshold is regarded available
 		int description; //description of strain, 1 for Lagranian and 2 for Eulerian
 		int approximation; //approximation of strain, 1 for Cauchy strain and 2 for Green strain
@@ -47,15 +47,15 @@ namespace opencorr
 
 	public:
 
-		Strain(float subregion_radius, int min_neighbor_num, int thread_number);
+		Strain(float subregion_radius, int neighbor_number_min, int thread_number);
 		~Strain();
 
 		float getSubregionRadius() const;
-		int getMinNeighborNumber() const;
+		int getNeighborMin() const;
 		float getZnccThreshold() const;
 
 		void setSubregionRadius(float subregion_radius);
-		void setMinNeighborNumer(int min_neighbor_num);
+		void setNeighborMin(int neighbor_number_min);
 		void setZnccThreshold(float zncc_threshold);
 		void setDescription(int description); //"1" for Lagrangian, "2" for Eulerian
 		void setApproximation(int approximation); //"1" for Cauchy strain, "2" for Green strain
