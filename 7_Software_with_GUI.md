@@ -1,8 +1,8 @@
 # 7. Software with GUI
 
-OpenCorr with GUI is developed using the frame of [Dear ImGui](https://github.com/ocornut/imgui). It aims to facilitate the user to process their experimental data. Users may download the package from [Releases on GitHub](https://github.com/vincentjzy/OpenCorr/releases) or the Download page on [opencorr.org](https://opencorr.org/Download). Unzip it (e.g. using 7-Zip) and run OpenCorr.exe, make sure that the other two DLL files are in the same folder of  OpenCorr.exe. This software is developed by a small team (Mr LI Rui, Mr REN Haoqiang and me). Its function and usage experience are far from perfect at the moment. Any comments and suggestions are greatly appreciated.
+OpenCorr with GUI is developed using the frame of [Dear ImGui](https://github.com/ocornut/imgui). It aims to facilitate the users to process their experimental data. We can download the package from [Releases on GitHub](https://github.com/vincentjzy/OpenCorr/releases) or the Download page on [opencorr.org](https://opencorr.org/Download). Unzip it (e.g. using 7-Zip) and run OpenCorr.exe, make sure that the other two DLL files are in the same folder. This software is developed by a small team (Mr LI Rui, Mr REN Haoqiang and Dr JIANG Zhenyu). Its function and usage experience are far from perfect at the moment. Any comments and suggestions are greatly appreciated.
 
-Figure 7.1 shows the interface to run 2D DIC. One reference image and a bunch of target images can be loaded and displayed in the righthand side window. You may press the CTRL or SHIFT key to select multiple files in file dialog.
+Figure 7.1 shows the interface to run 2D DIC. One reference image and a bunch of target images can be loaded and displayed in the righthand side window. We can press the CTRL or SHIFT key to select multiple files in file dialog.
 
 ![image](./img/gui_dic_2d_1.png)
 
@@ -10,7 +10,7 @@ Figure 7.1 shows the interface to run 2D DIC. One reference image and a bunch of
 
 
 
-You may also shift to single view for convenience to set DIC parameters, as shown in Figure 7.2. A yellow rectangle appear in the center of window once the box of "Show subset" is checked. Then, you can change its size to see if there is a unique speckle pattern within it.
+We can also shift to single view for convenience to set DIC parameters, as shown in Figure 7.2. A yellow rectangle appears in the center of window once the box of "Show subset" is checked. Then, we can change its size to see if there is a unique speckle pattern within it.
 
 ![image](./img/gui_dic_2d_2.png)
 
@@ -26,7 +26,7 @@ Figure 7.3 shows the interface to run 3D/stereo DIC. The images in left column a
 
 
 
-To run 3D/stereo DIC, calibration parameters of cameras need to loaded from a CSV file (Figure7.4). An example of datasheet is given in the package (*_Calibration.csv in package).
+To run 3D/stereo DIC, we need to load the calibration parameters of cameras from a CSV file (Figure7.4). An example of datasheet is given in the package (*_Calibration.csv in package).
 
 ![image](./img/gui_dic_3d_2.png)
 
@@ -34,7 +34,7 @@ To run 3D/stereo DIC, calibration parameters of cameras need to loaded from a CS
 
 
 
-You may draw the region of interest (ROI) and set the space between the POIs to create a matrix of uniformly distributed POIs, as shown in Figure 7.5. Yellow areas represent the ROI, and blue areas are excluded from ROI. The coordinates of POIs can be exported to a CSV file if you would like to use them in future.
+We can draw the region of interest (ROI) and set the space between the POIs to create a matrix of uniformly distributed POIs, as shown in Figure 7.5. Yellow areas represent the ROI, and blue areas are excluded from ROI. The coordinates of POIs can be exported to a CSV file if we would like to use them in future.
 
 ![image](./img/gui_dic_3d_3.png)
 
@@ -50,7 +50,7 @@ Figure 7.6 shows the interface in for stereo reconstruction to measure the 3D sh
 
 
 
-Figure 7.7 shows the interface for strain calculation. You may recalculate the strains based on the previously obtained DIC results. Parameters like subregion size and ZNCC threshold can be adjusted to get reliable results, according to the yellow circle and points within it (they will be displayed when the box "Show subregion" is checked).
+Figure 7.7 shows the interface for strain calculation. We can recalculate the strains based on the previously obtained DIC results. Parameters like subregion size and ZNCC threshold can be adjusted to get reliable results, according to the yellow circle and points within it (they will be displayed when the box "Show subregion" is checked).
 
 ![image](./img/gui_strain_calculation.png)
 

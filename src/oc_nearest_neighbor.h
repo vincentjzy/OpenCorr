@@ -74,7 +74,7 @@ namespace opencorr
 		int search_k;
 		float query_coor[3] = { 0.f };
 
-		nanoflann::KDTreeSingleIndexAdaptor<nanoflann::L2_Simple_Adaptor<float, PointCloud>, PointCloud, 3 /* dim */>* kdt_index;
+		nanoflann::KDTreeSingleIndexAdaptor<nanoflann::L2_Simple_Adaptor<float, PointCloud>, PointCloud, 3 /* dim */>* kdt_index = nullptr;
 
 	public:
 		NearestNeighbor();
