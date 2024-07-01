@@ -29,7 +29,7 @@ namespace opencorr
 	Strain::Strain(float subregion_radius, int neighbor_number_min, int thread_number)
 	{
 		setSubregionRadius(subregion_radius);
-		setMinNeighborNumer(neighbor_number_min);
+		setNeighborMin(neighbor_number_min);
 
 		setZnccThreshold(0.9f);
 		setDescription(1);
@@ -57,7 +57,7 @@ namespace opencorr
 		return subregion_radius;
 	}
 
-	int Strain::getMinNeighborNumber() const
+	int Strain::getNeighborMin() const
 	{
 		return neighbor_number_min;
 	}
@@ -72,7 +72,7 @@ namespace opencorr
 		this->subregion_radius = subregion_radius;
 	}
 
-	void Strain::setMinNeighborNumer(int neighbor_number_min)
+	void Strain::setNeighborMin(int neighbor_number_min)
 	{
 		this->neighbor_number_min = neighbor_number_min;
 	}
@@ -186,38 +186,6 @@ namespace opencorr
 		}
 		neighbor_num = (int)pois_fit.size();
 
-		//use brutal force search in case of insufficient neighbor POIs for fitting
-		if (neighbor_num < neighbor_number_min)
-		{
-			std::vector<POI2D>().swap(pois_fit);
-			std::vector<PointIndex> pois_sorted_index;
-
-			//sort the poi queue in a descending order of distance to the POI
-			int queue_size = (int)poi_queue.size();
-			for (int i = 0; i < queue_size; i++)
-			{
-				Point2D distance = poi_queue[i] - (Point2D)*poi;
-				PointIndex current_poi_idx;
-				current_poi_idx.poi_idx = i;
-				current_poi_idx.distance = distance.vectorNorm();
-				pois_sorted_index.push_back(current_poi_idx);
-			}
-
-			std::sort(pois_sorted_index.begin(), pois_sorted_index.end(), sortByDistance);
-
-			//pick the neighbor POIs for facet fitting
-			int i = 0;
-			while (i < queue_size && (pois_sorted_index[i].distance < subregion_radius || pois_fit.size() < neighbor_number_min))
-			{
-				if (poi_queue[pois_sorted_index[i].poi_idx].result.zncc >= zncc_threshold)
-				{
-					pois_fit.push_back(poi_queue[pois_sorted_index[i].poi_idx]);
-				}
-				i++;
-			}
-		}
-		neighbor_num = (int)pois_fit.size();
-
 		//terminate the procedure if there are insufficient neighbors for strain calculation
 		if (neighbor_num < neighbor_number_min)
 		{
@@ -322,40 +290,6 @@ namespace opencorr
 				{
 					pois_fit.push_back(poi_queue[k_neighbors_idx[i]]);
 				}
-			}
-		}
-		neighbor_num = (int)pois_fit.size();
-
-		//use brutal force search in case of insufficient neighbor POIs for fitting
-		if (neighbor_num < neighbor_number_min)
-		{
-			std::vector<POI2DS>().swap(pois_fit);
-			std::vector<PointIndex> pois_sorted_index;
-
-			//sort the poi queue in a descending order of distance to the POI
-			int queue_size = (int)poi_queue.size();
-			for (int i = 0; i < queue_size; i++)
-			{
-				Point2D distance = poi_queue[i] - (Point2D)*poi;
-				PointIndex current_poi_idx;
-				current_poi_idx.poi_idx = i;
-				current_poi_idx.distance = distance.vectorNorm();
-				pois_sorted_index.push_back(current_poi_idx);
-			}
-
-			std::sort(pois_sorted_index.begin(), pois_sorted_index.end(), sortByDistance);
-
-			//pick the neighbor POIs for facet fitting
-			int i = 0;
-			while (i < queue_size && (pois_sorted_index[i].distance < subregion_radius || pois_fit.size() < neighbor_number_min))
-			{
-				if (poi_queue[pois_sorted_index[i].poi_idx].result.r1r2_zncc >= zncc_threshold
-					&& poi_queue[pois_sorted_index[i].poi_idx].result.r1t1_zncc >= zncc_threshold
-					&& poi_queue[pois_sorted_index[i].poi_idx].result.r1t2_zncc >= zncc_threshold)
-				{
-					pois_fit.push_back(poi_queue[pois_sorted_index[i].poi_idx]);
-				}
-				i++;
 			}
 		}
 		neighbor_num = (int)pois_fit.size();
@@ -477,38 +411,6 @@ namespace opencorr
 				{
 					pois_fit.push_back(poi_queue[k_neighbors_idx[i]]);
 				}
-			}
-		}
-		neighbor_num = (int)pois_fit.size();
-
-		//use brutal force search in case of insufficient neighbor POIs for fitting
-		if (neighbor_num < neighbor_number_min)
-		{
-			std::vector<POI3D>().swap(pois_fit);
-			std::vector<PointIndex> pois_sorted_index;
-
-			//sort the poi queue in a descendent order of distance to the POI
-			int queue_size = (int)poi_queue.size();
-			for (int i = 0; i < queue_size; i++)
-			{
-				Point3D distance = poi_queue[i] - (Point3D)*poi;
-				PointIndex current_poi_idx;
-				current_poi_idx.poi_idx = i;
-				current_poi_idx.distance = distance.vectorNorm();
-				pois_sorted_index.push_back(current_poi_idx);
-			}
-
-			std::sort(pois_sorted_index.begin(), pois_sorted_index.end(), sortByDistance);
-
-			//pick the neighbor POIs for facet fitting
-			int i = 0;
-			while (i < queue_size && (pois_sorted_index[i].distance < subregion_radius || pois_fit.size() <= neighbor_number_min))
-			{
-				if (poi_queue[pois_sorted_index[i].poi_idx].result.zncc >= zncc_threshold)
-				{
-					pois_fit.push_back(poi_queue[pois_sorted_index[i].poi_idx]);
-				}
-				i++;
 			}
 		}
 		neighbor_num = (int)pois_fit.size();
