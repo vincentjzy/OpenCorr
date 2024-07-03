@@ -65,8 +65,8 @@ Users can also access the information of OpenCorr via website [opencorr.org](htt
 # Developers
 
 - Dr JIANG Zhenyu, Professor, South China University of Technology
-- Mr ZHANG Lingqi, PhD candidate, Tokyo Institute of Technology
-- Dr WANG Tianyi, PostDoc, BrookHaven Natinoal Lab
+- Dr ZHANG Lingqi, PostDoctoral researcher, RIKEN
+- Dr WANG Tianyi, PostDoctoral researcher, BrookHaven National Laboratory
 - Dr CHEN Wei, Chief research engineer, Midea
 - Mr HUANG Jianwen, Software engineer, SenseTime
 - Mr YANG Junrong, Software engineer, Tencent
