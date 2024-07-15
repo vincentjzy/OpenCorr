@@ -21,7 +21,7 @@ namespace opencorr
 	//2D image
 	Image2D::Image2D(int width, int height)
 	{
-		cv_mat = cv::Mat::zeros(width, height, CV_8UC1);
+		cv_mat = cv::Mat::zeros(height, width, CV_8UC1);
 		eg_mat = Eigen::MatrixXf::Zero(height, width);
 		this->width = width;
 		this->height = height;
