@@ -17,9 +17,7 @@
 #ifndef _FEATURE_AFFINE_H_
 #define _FEATURE_AFFINE_H_
 
-#include "oc_array.h"
 #include "oc_dic.h"
-#include "oc_image.h"
 #include "oc_nearest_neighbor.h"
 
 namespace opencorr
@@ -59,9 +57,9 @@ namespace opencorr
 
 		RansacConfig getRansacConfig() const;
 		float getSearchRadius() const;
-		int getMinNeighborNumber() const;
+		int getNeighborMin() const;
 
-		void setSearchParameters(float neighbor_search_radius, int neighbor_number_min);
+		void setSearch(float neighbor_search_radius, int neighbor_number_min);
 		void setRansacConfig(RansacConfig ransac_config);
 		void setSubsetAdjustment(int feature_min, int radius_min); //set parameters for self-adaptive subset adjustment
 
@@ -96,9 +94,9 @@ namespace opencorr
 
 		RansacConfig getRansacConfig() const;
 		float getSearchRadius() const;
-		int getMinNeighborNumber() const;
+		int getNeighborMin() const;
 
-		void setSearchParameters(float neighbor_search_radius, int neighbor_number_min);
+		void setSearch(float neighbor_search_radius, int neighbor_number_min);
 		void setRansacConfig(RansacConfig ransac_config);
 
 		void setKeypointPair(std::vector<Point3D>& ref_kp, std::vector<Point3D>& tar_kp);

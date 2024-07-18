@@ -20,12 +20,7 @@
 #include <vector>
 #include "fftw3.h"
 
-#include "oc_array.h"
 #include "oc_dic.h"
-#include "oc_image.h"
-#include "oc_poi.h"
-#include "oc_point.h"
-#include "oc_subset.h"
 
 namespace opencorr
 {

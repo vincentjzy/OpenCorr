@@ -20,6 +20,7 @@
 #include "oc_array.h"
 #include "oc_image.h"
 #include "oc_poi.h"
+#include "oc_point.h"
 #include "oc_subset.h"
 
 namespace opencorr
@@ -32,8 +33,6 @@ namespace opencorr
 	// -3: terminated at the beginning of (ICGN)
 	// -4: Not convergence in iteration (ICGN)
 	// -5: NaN in resutls (ICGN)
-	// -6: insufficient reliable neighbor POIs (RegionFit)
-	// -7: insufficient reliable neighbor POIs (Strain)
 
 	//structure for brute force searching
 	struct KeypointIndex

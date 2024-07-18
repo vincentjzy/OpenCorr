@@ -187,51 +187,48 @@ namespace opencorr
 		neighbor_num = (int)pois_fit.size();
 
 		//terminate the procedure if there are insufficient neighbors for strain calculation
-		if (neighbor_num < neighbor_number_min)
+		if (neighbor_num >= neighbor_number_min)
 		{
-			poi->result.zncc = -7.f;
-			return;
-		}
+			//create matrices of displacments
+			Eigen::VectorXf u_vector(neighbor_num);
+			Eigen::VectorXf v_vector(neighbor_num);
 
-		//create matrices of displacments
-		Eigen::VectorXf u_vector(neighbor_num);
-		Eigen::VectorXf v_vector(neighbor_num);
+			//construct coefficient matrix
+			Eigen::MatrixXf coefficient_matrix = Eigen::MatrixXf::Zero(neighbor_num, 3);
 
-		//construct coefficient matrix
-		Eigen::MatrixXf coefficient_matrix = Eigen::MatrixXf::Zero(neighbor_num, 3);
+			//fill coefficient matrix, u_vector and v_vector
+			for (int i = 0; i < neighbor_num; i++)
+			{
+				coefficient_matrix(i, 0) = 1.f;
+				coefficient_matrix(i, 1) = pois_fit[i].x - poi->x;
+				coefficient_matrix(i, 2) = pois_fit[i].y - poi->y;
 
-		//fill coefficient matrix, u_vector and v_vector
-		for (int i = 0; i < neighbor_num; i++)
-		{
-			coefficient_matrix(i, 0) = 1.f;
-			coefficient_matrix(i, 1) = pois_fit[i].x - poi->x;
-			coefficient_matrix(i, 2) = pois_fit[i].y - poi->y;
+				u_vector(i) = pois_fit[i].deformation.u;
+				v_vector(i) = pois_fit[i].deformation.v;
+			}
 
-			u_vector(i) = pois_fit[i].deformation.u;
-			v_vector(i) = pois_fit[i].deformation.v;
-		}
+			//solve the equations to obtain gradients of u and v
+			Eigen::VectorXf u_gradient = coefficient_matrix.colPivHouseholderQr().solve(u_vector);
+			Eigen::VectorXf v_gradient = coefficient_matrix.colPivHouseholderQr().solve(v_vector);
+			float ux = u_gradient(1, 0);
+			float uy = u_gradient(2, 0);
+			float vx = v_gradient(1, 0);
+			float vy = v_gradient(2, 0);
 
-		//solve the equations to obtain gradients of u and v
-		Eigen::VectorXf u_gradient = coefficient_matrix.colPivHouseholderQr().solve(u_vector);
-		Eigen::VectorXf v_gradient = coefficient_matrix.colPivHouseholderQr().solve(v_vector);
-		float ux = u_gradient(1, 0);
-		float uy = u_gradient(2, 0);
-		float vx = v_gradient(1, 0);
-		float vy = v_gradient(2, 0);
-
-		if (approximation == 1)
-		{
-			//calculate the Cauchy strain and save them for output
-			poi->strain.exx = ux;
-			poi->strain.eyy = vy;
-			poi->strain.exy = 0.5f * (uy + vx);
-		}
-		if (approximation == 2)
-		{
-			//calculate the Green strain and save them for output
-			poi->strain.exx = ux + 0.5f * (ux * ux + vx * vx);
-			poi->strain.eyy = vy + 0.5f * (uy * uy + vy * vy);
-			poi->strain.exy = 0.5f * (uy + vx + uy * ux + vy * vx);
+			if (approximation == 1)
+			{
+				//calculate the Cauchy strain and save them for output
+				poi->strain.exx = ux;
+				poi->strain.eyy = vy;
+				poi->strain.exy = 0.5f * (uy + vx);
+			}
+			if (approximation == 2)
+			{
+				//calculate the Green strain and save them for output
+				poi->strain.exx = ux + 0.5f * (ux * ux + vx * vx);
+				poi->strain.eyy = vy + 0.5f * (uy * uy + vy * vy);
+				poi->strain.exy = 0.5f * (uy + vx + uy * ux + vy * vx);
+			}
 		}
 	}
 
@@ -295,66 +292,63 @@ namespace opencorr
 		neighbor_num = (int)pois_fit.size();
 
 		//terminate the procedure if there are insufficient neighbors for strain calculation
-		if (neighbor_num < neighbor_number_min)
+		if (neighbor_num >= neighbor_number_min)
 		{
-			poi->result.r1t2_zncc = -7.f;
-			return;
-		}
+			//create matrices of displacments
+			Eigen::VectorXf u_vector(neighbor_num);
+			Eigen::VectorXf v_vector(neighbor_num);
+			Eigen::VectorXf w_vector(neighbor_num);
 
-		//create matrices of displacments
-		Eigen::VectorXf u_vector(neighbor_num);
-		Eigen::VectorXf v_vector(neighbor_num);
-		Eigen::VectorXf w_vector(neighbor_num);
+			//construct coefficient matrix
+			Eigen::MatrixXf coefficient_matrix = Eigen::MatrixXf::Zero(neighbor_num, 4);
 
-		//construct coefficient matrix
-		Eigen::MatrixXf coefficient_matrix = Eigen::MatrixXf::Zero(neighbor_num, 4);
+			//fill coefficient matrix, u_vector, v_vector, and w_vector
+			for (int i = 0; i < neighbor_num; i++)
+			{
+				Point3D current_pt_3d = pois_fit[i].ref_coor - poi->ref_coor;
+				coefficient_matrix(i, 0) = 1.f;
+				coefficient_matrix(i, 1) = current_pt_3d.x;
+				coefficient_matrix(i, 2) = current_pt_3d.y;
+				coefficient_matrix(i, 3) = current_pt_3d.z;
 
-		//fill coefficient matrix, u_vector, v_vector, and w_vector
-		for (int i = 0; i < neighbor_num; i++)
-		{
-			Point3D current_pt_3d = pois_fit[i].ref_coor - poi->ref_coor;
-			coefficient_matrix(i, 0) = 1.f;
-			coefficient_matrix(i, 1) = current_pt_3d.x;
-			coefficient_matrix(i, 2) = current_pt_3d.y;
-			coefficient_matrix(i, 3) = current_pt_3d.z;
+				u_vector(i) = pois_fit[i].deformation.u;
+				v_vector(i) = pois_fit[i].deformation.v;
+				w_vector(i) = pois_fit[i].deformation.w;
+			}
 
-			u_vector(i) = pois_fit[i].deformation.u;
-			v_vector(i) = pois_fit[i].deformation.v;
-			w_vector(i) = pois_fit[i].deformation.w;
-		}
+			//solve the equations to obtain gradients of u, v, and w
+			Eigen::VectorXf u_gradient = coefficient_matrix.colPivHouseholderQr().solve(u_vector);
+			Eigen::VectorXf v_gradient = coefficient_matrix.colPivHouseholderQr().solve(v_vector);
+			Eigen::VectorXf w_gradient = coefficient_matrix.colPivHouseholderQr().solve(w_vector);
+			float ux = u_gradient(1, 0);
+			float uy = u_gradient(2, 0);
+			float uz = u_gradient(3, 0);
+			float vx = v_gradient(1, 0);
+			float vy = v_gradient(2, 0);
+			float vz = v_gradient(3, 0);
+			float wx = w_gradient(1, 0);
+			float wy = w_gradient(2, 0);
+			float wz = w_gradient(3, 0);
 
-		//solve the equations to obtain gradients of u, v, and w
-		Eigen::VectorXf u_gradient = coefficient_matrix.colPivHouseholderQr().solve(u_vector);
-		Eigen::VectorXf v_gradient = coefficient_matrix.colPivHouseholderQr().solve(v_vector);
-		Eigen::VectorXf w_gradient = coefficient_matrix.colPivHouseholderQr().solve(w_vector);
-		float ux = u_gradient(1, 0);
-		float uy = u_gradient(2, 0);
-		float uz = u_gradient(3, 0);
-		float vx = v_gradient(1, 0);
-		float vy = v_gradient(2, 0);
-		float vz = v_gradient(3, 0);
-		float wx = w_gradient(1, 0);
-		float wy = w_gradient(2, 0);
-		float wz = w_gradient(3, 0);
-
-		if (approximation == 1)
-		{
-			//calculate the Cauchy strain and save them for output
-			poi->strain.exx = ux;
-			poi->strain.eyy = vy;
-			poi->strain.ezz = wz;
-			poi->strain.exy = 0.5f * (uy + vx);
-			poi->strain.eyz = 0.5f * (vz + wy);
-			poi->strain.ezx = 0.5f * (wx + uz);
-		}
-		if (approximation == 2)
-		{
-			poi->strain.exx = ux + 0.5f * (ux * ux + vx * vx + wx * wx);
-			poi->strain.eyy = vy + 0.5f * (uy * uy + vy * vy + wy * wy);
-			poi->strain.ezz = wz + 0.5f * (uz * uz + vz * vz + wz * wz);
-			poi->strain.exy = 0.5f * (uy + vx + uy * ux + vy * vx + wy * wx);
-			poi->strain.eyz = 0.5f * (vz + wy + uz * uy + vz * vy + wz * wy);
-			poi->strain.ezx = 0.5f * (wx + uz + ux * uz + vx * vz + wx * wz);
+			if (approximation == 1)
+			{
+				//calculate the Cauchy strain and save them for output
+				poi->strain.exx = ux;
+				poi->strain.eyy = vy;
+				poi->strain.ezz = wz;
+				poi->strain.exy = 0.5f * (uy + vx);
+				poi->strain.eyz = 0.5f * (vz + wy);
+				poi->strain.ezx = 0.5f * (wx + uz);
+			}
+			if (approximation == 2)
+			{
+				poi->strain.exx = ux + 0.5f * (ux * ux + vx * vx + wx * wx);
+				poi->strain.eyy = vy + 0.5f * (uy * uy + vy * vy + wy * wy);
+				poi->strain.ezz = wz + 0.5f * (uz * uz + vz * vz + wz * wz);
+				poi->strain.exy = 0.5f * (uy + vx + uy * ux + vy * vx + wy * wx);
+				poi->strain.eyz = 0.5f * (vz + wy + uz * uy + vz * vy + wz * wy);
+				poi->strain.ezx = 0.5f * (wx + uz + ux * uz + vx * vz + wx * wz);
+			}
 		}
 	}
 
@@ -416,65 +410,62 @@ namespace opencorr
 		neighbor_num = (int)pois_fit.size();
 
 		//terminate the procedure if there are insufficient neighbors for strain calculation
-		if (neighbor_num < neighbor_number_min)
+		if (neighbor_num >= neighbor_number_min)
 		{
-			poi->result.zncc = -7.f;
-			return;
-		}
+			//create matrices of displacments
+			Eigen::VectorXf u_vector(neighbor_num);
+			Eigen::VectorXf v_vector(neighbor_num);
+			Eigen::VectorXf w_vector(neighbor_num);
 
-		//create matrices of displacments
-		Eigen::VectorXf u_vector(neighbor_num);
-		Eigen::VectorXf v_vector(neighbor_num);
-		Eigen::VectorXf w_vector(neighbor_num);
+			//construct coefficient matrix
+			Eigen::MatrixXf coefficient_matrix = Eigen::MatrixXf::Zero(neighbor_num, 4);
 
-		//construct coefficient matrix
-		Eigen::MatrixXf coefficient_matrix = Eigen::MatrixXf::Zero(neighbor_num, 4);
+			//fill coefficient matrix, u_vector, v_vector, and w_vector
+			for (int i = 0; i < neighbor_num; i++)
+			{
+				coefficient_matrix(i, 0) = 1.f;
+				coefficient_matrix(i, 1) = pois_fit[i].x - poi->x;
+				coefficient_matrix(i, 2) = pois_fit[i].y - poi->y;
+				coefficient_matrix(i, 3) = pois_fit[i].z - poi->z;
 
-		//fill coefficient matrix, u_vector, v_vector, and w_vector
-		for (int i = 0; i < neighbor_num; i++)
-		{
-			coefficient_matrix(i, 0) = 1.f;
-			coefficient_matrix(i, 1) = pois_fit[i].x - poi->x;
-			coefficient_matrix(i, 2) = pois_fit[i].y - poi->y;
-			coefficient_matrix(i, 3) = pois_fit[i].z - poi->z;
+				u_vector(i) = pois_fit[i].deformation.u;
+				v_vector(i) = pois_fit[i].deformation.v;
+				w_vector(i) = pois_fit[i].deformation.w;
+			}
 
-			u_vector(i) = pois_fit[i].deformation.u;
-			v_vector(i) = pois_fit[i].deformation.v;
-			w_vector(i) = pois_fit[i].deformation.w;
-		}
+			//solve the equations to obtain gradients of u, v, and w
+			Eigen::VectorXf u_gradient = coefficient_matrix.colPivHouseholderQr().solve(u_vector);
+			Eigen::VectorXf v_gradient = coefficient_matrix.colPivHouseholderQr().solve(v_vector);
+			Eigen::VectorXf w_gradient = coefficient_matrix.colPivHouseholderQr().solve(w_vector);
+			float ux = u_gradient(1, 0);
+			float uy = u_gradient(2, 0);
+			float uz = u_gradient(3, 0);
+			float vx = v_gradient(1, 0);
+			float vy = v_gradient(2, 0);
+			float vz = v_gradient(3, 0);
+			float wx = w_gradient(1, 0);
+			float wy = w_gradient(2, 0);
+			float wz = w_gradient(3, 0);
 
-		//solve the equations to obtain gradients of u, v, and w
-		Eigen::VectorXf u_gradient = coefficient_matrix.colPivHouseholderQr().solve(u_vector);
-		Eigen::VectorXf v_gradient = coefficient_matrix.colPivHouseholderQr().solve(v_vector);
-		Eigen::VectorXf w_gradient = coefficient_matrix.colPivHouseholderQr().solve(w_vector);
-		float ux = u_gradient(1, 0);
-		float uy = u_gradient(2, 0);
-		float uz = u_gradient(3, 0);
-		float vx = v_gradient(1, 0);
-		float vy = v_gradient(2, 0);
-		float vz = v_gradient(3, 0);
-		float wx = w_gradient(1, 0);
-		float wy = w_gradient(2, 0);
-		float wz = w_gradient(3, 0);
-
-		if (approximation == 1)
-		{
-			//calculate the Cauchy strain and save them for output
-			poi->strain.exx = ux;
-			poi->strain.eyy = vy;
-			poi->strain.ezz = wz;
-			poi->strain.exy = 0.5f * (uy + vx);
-			poi->strain.eyz = 0.5f * (vz + wy);
-			poi->strain.ezx = 0.5f * (wx + uz);
-		}
-		if (approximation == 2)
-		{
-			poi->strain.exx = ux + 0.5f * (ux * ux + vx * vx + wx * wx);
-			poi->strain.eyy = vy + 0.5f * (uy * uy + vy * vy + wy * wy);
-			poi->strain.ezz = wz + 0.5f * (uz * uz + vz * vz + wz * wz);
-			poi->strain.exy = 0.5f * (uy + vx + uy * ux + vy * vx + wy * wx);
-			poi->strain.eyz = 0.5f * (vz + wy + uz * uy + vz * vy + wz * wy);
-			poi->strain.ezx = 0.5f * (wx + uz + ux * uz + vx * vz + wx * wz);
+			if (approximation == 1)
+			{
+				//calculate the Cauchy strain and save them for output
+				poi->strain.exx = ux;
+				poi->strain.eyy = vy;
+				poi->strain.ezz = wz;
+				poi->strain.exy = 0.5f * (uy + vx);
+				poi->strain.eyz = 0.5f * (vz + wy);
+				poi->strain.ezx = 0.5f * (wx + uz);
+			}
+			if (approximation == 2)
+			{
+				poi->strain.exx = ux + 0.5f * (ux * ux + vx * vx + wx * wx);
+				poi->strain.eyy = vy + 0.5f * (uy * uy + vy * vy + wy * wy);
+				poi->strain.ezz = wz + 0.5f * (uz * uz + vz * vz + wz * wz);
+				poi->strain.exy = 0.5f * (uy + vx + uy * ux + vy * vx + wy * wx);
+				poi->strain.eyz = 0.5f * (vz + wy + uz * uy + vz * vy + wz * wy);
+				poi->strain.ezx = 0.5f * (wx + uz + ux * uz + vx * vz + wx * wz);
+			}
 		}
 	}
 

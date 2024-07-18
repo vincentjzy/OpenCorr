@@ -70,12 +70,12 @@ namespace opencorr
 		return neighbor_search_radius;
 	}
 
-	int FeatureAffine2D::getMinNeighborNumber() const
+	int FeatureAffine2D::getNeighborMin() const
 	{
 		return neighbor_number_min;
 	}
 
-	void FeatureAffine2D::setSearchParameters(float neighbor_search_radius, int neighbor_number_min)
+	void FeatureAffine2D::setSearch(float neighbor_search_radius, int neighbor_number_min)
 	{
 		this->neighbor_search_radius = neighbor_search_radius;
 		this->neighbor_number_min = neighbor_number_min;
@@ -215,37 +215,6 @@ namespace opencorr
 						ref_candidates[i] = ref_kp[k_neighbor_idx[i]];
 						tar_candidates[i] = tar_kp[k_neighbor_idx[i]];
 					}
-				}
-
-				//use brutal force search for the last chance
-				if (neighbor_num < neighbor_number_min)
-				{
-					std::vector<Point2D>().swap(ref_candidates);
-					std::vector<Point2D>().swap(tar_candidates);
-
-					//sort the kp queue in an ascending order of distance to the POI
-					std::vector<KeypointIndex> ref_sorted_index;
-					int queue_size = (int)ref_kp.size();
-					for (int i = 0; i < queue_size; i++)
-					{
-						Point2D distance = ref_kp[i] - (Point2D)*poi;
-						KeypointIndex current_kp_idx;
-						current_kp_idx.kp_idx = i;
-						current_kp_idx.distance = distance.vectorNorm();
-						ref_sorted_index.push_back(current_kp_idx);
-					}
-
-					std::sort(ref_sorted_index.begin(), ref_sorted_index.end(), sortByDistance);
-
-					//pick the keypoints for RANSAC procedure
-					int i = 0;
-					while (ref_sorted_index[i].distance < neighbor_search_radius || ref_candidates.size() < neighbor_number_min)
-					{
-						ref_candidates.push_back(ref_kp[ref_sorted_index[i].kp_idx]);
-						tar_candidates.push_back(tar_kp[ref_sorted_index[i].kp_idx]);
-						i++;
-					}
-					neighbor_num = (int)ref_candidates.size();
 				}
 			}
 		}
@@ -419,12 +388,12 @@ namespace opencorr
 		return neighbor_search_radius;
 	}
 
-	int FeatureAffine3D::getMinNeighborNumber() const
+	int FeatureAffine3D::getNeighborMin() const
 	{
 		return neighbor_number_min;
 	}
 
-	void FeatureAffine3D::setSearchParameters(float neighbor_search_radius, int neighbor_number_min)
+	void FeatureAffine3D::setSearch(float neighbor_search_radius, int neighbor_number_min)
 	{
 		this->neighbor_search_radius = neighbor_search_radius;
 		this->neighbor_number_min = neighbor_number_min;
@@ -502,37 +471,6 @@ namespace opencorr
 					ref_candidates[i] = ref_kp[k_neighbor_idx[i]];
 					tar_candidates[i] = tar_kp[k_neighbor_idx[i]];
 				}
-			}
-
-			//use brutal force search for the last chance
-			if (neighbor_num < neighbor_number_min)
-			{
-				std::vector<Point3D>().swap(ref_candidates);
-				std::vector<Point3D>().swap(tar_candidates);
-
-				//sort the kp queue in an ascending order of distance to the POI
-				std::vector<KeypointIndex> ref_sorted_index;
-				int queue_size = (int)ref_kp.size();
-				for (int i = 0; i < queue_size; i++)
-				{
-					Point3D distance = ref_kp[i] - (Point3D)*poi;
-					KeypointIndex current_kp_idx;
-					current_kp_idx.kp_idx = i;
-					current_kp_idx.distance = distance.vectorNorm();
-					ref_sorted_index.push_back(current_kp_idx);
-				}
-
-				std::sort(ref_sorted_index.begin(), ref_sorted_index.end(), sortByDistance);
-
-				//pick the keypoints for RANSAC procedure
-				int i = 0;
-				while (ref_sorted_index[i].distance < neighbor_search_radius || ref_candidates.size() < neighbor_number_min)
-				{
-					ref_candidates.push_back(ref_kp[ref_sorted_index[i].kp_idx]);
-					tar_candidates.push_back(tar_kp[ref_sorted_index[i].kp_idx]);
-					i++;
-				}
-				neighbor_num = (int)ref_candidates.size();
 			}
 
 			//convert global coordinates to the POI-centered local coordinates

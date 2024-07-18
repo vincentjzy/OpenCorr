@@ -20,11 +20,7 @@
 #include "oc_cubic_bspline.h"
 #include "oc_dic.h"
 #include "oc_gradient.h"
-#include "oc_image.h"
 #include "oc_interpolation.h"
-#include "oc_poi.h"
-#include "oc_point.h"
-#include "oc_subset.h"
 
 namespace opencorr
 {
