@@ -2,7 +2,7 @@
 
 # OpenCorr： An open source C++ library for digital image correlation 
 
-OpenCorr is an open source C++ library for research and development of 2D, 3D/stereo, and volumetric digital image correlation (DIC). It aims to provide a developer-friendly, lightweight, and efficient kit to the users who are willing to study the state-of-the-art algorithms of DIC and DVC (digital volume correlation), or to create DIC and DVC programs for their specific applications.
+OpenCorr is an open source C++ library for research and development of 2D, 3D/stereo, and volumetric digital image correlation (DIC). It provides a developer-friendly, lightweight, and efficient kit to the users who are willing to study the state-of-the-art algorithms of DIC and DVC (digital volume correlation), or to create DIC and DVC programs for their specific applications. OpenCorr GUI is a shareware with graphical user interface developed based on OpenCorr, demonstrating main functions of this library.
 
 Comments and suggestions are most welcome. You may reach us via
 
@@ -11,6 +11,8 @@ Comments and suggestions are most welcome. You may reach us via
 3. Tencent QQ group: 597895040
 
 Users can also access the information of OpenCorr via website [opencorr.org](http://opencorr.org) .
+
+![image](./img/gui_dvc_2.png)
 
 # Important updates
 
@@ -50,7 +52,9 @@ Users can also access the information of OpenCorr via website [opencorr.org](htt
 >
 >2024.02.07, Major update of ICGN module: (i) GPU accelerated ICGN (ICGNGPU) has been completely reconstructed, adding the function of DVC. The calling method of ICGNGPU is now similar to the CPU version. Most of redundant data conversion and transfer are eliminated. Two examples are added to the folder /examples to demonstrate the use of ICGNGPU. (ii) CPU version is modified to improve the efficiency.
 >
->2024.06.14, Release GUI of OpenCorr. Codes and examples are modified.
+>2024.06.14, Release of OpenCorr GUI 1.0. Codes and examples are modified.
+>
+>2024.07.26, Release of OpenCorr GUI 2.0, which support 2D, 3D/stereo DIC and DVC.
 
 # Instructions
 
@@ -114,17 +118,20 @@ We are jubilant at that OpenCorr helps other colleagues in their study as a soft
 1. Yuxi Chi, Bing Pan. Accelerating parallel digital image correlation computation with feature mesh interpolation. Measurement (2022) 199: 111554. (https://doi.org/10.1016/j.measurement.2022.111554)
 2. Wang Lianpo. Super-robust digital image correlation based on learning template. Optics and Lasers in Engineering (2022) 158: 107164. (https://doi.org/10.1016/j.optlaseng.2022.107164)
 3. Y Li, L Wei, X Zhang. Measurement of nonuniform strain distribution in CORC cable due to bending process by a segmentation-aided stereo digital image correlation (2023) 63: 813-822. (https://doi.org/10.1007/s11340-023-00953-y)
-4. Yong Su. An analytical study on the low-pass filtering effect of digital image correlation caused by under-matched shape functions. Optics and Lasers in Engineering (2023) 168: 107679. (https://doi.org/10.1016/j.optlaseng.2023.107679)
-5. Yusheng Wang, Zhixiang Huang, Pengfei Zhu, Rui Zhu, Tianci Hu, Dahai Zhang, Dong Jiang. Effects of compressed speckle image on digital image correlation for vibration measurement. Measurement (2023) 217: 113041. (https://doi.org/10.1016/j.measurement.2023.113041)
+4. Yusheng Wang, Zhixiang Huang, Pengfei Zhu, Rui Zhu, Tianci Hu, Dahai Zhang, Dong Jiang. Effects of compressed speckle image on digital image correlation for vibration measurement. Measurement (2023) 217: 113041. (https://doi.org/10.1016/j.measurement.2023.113041)
+5. Yong Su. An analytical study on the low-pass filtering effect of digital image correlation caused by under-matched shape functions. Optics and Lasers in Engineering (2023) 168: 107679. (https://doi.org/10.1016/j.optlaseng.2023.107679)
 6. Chuanguo Xiong , Yuhan Gao, Yuhua huang , Fulong Zhu. Specular surface deformation measurement based on projected-speckle deflectometry with digital image correlation. Optics and Lasers in Engineering (2023) 170: 107776. (https://doi.org/10.1016/j.optlaseng.2023.107776)
 7. Xiao Hong, Li Chengnan, Feng Mingchi. Large deformation measurement method of speckle images based on deep learning. Acta Optica Sinica (2023) 43(14): 1412001. (https://doi.org/10.3788/AOS222084)
-8. Derui Li, Bin Cheng, Sheng Xiang. Direct cubic B-spline interpolation: A fuzzy interpolating method for weightless, robust and accurate DVC computation. Optics and Lasers in Engineering (2024) 172: 107886. (https://doi.org/10.1016/j.optlaseng.2023.107886)
-9. Hengrui Cui, Zhoumo Zeng, Jian Li, Hui Zhang, Fenglong Yang, Shili Chen. The effect of error coefficient matrices and correlation criteria on dic computation errors. Optics and Lasers in Engineering (2024) 174: 107954. (https://doi.org/10.1016/j.optlaseng.2023.107954)
+8. Jiaqiu Wang, Hao Wu, Zhengduo Zhu5, Hujin Xie, Han Yu, Qiuxiang Huang, Yuqiao Xiang, Phani Kumari Paritala, Jessica Benitez Mendieta, Haveena Anbananthan, Jorge Alberto Amaya Catano, Runxin Fang, Luping Wang, Zhiyong Li. Impact of Speckle Deformability on Digital Imaging Correlation, IEEE Access (2024) 12:66466-66477. (https://doi.org/10.1109/ACCESS.2024.3398786)
+9. Derui Li, Bin Cheng, Sheng Xiang. Direct cubic B-spline interpolation: A fuzzy interpolating method for weightless, robust and accurate DVC computation. Optics and Lasers in Engineering (2024) 172: 107886. (https://doi.org/10.1016/j.optlaseng.2023.107886)
 10. Datao Li, Xiahui Wei, Yingrong Gao, Jinsong Jiang, Wei Xia, Binhua Wang. Investigations on tensile mechanical properties of rigid insulation tile materials at elevated temperatures based on digital image correlation algorithm. Construction and Building Materials (2024) 413: 134925. (https://doi.org/10.1016/j.conbuildmat.2024.134925)
 11. Jiashuai Yang, Kemao Qian, Lianpo Wang. R3-DICnet: an end-to-end recursive residual refinement DIC network for larger deformation measurement. Optics Express (2024) 32(1): 907-921. (https://doi.org/10.1364/OE.505655)
-12. Yahong Feng, Lianpo Wang. Stereo-DICNet: An efficient and unified speckle matching network for stereo digital image correlation measurement. Optics and Lasers in Engineering (2024) 179: 108267. (https://doi.org/10.1016/j.optlaseng.2024.108267)
-13. Longyong Tong, Hang Zhou, Brian Sheil. Multicore CPU-based parallel computing accelerated digital image correlation for large soil deformations measurement. Computers and Geotechnics (2024) 166: 106027. (https://doi.org/10.1016/j.compgeo.2023.106027)
+12. Longyong Tong, Hang Zhou, Brian Sheil. Multicore CPU-based parallel computing accelerated digital image correlation for large soil deformations measurement. Computers and Geotechnics (2024) 166: 106027. (https://doi.org/10.1016/j.compgeo.2023.106027)
+13. Hengrui Cui, Zhoumo Zeng, Jian Li, Hui Zhang, Fenglong Yang, Shili Chen. The effect of error coefficient matrices and correlation criteria on dic computation errors. Optics and Lasers in Engineering (2024) 174: 107954. (https://doi.org/10.1016/j.optlaseng.2023.107954)
 14. Siqi Wang, Zehui Zhu, Tao Ma, Jianwei Fan. Asphalt concrete characterization using digital image correlation: A systematic review of best practices, applications, and future vision. Journal of Testing and Evaluation (2024) 52(4): 20230485. (https://doi.org/10.1520/JTE20230485)
+15. Yujia Cheng, Quanbao Wang, Lightweight digital image correlation network for stratospheric airship skin deformation measurement, Optical Engineering (2024) 63(7): 073103. (https://doi.org/10.1117/1.OE.63.7.073103).
+16. Yahong Feng, Lianpo Wang. Stereo-DICNet: An efficient and unified speckle matching network for stereo digital image correlation measurement. Optics and Lasers in Engineering (2024) 179: 108267. (https://doi.org/10.1016/j.optlaseng.2024.108267)
+17. Yong Su, Li Lao, Modeling the measurement accuracy of one-dimensional boundary subsets in digital image correlation, Optics and Lasers in Engineering (2024) 181: 108362. (https://doi.org/10.1016/j.optlaseng.2024.108362).
 
 Counting of visitors started from 03 Aug, 2023
 ![Visitor Count](https://profile-counter.glitch.me/vincentjzy/count.svg)
