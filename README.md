@@ -129,9 +129,9 @@ We are jubilant at that OpenCorr helps other colleagues in their study as a soft
 12. Longyong Tong, Hang Zhou, Brian Sheil. Multicore CPU-based parallel computing accelerated digital image correlation for large soil deformations measurement. Computers and Geotechnics (2024) 166: 106027. (https://doi.org/10.1016/j.compgeo.2023.106027)
 13. Hengrui Cui, Zhoumo Zeng, Jian Li, Hui Zhang, Fenglong Yang, Shili Chen. The effect of error coefficient matrices and correlation criteria on dic computation errors. Optics and Lasers in Engineering (2024) 174: 107954. (https://doi.org/10.1016/j.optlaseng.2023.107954)
 14. Siqi Wang, Zehui Zhu, Tao Ma, Jianwei Fan. Asphalt concrete characterization using digital image correlation: A systematic review of best practices, applications, and future vision. Journal of Testing and Evaluation (2024) 52(4): 20230485. (https://doi.org/10.1520/JTE20230485)
-15. Yujia Cheng, Quanbao Wang, Lightweight digital image correlation network for stratospheric airship skin deformation measurement, Optical Engineering (2024) 63(7): 073103. (https://doi.org/10.1117/1.OE.63.7.073103).
+15. Yujia Cheng, Quanbao Wang, Lightweight digital image correlation network for stratospheric airship skin deformation measurement, Optical Engineering (2024) 63(7): 073103. (https://doi.org/10.1117/1.OE.63.7.073103)
 16. Yahong Feng, Lianpo Wang. Stereo-DICNet: An efficient and unified speckle matching network for stereo digital image correlation measurement. Optics and Lasers in Engineering (2024) 179: 108267. (https://doi.org/10.1016/j.optlaseng.2024.108267)
-17. Yong Su, Li Lao, Modeling the measurement accuracy of one-dimensional boundary subsets in digital image correlation, Optics and Lasers in Engineering (2024) 181: 108362. (https://doi.org/10.1016/j.optlaseng.2024.108362).
+17. Yong Su, Li Lao, Modeling the measurement accuracy of one-dimensional boundary subsets in digital image correlation, Optics and Lasers in Engineering (2024) 181: 108362. (https://doi.org/10.1016/j.optlaseng.2024.108362)
 
 Counting of visitors started from 03 Aug, 2023
 ![Visitor Count](https://profile-counter.glitch.me/vincentjzy/count.svg)

@@ -62,7 +62,7 @@ Figure 7.7 shows the interface to run DVC. The software supports multi-page TIFF
 
 
 
-You can choose a proper section to draw ROI, and adjust its range in the axis perpendicular to the section (in dashboard).
+We can choose a proper section to draw ROI, and adjust its range in the axis perpendicular to the section (in dashboard), as shown in Figure 7.8.
 
 ![image](./img/gui_dvc_2.png)
 
@@ -70,7 +70,7 @@ You can choose a proper section to draw ROI, and adjust its range in the axis pe
 
 
 
-Similar to DIC mode, you can use main view to observe the section with higher resolution, as well as check if the sizes of subset or subregion are proper.
+Similar to DIC mode, we can use main view to observe the section with higher resolution (Figure 7.9), as well as check if the sizes of subset or subregion are proper.
 
 ![image](./img/gui_dvc_3.png)
 
