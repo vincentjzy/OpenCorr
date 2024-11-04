@@ -14,8 +14,8 @@
 
 #pragma once
 
-#ifndef _NEAREST_NEIGHBORS_H_
-#define _NEAREST_NEIGHBORS_H_
+#ifndef _NEAREST_NEIGHBOR_H_
+#define _NEAREST_NEIGHBOR_H_
 
 #include <nanoflann.hpp>
 
@@ -31,7 +31,6 @@ namespace opencorr
 
 	struct PointCloud
 	{
-
 		using coord_t = float;  //the type of each coordinate
 
 		std::vector<Point> pts;
@@ -59,7 +58,7 @@ namespace opencorr
 			}
 		}
 
-		//optional bounding-box computation
+		//optional bounding-box computation: return false to default to a standard bbox computation loop
 		template <class BBOX>
 		bool kdtree_get_bbox(BBOX& /* bb */) const
 		{
@@ -75,7 +74,7 @@ namespace opencorr
 		int search_k;
 		float query_coor[3] = { 0.f };
 
-		nanoflann::KDTreeSingleIndexAdaptor<nanoflann::L2_Simple_Adaptor<float, PointCloud>, PointCloud, 3 /* dim */>* kdt_index;
+		nanoflann::KDTreeSingleIndexAdaptor<nanoflann::L2_Simple_Adaptor<float, PointCloud>, PointCloud, 3 /* dim */>* kdt_index = nullptr;
 
 	public:
 		NearestNeighbor();
@@ -92,14 +91,15 @@ namespace opencorr
 		void setSearchK(int search_k);
 
 		void constructKdTree();
+		void clear(); //clear point cloud and KD_tree
 
 		int radiusSearch(Point3D query_point, std::vector<nanoflann::ResultItem<uint32_t, float>>& matches);
 		int radiusSearch(Point3D query_point, float search_radius, std::vector<nanoflann::ResultItem<uint32_t, float>>& matches);
 
-		int knnSearch(Point3D query_point, std::vector<uint32_t>& k_neighbors_idx, std::vector<float>& kp_squared_distance);
-		int knnSearch(Point3D query_point, int search_k, std::vector<uint32_t>& k_neighbors_idx, std::vector<float>& kp_squared_distance);
+		int knnSearch(Point3D query_point, std::vector<uint32_t>& k_neighbor_idx, std::vector<float>& k_squared_distance);
+		int knnSearch(Point3D query_point, int search_k, std::vector<uint32_t>& k_neighbor_idx, std::vector<float>& k_squared_distance);
 	};
 
 }//namespace opencorr
 
-#endif //_NEAREST_NEIGHBORS_H_
+#endif //_NEAREST_NEIGHBOR_H_

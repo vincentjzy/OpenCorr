@@ -20,11 +20,7 @@
 #include "oc_cubic_bspline.h"
 #include "oc_dic.h"
 #include "oc_gradient.h"
-#include "oc_image.h"
 #include "oc_interpolation.h"
-#include "oc_poi.h"
-#include "oc_point.h"
-#include "oc_subset.h"
 
 namespace opencorr
 {
@@ -62,6 +58,9 @@ namespace opencorr
 		ICGN2D1(int subset_radius_x, int subset_radius_y, float conv_criterion, float stop_condition, int thread_number);
 		~ICGN2D1();
 
+		void setIteration(float conv_criterion, float stop_condition);
+		void setIteration(POI2D* poi);
+
 		void prepareRef(); //calculate gradient maps of ref image
 		void prepareTar(); //calculate interpolation coefficient look_up table of tar image
 		void prepare(); //calculate gradient maps of ref image and interpolation coefficient look_up table of tar image
@@ -69,12 +68,12 @@ namespace opencorr
 		void compute(POI2D* poi);
 		void compute(std::vector<POI2D>& poi_queue);
 
-		void setIteration(float conv_criterion, float stop_condition);
-		void setIteration(POI2D* poi);
+		//this part of module is the implementation of
+		//Y. Zhou et al, Optics and Lasers in Engineering (2014) 55: 5-11.
+		//https://doi.org/10.1016/j.optlaseng.2013.10.014
 
-		//functions for self-adaptive subset
-		void compute(POI2D* poi, Point2D subset_radius);
-		void compute(std::vector<POI2D>& poi_queue, Point2D subset_radius);
+		void compute(POI2D* poi, Point2D& center_offset);
+		void compute(std::vector<POI2D>& poi_queue, std::vector<Point2D>& center_offset_queue);
 	};
 
 
@@ -113,6 +112,9 @@ namespace opencorr
 		ICGN2D2(int subset_radius_x, int subset_radius_y, float conv_criterion, float stop_condition, int thread_number);
 		~ICGN2D2();
 
+		void setIteration(float conv_criterion, float stop_condition);
+		void setIteration(POI2D* poi);
+
 		void prepareRef();
 		void prepareTar();
 		void prepare();
@@ -120,8 +122,12 @@ namespace opencorr
 		void compute(POI2D* poi);
 		void compute(std::vector<POI2D>& poi_queue);
 
-		void setIteration(float conv_criterion, float stop_condition);
-		void setIteration(POI2D* poi);
+		//this part of module is the implementation of
+		//Y. Zhou et al, Optics and Lasers in Engineering (2014) 55: 5-11.
+		//https://doi.org/10.1016/j.optlaseng.2013.10.014
+
+		void compute(POI2D* poi, Point2D& center_offset);
+		void compute(std::vector<POI2D>& poi_queue, std::vector<Point2D>& center_offset_queue);
 	};
 
 

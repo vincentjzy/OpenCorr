@@ -56,11 +56,13 @@ namespace opencorr
 
 		Image3D(int dim_x, int dim_y, int dim_z);
 		Image3D(std::string file_path);
-		~Image3D();
+		~Image3D() = default;
 
 		void loadBin(std::string file_path);
 		void loadTiff(std::string file_path);
 		void load(std::string file_path);
+
+		void release();
 	};
 
 }//namespace opencorr

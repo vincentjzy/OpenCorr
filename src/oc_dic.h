@@ -20,10 +20,20 @@
 #include "oc_array.h"
 #include "oc_image.h"
 #include "oc_poi.h"
+#include "oc_point.h"
 #include "oc_subset.h"
 
 namespace opencorr
 {
+
+	// definition of abnormal ZNCC value
+	// 0: reset for further processing
+	// -1: insufficient features in subset (FeatureAffine)
+	// -2: inconsistant set in RANSAC (FeatureAffine)
+	// -3: terminated at the beginning of (ICGN)
+	// -4: Not convergence in iteration (ICGN)
+	// -5: NaN in resutls (ICGN)
+
 	//structure for brute force searching
 	struct KeypointIndex
 	{
@@ -39,12 +49,14 @@ namespace opencorr
 
 		int subset_radius_x, subset_radius_y;
 		int thread_number; //OpenMP thread number
+		bool self_adaptive;
 
 		DIC();
 		virtual ~DIC() = default;
 
 		void setImages(Image2D& ref_img, Image2D& tar_img);
 		void setSubset(int radius_x, int radius_y);
+		void setSelfAdaptive(bool is_self_adaptive); //select if the subset is automatically set or manually set
 
 		virtual void prepare() = 0;
 		virtual void compute(POI2D* poi) = 0;

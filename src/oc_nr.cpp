@@ -110,7 +110,7 @@ namespace opencorr
 			NR2D1_::release(instance);
 			delete instance;
 		}
-		instance_pool.clear();
+		std::vector<NR2D1_*>().swap(instance_pool);
 	}
 
 	void NR2D1::setIteration(float conv_criterion, float stop_condition)

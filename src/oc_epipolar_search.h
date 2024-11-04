@@ -17,13 +17,9 @@
 #ifndef _EPIPOLAR_SEARCH_H_
 #define _EPIPOLAR_SEARCH_H_
 
-#include "oc_array.h"
 #include "oc_calibration.h"
 #include "oc_dic.h"
 #include "oc_icgn.h"
-#include "oc_image.h"
-#include "oc_poi.h"
-#include "oc_point.h"
 
 namespace opencorr
 {

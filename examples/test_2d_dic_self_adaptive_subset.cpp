@@ -70,12 +70,16 @@ int main()
 	sift->setImages(ref_img, tar_img);
 
 	FeatureAffine2D* feature_affine = new FeatureAffine2D(subset_radius_x, subset_radius_y, cpu_thread_number);
-	int neighbor_num = 2 * feature_affine->getMinNeighborNumber();
-	feature_affine->setSearchParameters(sqrt(subset_radius_x * subset_radius_x + subset_radius_y * subset_radius_y), neighbor_num);
+	int neighbor_num = 2 * feature_affine->getNeighborMin();
+	int radius_min = 10;
+	feature_affine->setSearch(sqrt(subset_radius_x * subset_radius_x + subset_radius_y * subset_radius_y), neighbor_num);
 	feature_affine->setImages(ref_img, tar_img);
+	feature_affine->setSelfAdaptive(true);
+	feature_affine->setSubsetAdjustment(neighbor_num, radius_min);
 
 	ICGN2D1* icgn1 = new ICGN2D1(subset_radius_x, subset_radius_y, max_deformation_norm, max_iteration, cpu_thread_number);
 	icgn1->setImages(ref_img, tar_img);
+	icgn1->setSelfAdaptive(true);
 
 	float search_radius = 25;
 	int min_neighbors = 5;
@@ -111,8 +115,7 @@ int main()
 	//dynamic optimization of subset at each POI based on modified FeatureAffine
 	feature_affine->setKeypointPair(sift->ref_matched_kp, sift->tar_matched_kp);
 	feature_affine->prepare();
-	int min_radius = 10;
-	feature_affine->compute(poi_queue, neighbor_num, min_radius);
+	feature_affine->compute(poi_queue);
 
 	//conventional DIC method with fixed-size subset
 	//feature_affine->compute(poi_queue);
@@ -123,15 +126,14 @@ int main()
 	computation_time.push_back(consumed_time); //2
 
 	//display the time of initialization on the screen
-	cout << "Subset optimization and deformation estimation at" << poi_queue.size() << " POIs takes " << consumed_time << " sec" << std::endl;
+	cout << "Subset optimization and deformation estimation at " << poi_queue.size() << " POIs takes " << consumed_time << " sec" << std::endl;
 
 	//get the time of start 
 	timer_tic = omp_get_wtime();
 
 	//ICGN with the 2nd order shape fucntion
 	icgn1->prepare();
-	Point2D subset_radius(0, 0);
-	icgn1->compute(poi_queue, subset_radius);
+	icgn1->compute(poi_queue);
 
 	//conventional DIC method with fixed-size subset
 	//icgn1->compute(poi_queue);

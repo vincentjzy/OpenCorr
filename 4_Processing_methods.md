@@ -74,6 +74,7 @@ Member functions:
 - updateTranslationVector(), update translation vector;
 - updateProjectionMatrix(), update projection matrix according to the three matrices mentioned above;
 - updateMatrices(), update all the four matrices;
+- clear(), set the values of all intrinsics and extrinsics to be zero.
 - Point2D image_to_sensor(Point2D& point), convert the coordinates of input point from image/retina system to sensor/pixel system;
 - Point2D sensor_to_image(Point2D& point), convert the coordinates of input point from sensor/pixel system to image/retina system;
 - float getConvergence(), get current convergence criterion;
@@ -116,15 +117,15 @@ Member functions:
 
 - setPath(string file_path), set path of CSV datasheet;
 - setDelimiter(string delimiter), set delimiter for data picking
-- loadTable2D(), loadTable2DS(), or loadTable3D(), load computed results at POIs from a CSV datasheet, create a POI2D, POI2DS, or POI3D queue;
 - loadPoint2D(string file_path) or loadPoint3D(string file_path), load coordinates of POIs from a CSV datasheet of given file path, create a Point2D or Point3D queue;
+- savePoint2D(vector<POI2D> point_queue, string file_path) or savePoint3D(vector<POI3D> point_queue, string file_path), save the coordinates of POIs to a CSV datasheet of given file path;
+- loadCalibration(Calibration& calibration_cam1, Calibration& calibration_cam2, string file_path), load calibration parameters of cameras from a CSV file;
+- loadTable2D(), loadTable2DS(), or loadTable3D(), load computed results at POIs from a CSV datasheet, create a POI2D, POI2DS, or POI3D queue;
 - saveTable2D(vector<POI2D> poi_queue), saveTable2DS(vector<POI2DS> poi_queue), or saveTable3D(vector<POI3D> poi_queue)，save the information of POIs into a CSV datasheet;
 - saveDeformationTable2D(vector<POI2D> poi_queue), save the full deformation vectors of POIs into a CSV datasheet;
-- saveMap2D(vector<POI2D> poi_queue, char variable), save specific information of POIs (2D DIC results) into a 2D map according to the coordinates of POIs, variable can be set as 'u', 'v', 'c'(zncc), 'd'(convergence), 'i'(iteration), 'f'(feature), 'x' (exx), 'y' (eyy), 'r' (exy);.
-- saveMap2DS(vector<POI2DS>& poi_queue, char variable), save specific information of POIs (3D/stereo DIC results) into a 2D map according to the coordinates of POIs, variable can be set as 'u', 'v', 'w', 'c'(r1r2_zncc), 'd'(r1t1_zncc), 'e'(r1t2_zncc), 'x' (exx), 'y' (eyy), 'z' (ezz), 'r' (exy) , 's' (eyz), 't' (ezx);
-- saveMap3D(vector<POI3D>& poi_queue, char variable), save specific information of POIs (DVC results) into a 3D map according to the coordinates of POIs, variable can be set as 'u', 'v', 'w', 'c'(zncc), 'x' (exx), 'y' (eyy), 'z' (ezz), 'r' (exy) , 's' (eyz), 't' (ezx);
-- saveMatrixBin(vector<POI3D>& poi_queue), save the information of POIs into a binary file. The binary file begins with a head of four integers (data length and three dimensions along x, y, and z directions), followed with an array of floats.
-- vector<POI3D> loadMatrixBin(), read the information of POIs from a binary file, store the information into a POI queue. The dimensions of image got from the head of binary file are stored in dim_x, dim_y, and dim_z of IO object.
+- saveMap2D(vector<POI2D> poi_queue, OutputVariable out_var), saveMap2DS(vector<POI2DS>& poi_queue, OutputVariable out_var), or saveMap3D(vector<POI3D>& poi_queue, OutputVariable out_var), save specific information of POIs (results of 2D DIC, 3D/stereo DIC, or DVC) into a 2D or 3D map according to the coordinates of POIs, out_variable can be set according to enum OutputVariable;
+- saveMatrixBin(vector<POI3D>& poi_queue), save the information of POIs into a binary file. The binary file begins with a head of four integers (data length and three dimensions along x, y, and z directions), the rest part of file are float data of each POIs, in order of : x, y, z, u, v, w, zncc, convergence.
+- vector<POI3D> loadMatrixBin(), read the information of POIs from a binary file, store the information into a POI queue. The data structure is same to that in saveMatrixBin().
 
 ![image](./img/oc_io.png)
 
@@ -136,17 +137,18 @@ Figure 4.2.1 shows the parameters and methods included in the base classes of DI
 
 - Pointer of reference image and target image: ref_img 和 tar_img;
 - Subset radii (in x, y and z direction): subset_radius_x, subset_radius_y, subset_radius_z;
-- Number of CPU threads in parallel processing: thread_number.
+- Number of CPU threads in parallel processing: thread_number;
+- Switch of self-adaptive subset mode: self_adaptive.
 
 Member functions:
 
 - setImages(Image& ref_img, Image& tar_img), set the pointers of ref_img and tar_img;
 
-- setSubsetRadius(int subset_radius_x, int subset_radius_y) or setSubsetRadius(int subset_radius_x, int subset_radius_y, int subset_radius_z), set subset radii.
+- setSubset(int subset_radius_x, int subset_radius_y) or setSubset(int subset_radius_x, int subset_radius_y, int subset_radius_z), set subset radii.
 
-  The following are three virtual functions,
+- setSelfAdaptive(bool is_self_adpative), turn on or off the mode of self-adaptive subset; 
 
-- prepare(), preparation for DIC or DVC processing;
+  The following are three virtual functions,prepare(), preparation for DIC or DVC processing;
 
 - compute(POI2D* poi) or compute(POI3D* poi), process a single POI;
 
@@ -201,7 +203,7 @@ Figure 4.2.7 shows the parameters and methods included in Strain (oc_strain.h an
 Parameters:
 
 - Radius of subregion for fitting of local displacement profiles: subregion_radius;
-- Minimum number of neighbor POIs involved in facet fitting: min_neighbor_num;
+- Minimum number of neighbor POIs involved in facet fitting: neighbor_number_min;
 - Lowest ZNCC value required for the neighbor POIs involved in facet fitting: zncc_threshold;
 - Description of strain tensor: description, 1 denotes Lagrangian; 2 denotes Eulerian;
 - Approximation of strain: approximation, 1 for Cauchy strain; 2 for Green strain;
@@ -210,7 +212,7 @@ Parameters:
 Member functions:
 
 - setSubregionRadius(int subregion_radius), set the radius of the POI-centered subregion for fitting of local displacement profiles;
-- setMinNeighborNumber(int min_neighbor_num), set minimum number of neighbor POIs;
+- setNeighborMin(int neighbor_number_min), set minimum number of neighbor POIs;
 - setZnccThreshold(float zncc_threshold), set ZNCC threshold;
 - setDescription(int description), set description of strain tensor: 1 denotes Lagrangian; 2 denotes Eulerian;
 - setApproximation(int approximation), set definition of strains: 1 for Cauchy strain; 2 for Green strain;

@@ -80,8 +80,8 @@ int main()
 	file_path = tar_image_path.substr(0, tar_image_path.find_last_of(".")) + "_eyy.csv";
 	in_out.setPath(file_path);
 
-	//variable: 'u', 'v', 'c'(zncc), 'd'(convergence), 'i'(iteration), 'f'(feature), 'x' (exx), 'y' (eyy), 'r' (exy)
-	in_out.saveMap2D(poi_queue, 'y');
+	OutputVariable out_var = e_yy;
+	in_out.saveMap2D(poi_queue, out_var);
 
 	//save the computation time
 	file_path = tar_image_path.substr(0, tar_image_path.find_last_of(".")) + "_strain_r20_time.csv";

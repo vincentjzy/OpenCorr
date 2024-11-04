@@ -358,8 +358,8 @@ namespace opencorr
 	float TricubicBspline::compute(Point3D& location)
 	{
 		float value = 0.f;
-		if (location.x < 0 || location.y < 0 || location.z < 0
-			|| location.x >= interp_img->dim_x || location.y >= interp_img->dim_y || location.z >= interp_img->dim_z
+		if (location.x < 1 || location.y < 1 || location.z < 1
+			|| location.x >= interp_img->dim_x - 2 || location.y >= interp_img->dim_y - 2 || location.z >= interp_img->dim_z - 2
 			|| std::isnan(location.x) || std::isnan(location.y) || std::isnan(location.z))
 		{
 			value = -1.f;

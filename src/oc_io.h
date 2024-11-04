@@ -17,73 +17,106 @@
 #ifndef  _IO_H_
 #define  _IO_H_
 
-#include <string>
-#include <vector>
-
 #include "oc_poi.h"
-
-using std::vector;
-using std::string;
+#include "oc_calibration.h"
 
 namespace opencorr
 {
-	//This module is made to input data from csv table and output data to csv data
+	enum OutputVariable
+	{
+		u = 1, //displacement
+		v = 2,
+		w = 3,
+		e_xx = 4, //strain
+		e_yy = 5,
+		e_zz = 6,
+		e_xy = 7,
+		e_yz = 8,
+		e_zx = 9,
+		zncc = 10, //r1t1
+		zncc_r1r2 = 11,
+		zncc_r1t2 = 12,
+		deformation_increment = 13, //convergence
+		iteration_step = 14, //stop
+		feature_nearby = 15, //SIFT feature
+		u_x = 16, //displacement gradient
+		u_y = 17,
+		u_z = 18,
+		v_x = 19,
+		v_y = 20,
+		v_z = 21,
+		w_x = 22,
+		w_y = 23,
+		w_z = 24,
+	};
+
+	//this module is made to input data from csv table and output data to csv data
 	class IO2D
 	{
 	private:
-		string file_path;
-		string delimiter;
+		std::string file_path;
+		std::string delimiter;
 		int width, height;
 
 	public:
 		IO2D();
 		~IO2D();
 
-		string getPath() const;
-		string getDelimiter() const;
+		OutputVariable out_var;
+
+		std::string getPath() const;
+		std::string getDelimiter() const;
 		int getWidth() const;
 		int getHeight() const;
-		void setPath(string file_path);
-		void setDelimiter(string delimiter);
+		void setPath(std::string file_path);
+		void setDelimiter(std::string delimiter);
 		void setWidth(int width);
 		void setHeight(int height);
 
-		//load deformation of POIs from saved csv table
-		vector<POI2D> loadTable2D();
-
 		//load locations of POIs from csv table
-		vector<Point2D> loadPoint2D(string file_path);
+		std::vector<Point2D> loadPoint2D(std::string file_path);
 
-		void saveTable2D(vector<POI2D>& poi_queue);
-		void saveDeformationTable2D(vector<POI2D>& poi_queue);
+		//save locations of POIs to csv table
+		void savePoint2D(std::vector<Point2D> point_queue, std::string file_path);
 
-		//variable: 'u', 'v', 'c'(zncc), 'd'(convergence), 'i'(iteration), 'f'(feature), 'x' (exx), 'y' (eyy), 'r' (exy)
-		void saveMap2D(vector<POI2D>& poi_queue, char variable);
+		//load camera calibration for stereovision
+		void loadCalibration(Calibration& calibration_cam1, Calibration& calibration_cam2, std::string file_path);
 
-		//load deformation of POIs from saved date table
-		vector<POI2DS> loadTable2DS();
+		//load deformation of POIs from csv table
+		std::vector<POI2D> loadTable2D();
 
-		void saveTable2DS(vector<POI2DS>& poi_queue);
+		//save results of DIC to csv table
+		void saveTable2D(std::vector<POI2D>& poi_queue);
+		void saveDeformationTable2D(std::vector<POI2D>& poi_queue);
 
-		//variable: 'u', 'v', 'w', 'c'(r1r2_zncc), 'd'(r1t1_zncc), 'e'(r1t2_zncc), 'x' (exx), 'y' (eyy), 'z' (ezz), 'r' (exy) , 's' (eyz), 't' (ezx)
-		void saveMap2DS(vector<POI2DS>& poi_queue, char variable);
+		//variable could be referred to enum OutputVariable
+		void saveMap2D(std::vector<POI2D>& poi_queue, OutputVariable variable);
+
+		//load deformation of POIs from csv table
+		std::vector<POI2DS> loadTable2DS();
+
+		//save results of stereo DIC to csv table
+		void saveTable2DS(std::vector<POI2DS>& poi_queue);
+
+		//variable could be referred to enum OutputVariable
+		void saveMap2DS(std::vector<POI2DS>& poi_queue, OutputVariable variable);
 	};
 
 	class IO3D
 	{
 	private:
-		string file_path;
-		string delimiter;
+		std::string file_path;
+		std::string delimiter;
 		int dim_x, dim_y, dim_z;
 
 	public:
 		IO3D();
 		~IO3D();
 
-		string getPath() const;
-		string getDelimiter() const;
-		void setPath(string file_path);
-		void setDelimiter(string delimiter);
+		std::string getPath() const;
+		std::string getDelimiter() const;
+		void setPath(std::string file_path);
+		void setDelimiter(std::string delimiter);
 
 		int getDimX();
 		int getDimY();
@@ -92,21 +125,24 @@ namespace opencorr
 		void setDimY(int dim_y);
 		void setDimZ(int dim_z);
 
-		//load deformation of POIs from saved date table
-		vector<POI3D> loadTable3D();
-
 		//load locations of POIs from csv table
-		vector<Point3D> loadPoint3D(string file_path);
+		std::vector<Point3D> loadPoint3D(std::string file_path);
 
-		void saveTable3D(vector<POI3D>& poi_queue);
+		//save locations of POIs to csv table
+		void savePoint3D(std::vector<Point3D> poi_queue, std::string file_path);
 
-		//variable: 'u', 'v', 'w', 'c'(zncc), 'x' (exx), 'y' (eyy), 'z' (ezz), 'r' (exy) , 's' (eyz), 't' (ezx)
-		void saveMap3D(vector<POI3D>& poi_queue, char variable);
+		//load deformation of POIs from saved date table
+		std::vector<POI3D> loadTable3D();
+
+		//save results of DVC to csv table
+		void saveTable3D(std::vector<POI3D>& poi_queue);
+
+		//variable could be referred to enum OutputVariable
+		void saveMap3D(std::vector<POI3D>& poi_queue, OutputVariable variable);
 
 		//save and load deformation of POIs into a binary matrix
-		void saveMatrixBin(vector<POI3D>& poi_queue);
-		vector<POI3D> loadMatrixBin();
-
+		void saveMatrixBin(std::vector<POI3D>& poi_queue);
+		std::vector<POI3D> loadMatrixBin();
 	};
 
 }//namespace opencorr

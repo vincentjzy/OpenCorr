@@ -30,6 +30,11 @@ namespace opencorr
 		subset_radius_y = radius_y;
 	}
 
+	void DIC::setSelfAdaptive(bool is_self_adaptive)
+	{
+		self_adaptive = is_self_adaptive;
+	}
+
 
 
 	DVC::DVC() {}
@@ -48,7 +53,8 @@ namespace opencorr
 	}
 
 
-	bool sortByZNCC(const POI2D& p1, const POI2D& p2) {
+	bool sortByZNCC(const POI2D& p1, const POI2D& p2)
+	{
 		return p1.result.zncc > p2.result.zncc;
 	}
 

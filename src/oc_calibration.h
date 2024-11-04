@@ -73,6 +73,9 @@ namespace opencorr
 		void updateMatrices();
 		void updateCalibration(CameraIntrinsics& intrinsics, CameraExtrinsics& extrinsics);
 
+		//reset all elements of intrinsics and extrinsics to be zero
+		void clear();
+
 		//get and set convergence criterion and stop condition
 		float getConvergence() const;
 		int getIteration() const;

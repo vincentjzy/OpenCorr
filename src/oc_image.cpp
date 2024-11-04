@@ -21,6 +21,7 @@ namespace opencorr
 	//2D image
 	Image2D::Image2D(int width, int height)
 	{
+		cv_mat = cv::Mat::zeros(height, width, CV_8UC1);
 		eg_mat = Eigen::MatrixXf::Zero(height, width);
 		this->width = width;
 		this->height = height;
@@ -29,20 +30,7 @@ namespace opencorr
 
 	Image2D::Image2D(std::string file_path)
 	{
-		cv_mat = cv::imread(file_path, cv::IMREAD_GRAYSCALE);
-
-		if (!cv_mat.data)
-		{
-			throw std::string("Fail to load file: " + file_path);
-		}
-
-		this->file_path = file_path;
-		width = cv_mat.cols;
-		height = cv_mat.rows;
-		size = height * width;
-		eg_mat.resize(height, width);
-
-		cv::cv2eigen(cv_mat, eg_mat);
+		load(file_path);
 	}
 
 	void Image2D::load(std::string file_path)
@@ -80,29 +68,7 @@ namespace opencorr
 
 	Image3D::Image3D(std::string file_path)
 	{
-		//check if the file is a bin or tiff
-		size_t dot_pos = file_path.find_last_of(".");
-		std::string file_ext = file_path.substr(dot_pos + 1);
-		if (file_ext == "bin" || file_ext == "BIN")
-		{
-			loadBin(file_path);
-		}
-		else if (file_ext == "tif" || file_ext == "TIF" || file_ext == "tiff" || file_ext == "TIFF")
-		{
-			loadTiff(file_path);
-		}
-		else
-		{
-			std::cerr << "Not binary file or multi-page tiff" << std::endl;
-		}
-	}
-
-	Image3D::~Image3D()
-	{
-		if (vol_mat != nullptr)
-		{
-			delete3D(vol_mat);
-		}
+		load(file_path);
 	}
 
 	void Image3D::loadBin(std::string file_path)
@@ -119,8 +85,6 @@ namespace opencorr
 		{
 			std::cerr << "Failed to open bin file: " << file_path << std::endl;
 		}
-
-		this->file_path = file_path;
 
 		//get the length of data
 		file_in.seekg(0, file_in.end);
@@ -180,6 +144,8 @@ namespace opencorr
 
 	void Image3D::load(std::string file_path)
 	{
+		this->file_path = file_path;
+
 		//check if the file is a bin or tiff
 		size_t dot_pos = file_path.find_last_of(".");
 		std::string file_ext = file_path.substr(dot_pos + 1);
@@ -194,6 +160,14 @@ namespace opencorr
 		else
 		{
 			std::cerr << "Not binary file or multi-page tiff" << std::endl;
+		}
+	}
+
+	void Image3D::release()
+	{
+		if (vol_mat != nullptr)
+		{
+			delete3D(vol_mat);
 		}
 	}
 
