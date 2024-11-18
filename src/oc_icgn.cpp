@@ -142,8 +142,8 @@ namespace opencorr
 			tar_interp = nullptr;
 		}
 
-		tar_interp = new BicubicBspline(*tar_img);
-		tar_interp->prepare();
+		tar_interp = new BicubicBspline();
+		tar_interp->prepare(*tar_img);
 	}
 
 	void ICGN2D1::prepare()
@@ -475,8 +475,8 @@ namespace opencorr
 			tar_interp = nullptr;
 		}
 
-		tar_interp = new BicubicBspline(*tar_img);
-		tar_interp->prepare();
+		tar_interp = new BicubicBspline();
+		tar_interp->prepare(*tar_img);
 	}
 
 	void ICGN2D2::prepare()
@@ -839,8 +839,8 @@ namespace opencorr
 			tar_interp = nullptr;
 		}
 
-		tar_interp = new TricubicBspline(*tar_img);
-		tar_interp->prepare();
+		tar_interp = new TricubicBspline();
+		tar_interp->prepare(*tar_img);
 	}
 
 	void ICGN3D1::prepare()

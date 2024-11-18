@@ -26,26 +26,20 @@ namespace opencorr
 	//2D
 	class Interpolation2D
 	{
-	protected:
-		Image2D* interp_img = nullptr;
-
 	public:
 		virtual ~Interpolation2D() = default;
 
-		virtual void prepare() = 0;
+		virtual void prepare(Image2D& image) = 0;
 		virtual float compute(Point2D& location) = 0;
 	};
 
 	//3D
 	class Interpolation3D
 	{
-	protected:
-		Image3D* interp_img = nullptr;
-
 	public:
 		virtual ~Interpolation3D() = default;
 
-		virtual void prepare() = 0;
+		virtual void prepare(Image3D& image) = 0;
 		virtual float compute(Point3D& location) = 0;
 	};
 
