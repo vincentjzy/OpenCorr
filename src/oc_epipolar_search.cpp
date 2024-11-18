@@ -189,8 +189,6 @@ namespace opencorr
 		std::sort(poi_candidates.begin(), poi_candidates.end(), sortByZNCC);
 
 		poi->deformation = poi_candidates[0].deformation;
-		poi->deformation = poi_candidates[0].deformation;
-		poi->result = poi_candidates[0].result;
 		poi->result = poi_candidates[0].result;
 	}
 

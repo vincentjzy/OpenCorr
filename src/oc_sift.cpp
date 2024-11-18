@@ -1249,6 +1249,7 @@ namespace opencorr
 		KeypointChecker kp_chk;
 		kp_chk.ref_idx = -1;
 		kp_chk.tar_idx = -1;
+		kp_chk.dist = 0.0f;
 		std::vector<KeypointChecker> kp_matches(kp1_amount, kp_chk);
 
 		//match each reference keypoint with target keypoints
