@@ -28,15 +28,14 @@ namespace opencorr
 	class BicubicBspline : public Interpolation2D
 	{
 	public:
-		BicubicBspline(Image2D& image);
+		BicubicBspline();
 		~BicubicBspline();
 
-		void setImage(Image2D& image); //set image to process
-
-		void prepare();
+		void prepare(Image2D& image); // compute coefficient from image
 		float compute(Point2D& location);
 
 	private:
+		int height, width;
 		float**** coefficient = nullptr;
 
 		//B
@@ -75,15 +74,14 @@ namespace opencorr
 	class TricubicBspline : public Interpolation3D
 	{
 	public:
-		TricubicBspline(Image3D& image);
+		TricubicBspline();
 		~TricubicBspline();
 
-		void setImage(Image3D& image); //set image to process
-
-		void prepare();
+		void prepare(Image3D& image); // compute coefficient from image
 		float compute(Point3D& location);
 
 	private:
+		int dim_x, dim_y, dim_z;
 		float*** coefficient = nullptr;
 
 		//B-spline prefilter

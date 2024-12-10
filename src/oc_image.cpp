@@ -28,7 +28,7 @@ namespace opencorr
 		size = height * width;
 	}
 
-	Image2D::Image2D(std::string file_path)
+	Image2D::Image2D(std::string file_path) : height(0), width(0)
 	{
 		load(file_path);
 	}

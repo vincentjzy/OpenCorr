@@ -165,7 +165,7 @@ namespace opencorr
 	{
 		if (tid >= (int)instance_pool.size())
 		{
-			std::cerr << "CPU thread ID over limit" << std::endl;
+			throw std::string("CPU thread ID over limit");
 		}
 
 		return instance_pool[tid];
@@ -307,7 +307,7 @@ namespace opencorr
 	{
 		if (tid >= (int)instance_pool.size())
 		{
-			std::cerr << "CPU thread ID over limit" << std::endl;
+			throw std::string("CPU thread ID over limit");
 		}
 
 		return instance_pool[tid];

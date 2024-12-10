@@ -79,7 +79,7 @@ namespace opencorr
 	}
 
 	ICGN2D1::ICGN2D1(int subset_radius_x, int subset_radius_y, float conv_criterion, float stop_condition, int thread_number)
-		: ref_gradient(nullptr), tar_interp(nullptr)
+		: tar_interp(nullptr), ref_gradient(nullptr)
 	{
 		this->subset_radius_x = subset_radius_x;
 		this->subset_radius_y = subset_radius_y;
@@ -142,8 +142,8 @@ namespace opencorr
 			tar_interp = nullptr;
 		}
 
-		tar_interp = new BicubicBspline(*tar_img);
-		tar_interp->prepare();
+		tar_interp = new BicubicBspline();
+		tar_interp->prepare(*tar_img);
 	}
 
 	void ICGN2D1::prepare()
@@ -412,7 +412,7 @@ namespace opencorr
 	}
 
 	ICGN2D2::ICGN2D2(int subset_radius_x, int subset_radius_y, float conv_criterion, float stop_condition, int thread_number)
-		: ref_gradient(nullptr), tar_interp(nullptr)
+		: tar_interp(nullptr), ref_gradient(nullptr)
 	{
 		this->subset_radius_x = subset_radius_x;
 		this->subset_radius_y = subset_radius_y;
@@ -475,8 +475,8 @@ namespace opencorr
 			tar_interp = nullptr;
 		}
 
-		tar_interp = new BicubicBspline(*tar_img);
-		tar_interp->prepare();
+		tar_interp = new BicubicBspline();
+		tar_interp->prepare(*tar_img);
 	}
 
 	void ICGN2D2::prepare()
@@ -776,7 +776,7 @@ namespace opencorr
 	}
 
 	ICGN3D1::ICGN3D1(int subset_radius_x, int subset_radius_y, int subset_radius_z, float conv_criterion, float stop_condition, int thread_number)
-		: ref_gradient(nullptr), tar_interp(nullptr)
+		: tar_interp(nullptr), ref_gradient(nullptr)
 	{
 		this->subset_radius_x = subset_radius_x;
 		this->subset_radius_y = subset_radius_y;
@@ -839,8 +839,8 @@ namespace opencorr
 			tar_interp = nullptr;
 		}
 
-		tar_interp = new TricubicBspline(*tar_img);
-		tar_interp->prepare();
+		tar_interp = new TricubicBspline();
+		tar_interp->prepare(*tar_img);
 	}
 
 	void ICGN3D1::prepare()
