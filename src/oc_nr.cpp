@@ -143,8 +143,8 @@ namespace opencorr
 			delete tar_interp;
 			tar_interp = nullptr;
 		}
-		tar_interp = new BicubicBspline();
-		tar_interp->prepare(*tar_img);
+		tar_interp = new BicubicBspline(*tar_img);
+		tar_interp->prepare();
 
 		//create interpolation coefficient table of gradient along x
 		Image2D gradient_img(tar_img->width, tar_img->height);
@@ -155,8 +155,8 @@ namespace opencorr
 			delete tar_interp_x;
 			tar_interp_x = nullptr;
 		}
-		tar_interp_x = new BicubicBspline();
-		tar_interp_x->prepare(gradient_img);
+		tar_interp_x = new BicubicBspline(gradient_img);
+		tar_interp_x->prepare();
 
 		//create interpolation coefficient table of gradient along y
 		gradient_img.eg_mat = tar_gradient->gradient_y;
@@ -166,8 +166,8 @@ namespace opencorr
 			delete tar_interp_y;
 			tar_interp_y = nullptr;
 		}
-		tar_interp_y = new BicubicBspline();
-		tar_interp_y->prepare(gradient_img);
+		tar_interp_y = new BicubicBspline(gradient_img);
+		tar_interp_y->prepare();
 	}
 
 	void NR2D1::compute(POI2D* poi)

@@ -19,7 +19,6 @@
 
 #include <Eigen>
 #include <opencv2/opencv.hpp>
-//#include <opencv2/world.hpp>
 #include <opencv2/core/eigen.hpp>
 
 #include "oc_array.h"

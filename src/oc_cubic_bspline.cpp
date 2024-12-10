@@ -51,8 +51,10 @@ namespace opencorr
 	}
 
 	//bicubic B-spline interpolation
-	BicubicBspline::BicubicBspline() :coefficient(nullptr)
+	BicubicBspline::BicubicBspline(Image2D& image)
+		: coefficient(nullptr)
 	{
+		setImage(image);
 	}
 
 	BicubicBspline::~BicubicBspline()
@@ -63,7 +65,7 @@ namespace opencorr
 		}
 	}
 
-	void BicubicBspline::prepare(Image2D& image)
+	void BicubicBspline::setImage(Image2D& image)
 	{
 		if (image.height < 5 || image.width < 5)
 		{
@@ -71,10 +73,14 @@ namespace opencorr
 		}
 		else
 		{
+			interp_img = &image;
 			height = image.height;
 			width = image.width;
 		}
-		
+	}
+
+	void BicubicBspline::prepare()
+	{
 		if (coefficient != nullptr)
 		{
 			delete4D(coefficient);
@@ -91,7 +97,7 @@ namespace opencorr
 				for (int i = 0; i < 4; i++)
 				{
 					for (int j = 0; j < 4; j++) {
-						mat_q[i][j] = image.eg_mat(r - 1 + i, c - 1 + j);
+						mat_q[i][j] = interp_img->eg_mat(r - 1 + i, c - 1 + j);
 					}
 				}
 
@@ -174,8 +180,10 @@ namespace opencorr
 
 
 	//tricubic B-spline interpolation
-	TricubicBspline::TricubicBspline() :coefficient(nullptr)
+	TricubicBspline::TricubicBspline(Image3D& image)
+		: coefficient(nullptr)
 	{
+		setImage(image);
 	}
 
 	TricubicBspline::~TricubicBspline()
@@ -186,7 +194,7 @@ namespace opencorr
 		}
 	}
 
-	void TricubicBspline::prepare(Image3D& image)
+	void TricubicBspline::setImage(Image3D& image)
 	{
 		if (image.dim_x < 15 || image.dim_y < 15 || image.dim_z < 15)
 		{
@@ -194,11 +202,15 @@ namespace opencorr
 		}
 		else
 		{
+			interp_img = &image;
 			dim_x = image.dim_x;
 			dim_y = image.dim_y;
 			dim_z = image.dim_z;
 		}
-		
+	}
+
+	void TricubicBspline::prepare()
+	{
 		if (coefficient != nullptr)
 		{
 			delete3D(coefficient);
@@ -214,36 +226,36 @@ namespace opencorr
 			{
 				for (int k = 7; k < dim_x - 7; k++)
 				{
-					coefficient[i][j][k] = BSPLINE_PREFILTER[0] * image.vol_mat[i][j][k]
-						+ BSPLINE_PREFILTER[1] * (image.vol_mat[i][j][k - 1] + image.vol_mat[i][j][k + 1])
-						+ BSPLINE_PREFILTER[2] * (image.vol_mat[i][j][k - 2] + image.vol_mat[i][j][k + 2])
-						+ BSPLINE_PREFILTER[3] * (image.vol_mat[i][j][k - 3] + image.vol_mat[i][j][k + 3])
-						+ BSPLINE_PREFILTER[4] * (image.vol_mat[i][j][k - 4] + image.vol_mat[i][j][k + 4])
-						+ BSPLINE_PREFILTER[5] * (image.vol_mat[i][j][k - 5] + image.vol_mat[i][j][k + 5])
-						+ BSPLINE_PREFILTER[6] * (image.vol_mat[i][j][k - 6] + image.vol_mat[i][j][k + 6])
-						+ BSPLINE_PREFILTER[7] * (image.vol_mat[i][j][k - 7] + image.vol_mat[i][j][k + 7]);
+					coefficient[i][j][k] = BSPLINE_PREFILTER[0] * interp_img->vol_mat[i][j][k]
+						+ BSPLINE_PREFILTER[1] * (interp_img->vol_mat[i][j][k - 1] + interp_img->vol_mat[i][j][k + 1])
+						+ BSPLINE_PREFILTER[2] * (interp_img->vol_mat[i][j][k - 2] + interp_img->vol_mat[i][j][k + 2])
+						+ BSPLINE_PREFILTER[3] * (interp_img->vol_mat[i][j][k - 3] + interp_img->vol_mat[i][j][k + 3])
+						+ BSPLINE_PREFILTER[4] * (interp_img->vol_mat[i][j][k - 4] + interp_img->vol_mat[i][j][k + 4])
+						+ BSPLINE_PREFILTER[5] * (interp_img->vol_mat[i][j][k - 5] + interp_img->vol_mat[i][j][k + 5])
+						+ BSPLINE_PREFILTER[6] * (interp_img->vol_mat[i][j][k - 6] + interp_img->vol_mat[i][j][k + 6])
+						+ BSPLINE_PREFILTER[7] * (interp_img->vol_mat[i][j][k - 7] + interp_img->vol_mat[i][j][k + 7]);
 				}
 				for (int k = 0; k < 7; k++)
 				{
-					coefficient[i][j][k] = BSPLINE_PREFILTER[0] * image.vol_mat[i][j][k]
-						+ BSPLINE_PREFILTER[1] * (image.vol_mat[i][j][getHigh(k - 1, 0)] + image.vol_mat[i][j][k + 1])
-						+ BSPLINE_PREFILTER[2] * (image.vol_mat[i][j][getHigh(k - 2, 0)] + image.vol_mat[i][j][k + 2])
-						+ BSPLINE_PREFILTER[3] * (image.vol_mat[i][j][getHigh(k - 3, 0)] + image.vol_mat[i][j][k + 3])
-						+ BSPLINE_PREFILTER[4] * (image.vol_mat[i][j][getHigh(k - 4, 0)] + image.vol_mat[i][j][k + 4])
-						+ BSPLINE_PREFILTER[5] * (image.vol_mat[i][j][getHigh(k - 5, 0)] + image.vol_mat[i][j][k + 5])
-						+ BSPLINE_PREFILTER[6] * (image.vol_mat[i][j][getHigh(k - 6, 0)] + image.vol_mat[i][j][k + 6])
-						+ BSPLINE_PREFILTER[7] * (image.vol_mat[i][j][getHigh(k - 7, 0)] + image.vol_mat[i][j][k + 7]);
+					coefficient[i][j][k] = BSPLINE_PREFILTER[0] * interp_img->vol_mat[i][j][k]
+						+ BSPLINE_PREFILTER[1] * (interp_img->vol_mat[i][j][getHigh(k - 1, 0)] + interp_img->vol_mat[i][j][k + 1])
+						+ BSPLINE_PREFILTER[2] * (interp_img->vol_mat[i][j][getHigh(k - 2, 0)] + interp_img->vol_mat[i][j][k + 2])
+						+ BSPLINE_PREFILTER[3] * (interp_img->vol_mat[i][j][getHigh(k - 3, 0)] + interp_img->vol_mat[i][j][k + 3])
+						+ BSPLINE_PREFILTER[4] * (interp_img->vol_mat[i][j][getHigh(k - 4, 0)] + interp_img->vol_mat[i][j][k + 4])
+						+ BSPLINE_PREFILTER[5] * (interp_img->vol_mat[i][j][getHigh(k - 5, 0)] + interp_img->vol_mat[i][j][k + 5])
+						+ BSPLINE_PREFILTER[6] * (interp_img->vol_mat[i][j][getHigh(k - 6, 0)] + interp_img->vol_mat[i][j][k + 6])
+						+ BSPLINE_PREFILTER[7] * (interp_img->vol_mat[i][j][getHigh(k - 7, 0)] + interp_img->vol_mat[i][j][k + 7]);
 				}
 				for (int k = dim_x - 7; k < dim_x; k++)
 				{
-					coefficient[i][j][k] = BSPLINE_PREFILTER[0] * image.vol_mat[i][j][k]
-						+ BSPLINE_PREFILTER[1] * (image.vol_mat[i][j][k - 1] + image.vol_mat[i][j][getLow(k + 1, dim_x - 1)])
-						+ BSPLINE_PREFILTER[2] * (image.vol_mat[i][j][k - 2] + image.vol_mat[i][j][getLow(k + 2, dim_x - 1)])
-						+ BSPLINE_PREFILTER[3] * (image.vol_mat[i][j][k - 3] + image.vol_mat[i][j][getLow(k + 3, dim_x - 1)])
-						+ BSPLINE_PREFILTER[4] * (image.vol_mat[i][j][k - 4] + image.vol_mat[i][j][getLow(k + 4, dim_x - 1)])
-						+ BSPLINE_PREFILTER[5] * (image.vol_mat[i][j][k - 5] + image.vol_mat[i][j][getLow(k + 5, dim_x - 1)])
-						+ BSPLINE_PREFILTER[6] * (image.vol_mat[i][j][k - 6] + image.vol_mat[i][j][getLow(k + 6, dim_x - 1)])
-						+ BSPLINE_PREFILTER[7] * (image.vol_mat[i][j][k - 7] + image.vol_mat[i][j][getLow(k + 7, dim_x - 1)]);
+					coefficient[i][j][k] = BSPLINE_PREFILTER[0] * interp_img->vol_mat[i][j][k]
+						+ BSPLINE_PREFILTER[1] * (interp_img->vol_mat[i][j][k - 1] + interp_img->vol_mat[i][j][getLow(k + 1, dim_x - 1)])
+						+ BSPLINE_PREFILTER[2] * (interp_img->vol_mat[i][j][k - 2] + interp_img->vol_mat[i][j][getLow(k + 2, dim_x - 1)])
+						+ BSPLINE_PREFILTER[3] * (interp_img->vol_mat[i][j][k - 3] + interp_img->vol_mat[i][j][getLow(k + 3, dim_x - 1)])
+						+ BSPLINE_PREFILTER[4] * (interp_img->vol_mat[i][j][k - 4] + interp_img->vol_mat[i][j][getLow(k + 4, dim_x - 1)])
+						+ BSPLINE_PREFILTER[5] * (interp_img->vol_mat[i][j][k - 5] + interp_img->vol_mat[i][j][getLow(k + 5, dim_x - 1)])
+						+ BSPLINE_PREFILTER[6] * (interp_img->vol_mat[i][j][k - 6] + interp_img->vol_mat[i][j][getLow(k + 6, dim_x - 1)])
+						+ BSPLINE_PREFILTER[7] * (interp_img->vol_mat[i][j][k - 7] + interp_img->vol_mat[i][j][getLow(k + 7, dim_x - 1)]);
 				}
 			}
 		}
