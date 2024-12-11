@@ -196,9 +196,14 @@ Parameters:
 
 *Figure 4.2.6. Parameters and methods included in EpipolarSearch object*
 
+(6) ICLM (oc_iclm.h and oc_iclm.cpp), inverse compositional Levenberg-Marquardt algorithms with the 1st-order shape function and the 2nd-order shape function. Figure 4.2.7 show the parameters and methods included in the object. The principle of ICLM can be found in Dr CHEN Bin's paper (Chen & Jungstedt, Opt Laser Eng, 2022, 151: 106930). Its implementation is quite similar to ICGN, only introduces damping item to the inverse Hessian matrix. Our experiments show that the performance of ICLM (especially robustness and computational efficiency) is probably inferior to ICGN.
+
+![image](./img/oc_iclm.png)
+*Figure 4.2.7. Parameters and methods included in ICLM object*
 
 
-Figure 4.2.7 shows the parameters and methods included in Strain (oc_strain.h and oc_strain.cpp), which is a module to calculate the strains based on the displacements obtained by DIC module. The method first creates local profiles of displacement components in a POI-centered subregion through polynomial fitting, and then calculates the strains according to the first order derivatives of the displacement profiles. Users may refer to the paper by Professor PAN Bing (Pan et al. Opt Eng, 2007, 46: 033601) for the details of principle. NearestNeighbor is invoked to speed up the search for neighbor POIs near the inspected POI, in a similar way in FeatureAffine. It is noteworthy that the default calculation of strains follows the definition of Cauchy strain. Users may shift to the definition of Green strains by setting parameter approximation.
+
+Figure 4.2.8 shows the parameters and methods included in Strain (oc_strain.h and oc_strain.cpp), which is a module to calculate the strains based on the displacements obtained by DIC module. The method first creates local profiles of displacement components in a POI-centered subregion through polynomial fitting, and then calculates the strains according to the first order derivatives of the displacement profiles. Users may refer to the paper by Professor PAN Bing (Pan et al. Opt Eng, 2007, 46: 033601) for the details of principle. NearestNeighbor is invoked to speed up the search for neighbor POIs near the inspected POI, in a similar way in FeatureAffine. It is noteworthy that the default calculation of strains follows the definition of Cauchy strain. Users may shift to the definition of Green strains by setting parameter approximation.
 
 Parameters:
 
@@ -221,4 +226,4 @@ Member functions:
 - compute(vector& poi_queue), handle a queue of POIs.
 
 ![image](./img/oc_strain.png)
-*Figure 4.2.7. Parameters and methods included in Strain object*
+*Figure 4.2.8. Parameters and methods included in Strain object*

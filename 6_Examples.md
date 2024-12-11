@@ -26,7 +26,15 @@ This example demonstrates the use of GPU accelerated ICGN (ICGNGPU) with shape f
 
 6. test_2d_dic_self_adaptive_subset.cpp
 
-This example provides an instance of how to develop new DIC algorithms. FeatureAffine and ICGN are modified to realize a self-adpative DIC method, in which the size and shape of subset, as well as location of POI are dynamically optimized at each POI according to the nearby image features. Our experiments show that the self-adaptive can reach the optimal configuration in a good agreement with the meticulous decision based on a series of trials. The Images are generated using a Boolean model (Sur et al. J Math Imaging Vis, 2018, 60: 634-650), simulating the tension of a plate with large strains (30%~45%).
+   This example provides an instance of how to develop new DIC algorithms. FeatureAffine and ICGN are modified to realize a self-adpative DIC method, in which the size and shape of subset, as well as location of POI are dynamically optimized at each POI according to the nearby image features. Our experiments show that the self-adaptive can reach the optimal configuration in a good agreement with the meticulous decision based on a series of trials. The Images are generated using a Boolean model (Sur et al. J Math Imaging Vis, 2018, 60: 634-650), simulating the tension of a plate with large strains (30%~45%).
+
+7. test_2d_dic_fftcc_iclm1.cpp
+
+   This example uses module FFTCC to determine integral-pixel displacements at each POI, and then uses module ICLM with the 1st order shape function to get high accuracy deformation. The images also come from Sample 12 of 2D DIC challenge 1.0. It could be compared with test_2d_dic_fftcc_icgn1.cpp.
+
+8. test_2d_dic_sift_iclm2.cpp
+
+   This example uses module FeatureAffine to roughly estimate the sub-pixel deformation at each POI, and then uses module ICLM with the 2nd order shape function to get high accuracy results. The performance of this example could be compared with test_2d_dic_sift_icgn2.cpp
 
 #### Stereo/3D DIC
 
