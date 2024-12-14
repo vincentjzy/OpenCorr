@@ -17,9 +17,7 @@
 #ifndef _STEREOVISION_H_
 #define _STEREOVISION_H_
 
-#include "oc_array.h"
 #include "oc_calibration.h"
-#include "oc_point.h"
 
 namespace opencorr
 {

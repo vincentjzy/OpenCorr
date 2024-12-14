@@ -17,8 +17,8 @@
 #ifndef  _IO_H_
 #define  _IO_H_
 
-#include "oc_poi.h"
 #include "oc_calibration.h"
+#include "oc_poi.h"
 
 namespace opencorr
 {

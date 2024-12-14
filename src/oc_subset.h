@@ -17,7 +17,6 @@
 #ifndef _SUBSET_H_
 #define _SUBSET_H_
 
-#include "oc_array.h"
 #include "oc_image.h"
 #include "oc_point.h"
 

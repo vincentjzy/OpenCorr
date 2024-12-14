@@ -20,7 +20,6 @@
 #include <nanoflann.hpp>
 
 #include "oc_poi.h"
-#include "oc_point.h"
 
 namespace opencorr
 {

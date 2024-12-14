@@ -20,7 +20,6 @@
 #include "oc_cubic_bspline.h"
 #include "oc_dic.h"
 #include "oc_gradient.h"
-#include "oc_interpolation.h"
 
 namespace opencorr
 {

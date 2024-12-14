@@ -19,7 +19,6 @@
 
 #include <opencv2/features2d.hpp>
 
-#include "oc_array.h"
 #include "oc_image.h"
 #include "oc_point.h"
 

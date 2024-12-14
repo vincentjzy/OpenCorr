@@ -56,7 +56,7 @@ Users can also access the information of OpenCorr via website [opencorr.org](htt
 >
 >2024.07.26, Release of OpenCorr GUI 2.0, which supports 2D, 3D/stereo DIC and DVC.
 >
->2024.12.11, Regular update, including: (i) adding a module inverse compositional Levenberg-Marquardt algorithm (ICLM); (ii) improving the codes according to the commits proposed by Czcibor Bohusz-Dobosz.
+>2024.12.11, Regular update, including: (i) adding a module of inverse compositional Levenberg-Marquardt algorithm (ICLM); (ii) improving the codes according to the commits proposed by Czcibor Bohusz-Dobosz.
 
 # Instructions
 

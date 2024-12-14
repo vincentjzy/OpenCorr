@@ -17,7 +17,6 @@
 #ifndef _GRADIENT_H_
 #define _GRADIENT_H_
 
-#include "oc_array.h"
 #include "oc_image.h"
 
 namespace opencorr

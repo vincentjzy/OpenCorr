@@ -19,8 +19,6 @@
 
 #include "oc_array.h"
 #include "oc_nearest_neighbor.h"
-#include "oc_poi.h"
-#include "oc_point.h"
 
 namespace opencorr
 {

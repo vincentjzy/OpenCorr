@@ -17,10 +17,7 @@
 #ifndef _DIC_H_
 #define _DIC_H_
 
-#include "oc_array.h"
-#include "oc_image.h"
 #include "oc_poi.h"
-#include "oc_point.h"
 #include "oc_subset.h"
 
 namespace opencorr
