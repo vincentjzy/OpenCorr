@@ -30,7 +30,7 @@ Here is a quick guide of 3D/stereo DIC. Figure 7.1 shows interface, in which the
 
    (a) Set points of interest (POIs). We can place uniformly distributed POIs (by setting the space) in the select area, which is the combination of rectangles, ellipses and polygons ("+" means included and "-" means excluded). The set POI list can be exported to a CSV file and be loaded next time. The CSV file can be opened using excel or any text editor for further adjustment like adding or removing some POIs. 
 
-   (b) Set subset size. Subset can be square or rectangle. Check box "Show subset" to display an example in right-hand view. It will help to see if the speckle pattern within the subset is unique enough.
+   (b) Set subset size. Subset can be square or rectangle. Check box "Show subset" to display an example in right-hand view (Figure 7.4). It helps to see whether the subset is large enough to contain unique speckle pattern.
 
    ![image](./img/gui_quick_guide_4.PNG)
 
@@ -40,7 +40,7 @@ Here is a quick guide of 3D/stereo DIC. Figure 7.1 shows interface, in which the
 
    (d) Set the parameters in iterative algorithm. We may use the configuration in Figure 7.3, which works well in most of cases. Fine tuning of parameters requires more experience of DIC.
 
-   (e) Set parameters in strain calculation. The subregion for strain calculation at a POI is a regular circle. Check box "Show subregion" to display an example in right-hand view. Make sure there are enough neighbor POIs within the subregion. We can see the change of the array of POIs when adjusting the values of POI spaces, as mention in step (a).
+   (e) Set parameters in strain calculation. The subregion for strain calculation at a POI is a regular circle. Check box "Show subregion" to display an example in right-hand view (Figure 7.5). Make sure there are enough neighbor POIs within the subregion. We can see the change of the array of POIs when adjusting the values of POI spaces, as mention in step (a).
 
    ![image](./img/gui_quick_guide_5.PNG)
 
