@@ -3,7 +3,7 @@
  * study and development of 2D, 3D/stereo and volumetric
  * digital image correlation.
  *
- * Copyright (C) 2021-2024, Zhenyu Jiang <zhenyujiang@scut.edu.cn>
+ * Copyright (C) 2021-2025, Zhenyu Jiang <zhenyujiang@scut.edu.cn>
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License v. 2.0. If a copy of the MPL was not distributed with this
@@ -16,59 +16,46 @@
 
 namespace opencorr
 {
-	ICLM2D1_* ICLM2D1_::allocate(int subset_radius_x, int subset_radius_y)
+	std::unique_ptr<ICLM2D1_> ICLM2D1_::allocate(int subset_radius_x, int subset_radius_y)
 	{
 		int subset_width = 2 * subset_radius_x + 1;
 		int subset_height = 2 * subset_radius_y + 1;
 		Point2D subset_center(0, 0);
 
-		ICLM2D1_* ICLM_instance = new ICLM2D1_;
-		ICLM_instance->ref_subset = new Subset2D(subset_center, subset_radius_x, subset_radius_y);
-		ICLM_instance->tar_subset = new Subset2D(subset_center, subset_radius_x, subset_radius_y);
+		std::unique_ptr<ICLM2D1_> ICLM_instance = std::make_unique<ICLM2D1_>();
+		ICLM_instance->ref_subset = std::make_unique<Subset2D>(subset_center, subset_radius_x, subset_radius_y);
+		ICLM_instance->tar_subset = std::make_unique<Subset2D>(subset_center, subset_radius_x, subset_radius_y);
 		ICLM_instance->error_img = Eigen::MatrixXf::Zero(subset_height, subset_width);
 		ICLM_instance->sd_img = new3D(subset_height, subset_width, 6);
 
 		return ICLM_instance;
 	}
 
-	void ICLM2D1_::release(ICLM2D1_* instance)
-	{
-		delete3D(instance->sd_img);
-		delete instance->ref_subset;
-		delete instance->tar_subset;
-	}
-
-	void ICLM2D1_::update(ICLM2D1_* instance, int subset_radius_x, int subset_radius_y)
+	void ICLM2D1_::release(std::unique_ptr<ICLM2D1_>& instance)
 	{
 		if (instance->sd_img != nullptr)
 		{
 			delete3D(instance->sd_img);
-			instance->sd_img = nullptr;
 		}
+		instance->ref_subset.reset();
+		instance->ref_subset.reset();
+	}
 
-		if (instance->ref_subset != nullptr)
-		{
-			delete instance->ref_subset;
-			instance->ref_subset = nullptr;
-		}
-
-		if (instance->tar_subset != nullptr)
-		{
-			delete instance->tar_subset;
-			instance->tar_subset = nullptr;
-		}
+	void ICLM2D1_::update(std::unique_ptr<ICLM2D1_>& instance, int subset_radius_x, int subset_radius_y)
+	{
+		release(instance);
 
 		int subset_width = 2 * subset_radius_x + 1;
 		int subset_height = 2 * subset_radius_y + 1;
 		Point2D subset_center(0, 0);
 
-		instance->ref_subset = new Subset2D(subset_center, subset_radius_x, subset_radius_y);
-		instance->tar_subset = new Subset2D(subset_center, subset_radius_x, subset_radius_y);
+		instance->ref_subset = std::make_unique<Subset2D>(subset_center, subset_radius_x, subset_radius_y);
+		instance->tar_subset = std::make_unique<Subset2D>(subset_center, subset_radius_x, subset_radius_y);
 		instance->error_img.resize(subset_height, subset_width);
 		instance->sd_img = new3D(subset_height, subset_width, 6);
 	}
 
-	ICLM2D1_* ICLM2D1::getInstance(int tid)
+	std::unique_ptr<ICLM2D1_>& ICLM2D1::getInstance(int tid)
 	{
 		if (tid >= (int)instance_pool.size())
 		{
@@ -89,24 +76,25 @@ namespace opencorr
 
 		self_adaptive = false;
 
+		instance_pool.resize(thread_number);
+#pragma omp parallel for
 		for (int i = 0; i < thread_number; i++)
 		{
-			ICLM2D1_* instance = ICLM2D1_::allocate(subset_radius_x, subset_radius_y);
-			instance_pool.push_back(instance);
+			instance_pool[i] = ICLM2D1_::allocate(subset_radius_x, subset_radius_y);
 		}
 	}
 
 	ICLM2D1::~ICLM2D1()
 	{
-		delete ref_gradient;
-		delete tar_interp;
+		ref_gradient.reset();
+		tar_interp.reset();
 
 		for (auto& instance : instance_pool)
 		{
 			ICLM2D1_::release(instance);
-			delete instance;
+			instance.reset();
 		}
-		std::vector<ICLM2D1_*>().swap(instance_pool);
+		std::vector<std::unique_ptr<ICLM2D1_>>().swap(instance_pool);
 	}
 
 	void ICLM2D1::setIteration(float conv_criterion, float stop_condition)
@@ -132,11 +120,10 @@ namespace opencorr
 	{
 		if (ref_gradient != nullptr)
 		{
-			delete ref_gradient;
-			ref_gradient = nullptr;
+			ref_gradient.reset();
 		}
 
-		ref_gradient = new Gradient2D4(*ref_img);
+		ref_gradient = std::make_unique<Gradient2D4>(*ref_img);
 		ref_gradient->getGradientX();
 		ref_gradient->getGradientY();
 	}
@@ -145,11 +132,10 @@ namespace opencorr
 	{
 		if (tar_interp != nullptr)
 		{
-			delete tar_interp;
-			tar_interp = nullptr;
+			tar_interp.reset();
 		}
 
-		tar_interp = new BicubicBspline(*tar_img);
+		tar_interp = std::make_unique<BicubicBspline>(*tar_img);
 		tar_interp->prepare();
 	}
 
@@ -162,7 +148,7 @@ namespace opencorr
 	void ICLM2D1::compute(POI2D* poi)
 	{
 		//set instance w.r.t. thread id 
-		ICLM2D1_* cur_instance = getInstance(omp_get_thread_num());
+		std::unique_ptr<ICLM2D1_>& iclm = getInstance(omp_get_thread_num());
 
 		int subset_rx = subset_radius_x;
 		int subset_ry = subset_radius_y;
@@ -170,7 +156,7 @@ namespace opencorr
 		if (self_adaptive)
 		{
 			//update the instance according to the subset dimension of current POI
-			ICLM2D1_::update(cur_instance, poi->subset_radius.x, poi->subset_radius.y);
+			ICLM2D1_::update(iclm, poi->subset_radius.x, poi->subset_radius.y);
 			subset_rx = poi->subset_radius.x;
 			subset_ry = poi->subset_radius.y;
 		}
@@ -189,12 +175,12 @@ namespace opencorr
 		int subset_height = 2 * subset_ry + 1;
 
 		//set reference subset
-		cur_instance->ref_subset->center = (Point2D)*poi;
-		cur_instance->ref_subset->fill(ref_img);
-		float ref_mean_norm = cur_instance->ref_subset->zeroMeanNorm();
+		iclm->ref_subset->center = (Point2D)*poi;
+		iclm->ref_subset->fill(ref_img);
+		float ref_mean_norm = iclm->ref_subset->zeroMeanNorm();
 
 		//build the Hessian matrix
-		cur_instance->hessian.setZero();
+		iclm->hessian.setZero();
 		for (int r = 0; r < subset_height; r++)
 		{
 			for (int c = 0; c < subset_width; c++)
@@ -206,26 +192,26 @@ namespace opencorr
 				float ref_gradient_x = ref_gradient->gradient_x(y_global, x_global);
 				float ref_gradient_y = ref_gradient->gradient_y(y_global, x_global);
 
-				cur_instance->sd_img[r][c][0] = ref_gradient_x;
-				cur_instance->sd_img[r][c][1] = ref_gradient_x * x_local;
-				cur_instance->sd_img[r][c][2] = ref_gradient_x * y_local;
-				cur_instance->sd_img[r][c][3] = ref_gradient_y;
-				cur_instance->sd_img[r][c][4] = ref_gradient_y * x_local;
-				cur_instance->sd_img[r][c][5] = ref_gradient_y * y_local;
+				iclm->sd_img[r][c][0] = ref_gradient_x;
+				iclm->sd_img[r][c][1] = ref_gradient_x * x_local;
+				iclm->sd_img[r][c][2] = ref_gradient_x * y_local;
+				iclm->sd_img[r][c][3] = ref_gradient_y;
+				iclm->sd_img[r][c][4] = ref_gradient_y * x_local;
+				iclm->sd_img[r][c][5] = ref_gradient_y * y_local;
 
 				for (int i = 0; i < 6; i++)
 				{
 					for (int j = 0; j < i + 1; j++)
 					{
-						cur_instance->hessian(i, j) += (cur_instance->sd_img[r][c][i] * cur_instance->sd_img[r][c][j]);
-						cur_instance->hessian(j, i) = cur_instance->hessian(i, j);
+						iclm->hessian(i, j) += (iclm->sd_img[r][c][i] * iclm->sd_img[r][c][j]);
+						iclm->hessian(j, i) = iclm->hessian(i, j);
 					}
 				}
 			}
 		}
 
 		//set target subset
-		cur_instance->tar_subset->center = (Point2D)*poi;
+		iclm->tar_subset->center = (Point2D)*poi;
 
 		//get initial guess
 		Deformation2D1 p_initial(poi->deformation.u, poi->deformation.ux, poi->deformation.uy, poi->deformation.v, poi->deformation.vx, poi->deformation.vy);
@@ -254,18 +240,18 @@ namespace opencorr
 					local_coor.x = x_local;
 					local_coor.y = y_local;
 					warped_coor = p_current.warp(local_coor);
-					global_coor = cur_instance->tar_subset->center + warped_coor;
-					cur_instance->tar_subset->eg_mat(r, c) = tar_interp->compute(global_coor);
+					global_coor = iclm->tar_subset->center + warped_coor;
+					iclm->tar_subset->eg_mat(r, c) = tar_interp->compute(global_coor);
 				}
 			}
 
-			float tar_mean_norm = cur_instance->tar_subset->zeroMeanNorm();
+			float tar_mean_norm = iclm->tar_subset->zeroMeanNorm();
 
 			//calculate error image
-			cur_instance->error_img = cur_instance->tar_subset->eg_mat * (ref_mean_norm / tar_mean_norm) - (cur_instance->ref_subset->eg_mat);
+			iclm->error_img = iclm->tar_subset->eg_mat * (ref_mean_norm / tar_mean_norm) - (iclm->ref_subset->eg_mat);
 
 			//calculate ZNSSD
-			znssd = cur_instance->error_img.squaredNorm() / (ref_mean_norm * ref_mean_norm);
+			znssd = iclm->error_img.squaredNorm() / (ref_mean_norm * ref_mean_norm);
 
 			//if it is the first iteration step
 			if (iteration_counter == 1)
@@ -275,7 +261,7 @@ namespace opencorr
 			}
 
 			//calculate the inversed Hessian matrix
-			cur_instance->inv_hessian = (cur_instance->hessian + current_lambda * identity_mat).inverse();
+			iclm->inv_hessian = (iclm->hessian + current_lambda * identity_mat).inverse();
 
 			//calculate numerator
 			float numerator[6] = { 0.f };
@@ -285,7 +271,7 @@ namespace opencorr
 				{
 					for (int i = 0; i < 6; i++)
 					{
-						numerator[i] += (cur_instance->sd_img[r][c][i] * cur_instance->error_img(r, c));
+						numerator[i] += (iclm->sd_img[r][c][i] * iclm->error_img(r, c));
 					}
 				}
 			}
@@ -296,7 +282,7 @@ namespace opencorr
 			{
 				for (int j = 0; j < 6; j++)
 				{
-					dp[i] += (cur_instance->inv_hessian(i, j) * numerator[j]);
+					dp[i] += (iclm->inv_hessian(i, j) * numerator[j]);
 				}
 			}
 			p_increment.setDeformation(dp);
@@ -382,59 +368,46 @@ namespace opencorr
 
 
 
-	ICLM2D2_* ICLM2D2_::allocate(int subset_radius_x, int subset_radius_y)
+	std::unique_ptr<ICLM2D2_> ICLM2D2_::allocate(int subset_radius_x, int subset_radius_y)
 	{
 		int subset_width = 2 * subset_radius_x + 1;
 		int subset_height = 2 * subset_radius_y + 1;
 		Point2D subset_center(0, 0);
 
-		ICLM2D2_* ICLM_instance = new ICLM2D2_;
-		ICLM_instance->ref_subset = new Subset2D(subset_center, subset_radius_x, subset_radius_y);
-		ICLM_instance->tar_subset = new Subset2D(subset_center, subset_radius_x, subset_radius_y);
+		std::unique_ptr<ICLM2D2_> ICLM_instance = std::make_unique<ICLM2D2_>();
+		ICLM_instance->ref_subset = std::make_unique<Subset2D>(subset_center, subset_radius_x, subset_radius_y);
+		ICLM_instance->tar_subset = std::make_unique<Subset2D>(subset_center, subset_radius_x, subset_radius_y);
 		ICLM_instance->error_img = Eigen::MatrixXf::Zero(subset_height, subset_width);
 		ICLM_instance->sd_img = new3D(subset_height, subset_width, 12);
 
 		return ICLM_instance;
 	}
 
-	void ICLM2D2_::release(ICLM2D2_* instance)
-	{
-		delete3D(instance->sd_img);
-		delete instance->ref_subset;
-		delete instance->tar_subset;
-	}
-
-	void ICLM2D2_::update(ICLM2D2_* instance, int subset_radius_x, int subset_radius_y)
+	void ICLM2D2_::release(std::unique_ptr<ICLM2D2_>& instance)
 	{
 		if (instance->sd_img != nullptr)
 		{
 			delete3D(instance->sd_img);
-			instance->sd_img = nullptr;
 		}
+		instance->ref_subset.reset();
+		instance->tar_subset.reset();
+	}
 
-		if (instance->ref_subset != nullptr)
-		{
-			delete instance->ref_subset;
-			instance->ref_subset = nullptr;
-		}
-
-		if (instance->tar_subset != nullptr)
-		{
-			delete instance->tar_subset;
-			instance->tar_subset = nullptr;
-		}
+	void ICLM2D2_::update(std::unique_ptr<ICLM2D2_>& instance, int subset_radius_x, int subset_radius_y)
+	{
+		release(instance);
 
 		int subset_width = 2 * subset_radius_x + 1;
 		int subset_height = 2 * subset_radius_y + 1;
 		Point2D subset_center(0, 0);
 
-		instance->ref_subset = new Subset2D(subset_center, subset_radius_x, subset_radius_y);
-		instance->tar_subset = new Subset2D(subset_center, subset_radius_x, subset_radius_y);
+		instance->ref_subset = std::make_unique<Subset2D>(subset_center, subset_radius_x, subset_radius_y);
+		instance->tar_subset = std::make_unique<Subset2D>(subset_center, subset_radius_x, subset_radius_y);
 		instance->error_img.resize(subset_height, subset_width);
 		instance->sd_img = new3D(subset_height, subset_width, 12);
 	}
 
-	ICLM2D2_* ICLM2D2::getInstance(int tid)
+	std::unique_ptr<ICLM2D2_>& ICLM2D2::getInstance(int tid)
 	{
 		if (tid >= (int)instance_pool.size())
 		{
@@ -455,24 +428,25 @@ namespace opencorr
 
 		self_adaptive = false;
 
+		instance_pool.resize(thread_number);
+#pragma omp parallel for
 		for (int i = 0; i < thread_number; i++)
 		{
-			ICLM2D2_* instance = ICLM2D2_::allocate(subset_radius_x, subset_radius_y);
-			instance_pool.push_back(instance);
+			instance_pool[i] = ICLM2D2_::allocate(subset_radius_x, subset_radius_y);
 		}
 	}
 
 	ICLM2D2::~ICLM2D2()
 	{
-		delete ref_gradient;
-		delete tar_interp;
+		ref_gradient.reset();
+		tar_interp.reset();
 
 		for (auto& instance : instance_pool)
 		{
 			ICLM2D2_::release(instance);
-			delete instance;
+			instance.reset();
 		}
-		std::vector<ICLM2D2_*>().swap(instance_pool);
+		std::vector<std::unique_ptr<ICLM2D2_>>().swap(instance_pool);
 	}
 
 	void ICLM2D2::setIteration(float conv_criterion, float stop_condition)
@@ -498,11 +472,10 @@ namespace opencorr
 	{
 		if (ref_gradient != nullptr)
 		{
-			delete ref_gradient;
-			ref_gradient = nullptr;
+			ref_gradient.reset();
 		}
 
-		ref_gradient = new Gradient2D4(*ref_img);
+		ref_gradient = std::make_unique<Gradient2D4>(*ref_img);
 		ref_gradient->getGradientX();
 		ref_gradient->getGradientY();
 	}
@@ -511,11 +484,10 @@ namespace opencorr
 	{
 		if (tar_interp != nullptr)
 		{
-			delete tar_interp;
-			tar_interp = nullptr;
+			tar_interp.reset();
 		}
 
-		tar_interp = new BicubicBspline(*tar_img);
+		tar_interp = std::make_unique<BicubicBspline>(*tar_img);
 		tar_interp->prepare();
 	}
 
@@ -528,7 +500,7 @@ namespace opencorr
 	void ICLM2D2::compute(POI2D* poi)
 	{
 		//set instance w.r.t. thread id 
-		ICLM2D2_* cur_instance = getInstance(omp_get_thread_num());
+		std::unique_ptr<ICLM2D2_>& iclm = getInstance(omp_get_thread_num());
 
 		int subset_rx = subset_radius_x;
 		int subset_ry = subset_radius_y;
@@ -536,7 +508,7 @@ namespace opencorr
 		if (self_adaptive)
 		{
 			//update the instance according to the subset dimension of current POI
-			ICLM2D2_::update(cur_instance, poi->subset_radius.x, poi->subset_radius.y);
+			ICLM2D2_::update(iclm, poi->subset_radius.x, poi->subset_radius.y);
 			subset_rx = poi->subset_radius.x;
 			subset_ry = poi->subset_radius.y;
 		}
@@ -553,12 +525,12 @@ namespace opencorr
 		int subset_height = 2 * subset_ry + 1;
 
 		//set reference subset
-		cur_instance->ref_subset->center = (Point2D)*poi;
-		cur_instance->ref_subset->fill(ref_img);
-		float ref_mean_norm = cur_instance->ref_subset->zeroMeanNorm();
+		iclm->ref_subset->center = (Point2D)*poi;
+		iclm->ref_subset->fill(ref_img);
+		float ref_mean_norm = iclm->ref_subset->zeroMeanNorm();
 
 		//build the Hessian matrix
-		cur_instance->hessian.setZero();
+		iclm->hessian.setZero();
 		for (int r = 0; r < subset_height; r++)
 		{
 			for (int c = 0; c < subset_width; c++)
@@ -573,37 +545,36 @@ namespace opencorr
 				float ref_gradient_x = ref_gradient->gradient_x(y_global, x_global);
 				float ref_gradient_y = ref_gradient->gradient_y(y_global, x_global);
 
-				cur_instance->sd_img[r][c][0] = ref_gradient_x;
-				cur_instance->sd_img[r][c][1] = ref_gradient_x * x_local;
-				cur_instance->sd_img[r][c][2] = ref_gradient_x * y_local;
-				cur_instance->sd_img[r][c][3] = ref_gradient_x * xx_local;
-				cur_instance->sd_img[r][c][4] = ref_gradient_x * xy_local;
-				cur_instance->sd_img[r][c][5] = ref_gradient_x * yy_local;
+				iclm->sd_img[r][c][0] = ref_gradient_x;
+				iclm->sd_img[r][c][1] = ref_gradient_x * x_local;
+				iclm->sd_img[r][c][2] = ref_gradient_x * y_local;
+				iclm->sd_img[r][c][3] = ref_gradient_x * xx_local;
+				iclm->sd_img[r][c][4] = ref_gradient_x * xy_local;
+				iclm->sd_img[r][c][5] = ref_gradient_x * yy_local;
 
-				cur_instance->sd_img[r][c][6] = ref_gradient_y;
-				cur_instance->sd_img[r][c][7] = ref_gradient_y * x_local;
-				cur_instance->sd_img[r][c][8] = ref_gradient_y * y_local;
-				cur_instance->sd_img[r][c][9] = ref_gradient_y * xx_local;
-				cur_instance->sd_img[r][c][10] = ref_gradient_y * xy_local;
-				cur_instance->sd_img[r][c][11] = ref_gradient_y * yy_local;
+				iclm->sd_img[r][c][6] = ref_gradient_y;
+				iclm->sd_img[r][c][7] = ref_gradient_y * x_local;
+				iclm->sd_img[r][c][8] = ref_gradient_y * y_local;
+				iclm->sd_img[r][c][9] = ref_gradient_y * xx_local;
+				iclm->sd_img[r][c][10] = ref_gradient_y * xy_local;
+				iclm->sd_img[r][c][11] = ref_gradient_y * yy_local;
 
 				for (int i = 0; i < 12; i++)
 				{
 					for (int j = 0; j < i + 1; j++)
 					{
-						cur_instance->hessian(i, j) += (cur_instance->sd_img[r][c][i] * cur_instance->sd_img[r][c][j]);
-						cur_instance->hessian(j, i) = cur_instance->hessian(i, j);
+						iclm->hessian(i, j) += (iclm->sd_img[r][c][i] * iclm->sd_img[r][c][j]);
+						iclm->hessian(j, i) = iclm->hessian(i, j);
 					}
 				}
 			}
 		}
 
 		//set target subset
-		cur_instance->tar_subset->center = (Point2D)*poi;
+		iclm->tar_subset->center = (Point2D)*poi;
 
 		//get initial guess
-		Deformation2D1 p_initial(poi->deformation.u, poi->deformation.ux, poi->deformation.uy,
-			poi->deformation.v, poi->deformation.vx, poi->deformation.vy);
+		Deformation2D1 p_initial(poi->deformation.u, poi->deformation.ux, poi->deformation.uy, poi->deformation.v, poi->deformation.vx, poi->deformation.vy);
 
 		//IC-LM iteration
 		int iteration_counter = 0; //initialize iteration counter
@@ -628,17 +599,17 @@ namespace opencorr
 					local_coor.x = x_local;
 					local_coor.y = y_local;
 					warped_coor = p_current.warp(local_coor);
-					global_coor = cur_instance->tar_subset->center + warped_coor;
-					cur_instance->tar_subset->eg_mat(r, c) = tar_interp->compute(global_coor);
+					global_coor = iclm->tar_subset->center + warped_coor;
+					iclm->tar_subset->eg_mat(r, c) = tar_interp->compute(global_coor);
 				}
 			}
-			float tar_mean_norm = cur_instance->tar_subset->zeroMeanNorm();
+			float tar_mean_norm = iclm->tar_subset->zeroMeanNorm();
 
 			//calculate error image
-			cur_instance->error_img = cur_instance->tar_subset->eg_mat * (ref_mean_norm / tar_mean_norm) - (cur_instance->ref_subset->eg_mat);
+			iclm->error_img = iclm->tar_subset->eg_mat * (ref_mean_norm / tar_mean_norm) - (iclm->ref_subset->eg_mat);
 
 			//calculate ZNSSD
-			znssd = cur_instance->error_img.squaredNorm() / (ref_mean_norm * ref_mean_norm);
+			znssd = iclm->error_img.squaredNorm() / (ref_mean_norm * ref_mean_norm);
 
 			//if it is the first iteration step
 			if (iteration_counter == 1)
@@ -648,7 +619,7 @@ namespace opencorr
 			}
 
 			//calculate the inversed Hessian matrix
-			cur_instance->inv_hessian = (cur_instance->hessian + current_lambda * identity_mat).inverse();
+			iclm->inv_hessian = (iclm->hessian + current_lambda * identity_mat).inverse();
 
 			//calculate numerator
 			float numerator[12] = { 0.f };
@@ -658,7 +629,7 @@ namespace opencorr
 				{
 					for (int i = 0; i < 12; i++)
 					{
-						numerator[i] += (cur_instance->sd_img[r][c][i] * cur_instance->error_img(r, c));
+						numerator[i] += (iclm->sd_img[r][c][i] * iclm->error_img(r, c));
 					}
 				}
 			}
@@ -669,7 +640,7 @@ namespace opencorr
 			{
 				for (int j = 0; j < 12; j++)
 				{
-					dp[i] += (cur_instance->inv_hessian(i, j) * numerator[j]);
+					dp[i] += (iclm->inv_hessian(i, j) * numerator[j]);
 				}
 			}
 			p_increment.setDeformation(dp);

@@ -3,7 +3,7 @@
  * study and development of 2D, 3D/stereo and volumetric
  * digital image correlation.
  *
- * Copyright (C) 2021-2024, Zhenyu Jiang <zhenyujiang@scut.edu.cn>
+ * Copyright (C) 2021-2025, Zhenyu Jiang <zhenyujiang@scut.edu.cn>
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License v. 2.0. If a copy of the MPL was not distributed with this
@@ -16,15 +16,15 @@
 
 namespace opencorr
 {
-	NR2D1_* NR2D1_::allocate(int subset_radius_x, int subset_radius_y)
+	std::unique_ptr<NR2D1_> NR2D1_::allocate(int subset_radius_x, int subset_radius_y)
 	{
 		int subset_width = 2 * subset_radius_x + 1;
 		int subset_height = 2 * subset_radius_y + 1;
 		Point2D subset_center(0, 0);
 
-		NR2D1_* NR_instance = new NR2D1_;
-		NR_instance->ref_subset = new Subset2D(subset_center, subset_radius_x, subset_radius_y);
-		NR_instance->tar_subset = new Subset2D(subset_center, subset_radius_x, subset_radius_y);
+		std::unique_ptr<NR2D1_> NR_instance = std::make_unique<NR2D1_>();
+		NR_instance->ref_subset = std::make_unique<Subset2D>(subset_center, subset_radius_x, subset_radius_y);
+		NR_instance->tar_subset = std::make_unique<Subset2D>(subset_center, subset_radius_x, subset_radius_y);
 		NR_instance->tar_gradient_x = Eigen::MatrixXf::Zero(subset_height, subset_width);
 		NR_instance->tar_gradient_y = Eigen::MatrixXf::Zero(subset_height, subset_width);
 		NR_instance->error_img = Eigen::MatrixXf::Zero(subset_height, subset_width);
@@ -33,46 +33,34 @@ namespace opencorr
 		return NR_instance;
 	}
 
-	void NR2D1_::release(NR2D1_* instance)
-	{
-		delete3D(instance->sd_img);
-		delete instance->ref_subset;
-		delete instance->tar_subset;
-	}
-
-	void NR2D1_::update(NR2D1_* instance, int subset_radius_x, int subset_radius_y)
+	void NR2D1_::release(std::unique_ptr<NR2D1_>& instance)
 	{
 		if (instance->sd_img != nullptr)
 		{
 			delete3D(instance->sd_img);
-			instance->sd_img = nullptr;
 		}
 
-		if (instance->ref_subset != nullptr)
-		{
-			delete instance->ref_subset;
-			instance->ref_subset = nullptr;
-		}
+		instance->ref_subset.reset();
+		instance->tar_subset.reset();
+	}
 
-		if (instance->tar_subset != nullptr)
-		{
-			delete instance->tar_subset;
-			instance->tar_subset = nullptr;
-		}
+	void NR2D1_::update(std::unique_ptr<NR2D1_>& instance, int subset_radius_x, int subset_radius_y)
+	{
+		release(instance);
 
 		int subset_width = 2 * subset_radius_x + 1;
 		int subset_height = 2 * subset_radius_y + 1;
 		Point2D subset_center(0, 0);
 
-		instance->ref_subset = new Subset2D(subset_center, subset_radius_x, subset_radius_y);
-		instance->tar_subset = new Subset2D(subset_center, subset_radius_x, subset_radius_y);
+		instance->ref_subset = std::make_unique<Subset2D>(subset_center, subset_radius_x, subset_radius_y);
+		instance->tar_subset = std::make_unique<Subset2D>(subset_center, subset_radius_x, subset_radius_y);
 		instance->tar_gradient_x.resize(subset_height, subset_width);
 		instance->tar_gradient_y.resize(subset_height, subset_width);
 		instance->error_img.resize(subset_height, subset_width);
 		instance->sd_img = new3D(subset_height, subset_width, 6);
 	}
 
-	NR2D1_* NR2D1::getInstance(int tid)
+	std::unique_ptr<NR2D1_>& NR2D1::getInstance(int tid)
 	{
 		if (tid >= (int)instance_pool.size())
 		{
@@ -91,26 +79,27 @@ namespace opencorr
 		this->stop_condition = stop_condition;
 		this->thread_number = thread_number;
 
+		instance_pool.resize(thread_number);
+#pragma omp parallel for
 		for (int i = 0; i < thread_number; i++)
 		{
-			NR2D1_* instance = NR2D1_::allocate(subset_radius_x, subset_radius_y);
-			instance_pool.push_back(instance);
+			instance_pool[i] = NR2D1_::allocate(subset_radius_x, subset_radius_y);
 		}
 	}
 
 	NR2D1::~NR2D1()
 	{
-		delete tar_gradient;
-		delete tar_interp;
-		delete tar_interp_x;
-		delete tar_interp_y;
+		tar_gradient.reset();
+		tar_interp.reset();
+		tar_interp_x.reset();
+		tar_interp_y.reset();
 
 		for (auto& instance : instance_pool)
 		{
 			NR2D1_::release(instance);
-			delete instance;
+			instance.reset();
 		}
-		std::vector<NR2D1_*>().swap(instance_pool);
+		std::vector<std::unique_ptr<NR2D1_>>().swap(instance_pool);
 	}
 
 	void NR2D1::setIteration(float conv_criterion, float stop_condition)
@@ -130,20 +119,18 @@ namespace opencorr
 		//create gradient maps of tar image
 		if (tar_gradient != nullptr)
 		{
-			delete tar_gradient;
-			tar_gradient = nullptr;
+			tar_gradient.reset();
 		}
-		tar_gradient = new Gradient2D4(*tar_img);
+		tar_gradient = std::make_unique<Gradient2D4>(*tar_img);
 		tar_gradient->getGradientX();
 		tar_gradient->getGradientY();
 
 		//create interpolation coefficient table of tar image
 		if (tar_interp != nullptr)
 		{
-			delete tar_interp;
-			tar_interp = nullptr;
+			tar_interp.reset();
 		}
-		tar_interp = new BicubicBspline(*tar_img);
+		tar_interp = std::make_unique<BicubicBspline>(*tar_img);
 		tar_interp->prepare();
 
 		//create interpolation coefficient table of gradient along x
@@ -152,10 +139,9 @@ namespace opencorr
 
 		if (tar_interp_x != nullptr)
 		{
-			delete tar_interp_x;
-			tar_interp_x = nullptr;
+			tar_interp_x.reset();
 		}
-		tar_interp_x = new BicubicBspline(gradient_img);
+		tar_interp_x = std::make_unique<BicubicBspline>(gradient_img);
 		tar_interp_x->prepare();
 
 		//create interpolation coefficient table of gradient along y
@@ -163,17 +149,16 @@ namespace opencorr
 
 		if (tar_interp_y != nullptr)
 		{
-			delete tar_interp_y;
-			tar_interp_y = nullptr;
+			tar_interp_y.reset();
 		}
-		tar_interp_y = new BicubicBspline(gradient_img);
+		tar_interp_y = std::make_unique<BicubicBspline>(gradient_img);
 		tar_interp_y->prepare();
 	}
 
 	void NR2D1::compute(POI2D* poi)
 	{
 		//set instance w.r.t. thread id 
-		NR2D1_* cur_instance = getInstance(omp_get_thread_num());
+		std::unique_ptr<NR2D1_>& fa_nr = getInstance(omp_get_thread_num());
 
 		if (poi->y - subset_radius_y < 0 || poi->x - subset_radius_x < 0
 			|| poi->y + subset_radius_y > ref_img->height - 1 || poi->x + subset_radius_x > ref_img->width - 1
@@ -188,16 +173,15 @@ namespace opencorr
 			int subset_height = 2 * subset_radius_y + 1;
 
 			//set reference subset
-			cur_instance->ref_subset->center = (Point2D)*poi;
-			cur_instance->ref_subset->fill(ref_img);
-			float ref_mean_norm = cur_instance->ref_subset->zeroMeanNorm();
+			fa_nr->ref_subset->center = (Point2D)*poi;
+			fa_nr->ref_subset->fill(ref_img);
+			float ref_mean_norm = fa_nr->ref_subset->zeroMeanNorm();
 
 			//set target subset
-			cur_instance->tar_subset->center = (Point2D)*poi;
+			fa_nr->tar_subset->center = (Point2D)*poi;
 
 			//get initial guess
-			Deformation2D1 p_initial(poi->deformation.u, poi->deformation.ux, poi->deformation.uy,
-				poi->deformation.v, poi->deformation.vx, poi->deformation.vy);
+			Deformation2D1 p_initial(poi->deformation.u, poi->deformation.ux, poi->deformation.uy, poi->deformation.v, poi->deformation.vx, poi->deformation.vy);
 
 			//Newton-Raphson iteration
 			int iteration_counter = 0; //initialize iteration counter
@@ -216,52 +200,51 @@ namespace opencorr
 						int y_local = r - subset_radius_y;
 						Point2D local_coor(x_local, y_local);
 						Point2D warped_coor = p_current.warp(local_coor);
-						Point2D global_coor = cur_instance->tar_subset->center + warped_coor;
+						Point2D global_coor = fa_nr->tar_subset->center + warped_coor;
 
-						cur_instance->tar_subset->eg_mat(r, c) = tar_interp->compute(global_coor);
-						cur_instance->tar_gradient_x(r, c) = tar_interp_x->compute(global_coor);
-						cur_instance->tar_gradient_y(r, c) = tar_interp_y->compute(global_coor);
+						fa_nr->tar_subset->eg_mat(r, c) = tar_interp->compute(global_coor);
+						fa_nr->tar_gradient_x(r, c) = tar_interp_x->compute(global_coor);
+						fa_nr->tar_gradient_y(r, c) = tar_interp_y->compute(global_coor);
 					}
 				}
-				float tar_mean_norm = cur_instance->tar_subset->zeroMeanNorm();
+				float tar_mean_norm = fa_nr->tar_subset->zeroMeanNorm();
 
 				//build the Hessian matrix
-				cur_instance->hessian.setZero();
+				fa_nr->hessian.setZero();
 				for (int r = 0; r < subset_height; r++)
 				{
 					for (int c = 0; c < subset_width; c++)
 					{
 						int x_local = c - subset_radius_x;
 						int y_local = r - subset_radius_y;
-						float tar_grad_x = cur_instance->tar_gradient_x(r, c);
-						float tar_grad_y = cur_instance->tar_gradient_y(r, c);
+						float tar_grad_x = fa_nr->tar_gradient_x(r, c);
+						float tar_grad_y = fa_nr->tar_gradient_y(r, c);
 
-						cur_instance->sd_img[r][c][0] = tar_grad_x;
-						cur_instance->sd_img[r][c][1] = tar_grad_x * x_local;
-						cur_instance->sd_img[r][c][2] = tar_grad_x * y_local;
-						cur_instance->sd_img[r][c][3] = tar_grad_y;
-						cur_instance->sd_img[r][c][4] = tar_grad_y * x_local;
-						cur_instance->sd_img[r][c][5] = tar_grad_y * y_local;
+						fa_nr->sd_img[r][c][0] = tar_grad_x;
+						fa_nr->sd_img[r][c][1] = tar_grad_x * x_local;
+						fa_nr->sd_img[r][c][2] = tar_grad_x * y_local;
+						fa_nr->sd_img[r][c][3] = tar_grad_y;
+						fa_nr->sd_img[r][c][4] = tar_grad_y * x_local;
+						fa_nr->sd_img[r][c][5] = tar_grad_y * y_local;
 
 						for (int i = 0; i < 6; i++)
 						{
 							for (int j = 0; j < 6; j++)
 							{
-								cur_instance->hessian(i, j) += (cur_instance->sd_img[r][c][i] * cur_instance->sd_img[r][c][j]);
+								fa_nr->hessian(i, j) += (fa_nr->sd_img[r][c][i] * fa_nr->sd_img[r][c][j]);
 							}
 						}
 					}
 				}
 
 				//calculate the inversed Hessian matrix
-				cur_instance->inv_hessian = cur_instance->hessian.inverse();
+				fa_nr->inv_hessian = fa_nr->hessian.inverse();
 
 				//calculate error image
-				cur_instance->error_img = cur_instance->ref_subset->eg_mat * (tar_mean_norm / ref_mean_norm)
-					- (cur_instance->tar_subset->eg_mat);
+				fa_nr->error_img = fa_nr->ref_subset->eg_mat * (tar_mean_norm / ref_mean_norm) - (fa_nr->tar_subset->eg_mat);
 
 				//calculate ZNSSD
-				znssd = cur_instance->error_img.squaredNorm() / (tar_mean_norm * tar_mean_norm);
+				znssd = fa_nr->error_img.squaredNorm() / (tar_mean_norm * tar_mean_norm);
 
 				//calculate numerator
 				float numerator[6] = { 0.f };
@@ -271,7 +254,7 @@ namespace opencorr
 					{
 						for (int i = 0; i < 6; i++)
 						{
-							numerator[i] += (cur_instance->sd_img[r][c][i] * cur_instance->error_img(r, c));
+							numerator[i] += (fa_nr->sd_img[r][c][i] * fa_nr->error_img(r, c));
 						}
 					}
 				}
@@ -282,7 +265,7 @@ namespace opencorr
 				{
 					for (int j = 0; j < 6; j++)
 					{
-						dp[i] += (cur_instance->inv_hessian(i, j) * numerator[j]);
+						dp[i] += (fa_nr->inv_hessian(i, j) * numerator[j]);
 					}
 				}
 				p_increment.setDeformation(dp);
@@ -322,6 +305,12 @@ namespace opencorr
 			poi->result.convergence = dp_norm_max;
 		}
 
+		//check if the iteration converge at the desired target
+		if (poi->result.convergence >= conv_criterion && poi->result.iteration >= stop_condition)
+		{
+			poi->result.zncc = -4.f;
+		}
+
 		//check if the case of NaN occurs for ZNCC or displacments
 		if (std::isnan(poi->result.zncc) || std::isnan(poi->deformation.u) || std::isnan(poi->deformation.v))
 		{
@@ -333,7 +322,7 @@ namespace opencorr
 
 	void NR2D1::compute(std::vector<POI2D>& poi_queue)
 	{
-		int queue_length = (int)poi_queue.size();
+		auto queue_length = poi_queue.size();
 #pragma omp parallel for
 		for (int i = 0; i < queue_length; i++)
 		{

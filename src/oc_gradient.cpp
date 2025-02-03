@@ -3,7 +3,7 @@
  * study and development of 2D, 3D/stereo and volumetric
  * digital image correlation.
  *
- * Copyright (C) 2021-2024, Zhenyu Jiang <zhenyujiang@scut.edu.cn>
+ * Copyright (C) 2021-2025, Zhenyu Jiang <zhenyujiang@scut.edu.cn>
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License v. 2.0. If a copy of the MPL was not distributed with this
@@ -16,6 +16,9 @@
 
 namespace opencorr
 {
+	const float first_factor = 1.f / 12.f;
+	const float second_factor = 2.f / 3.f;
+
 	//order of derivative: 1, order of accuracy: 4
 	Gradient2D4::Gradient2D4(Image2D& image)
 	{
@@ -42,10 +45,10 @@ namespace opencorr
 			for (int c = 2; c < width - 2; c++)
 			{
 				float result = 0.0f;
-				result -= grad_img->eg_mat(r, c + 2) / 12.f;
-				result += grad_img->eg_mat(r, c + 1) * (2.f / 3.f);
-				result -= grad_img->eg_mat(r, c - 1) * (2.f / 3.f);
-				result += grad_img->eg_mat(r, c - 2) / 12.f;
+				result -= grad_img->eg_mat(r, c + 2) * first_factor;
+				result += grad_img->eg_mat(r, c + 1) * second_factor;
+				result -= grad_img->eg_mat(r, c - 1) * second_factor;
+				result += grad_img->eg_mat(r, c - 2) * first_factor;
 				gradient_x(r, c) = result;
 			}
 		}
@@ -64,10 +67,10 @@ namespace opencorr
 			for (int c = 0; c < width; c++)
 			{
 				float result = 0.0f;
-				result -= grad_img->eg_mat(r + 2, c) / 12.f;
-				result += grad_img->eg_mat(r + 1, c) * (2.f / 3.f);
-				result -= grad_img->eg_mat(r - 1, c) * (2.f / 3.f);
-				result += grad_img->eg_mat(r - 2, c) / 12.f;
+				result -= grad_img->eg_mat(r + 2, c) * first_factor;
+				result += grad_img->eg_mat(r + 1, c) * second_factor;
+				result -= grad_img->eg_mat(r - 1, c) * second_factor;
+				result += grad_img->eg_mat(r - 2, c) * first_factor;
 				gradient_y(r, c) = result;
 			}
 		}
@@ -91,17 +94,17 @@ namespace opencorr
 			for (int c = 0; c < width; c++)
 			{
 				float result = 0.0f;
-				result -= gradient_x(r + 2, c) / 12.f;
-				result += gradient_x(r + 1, c) * (2.f / 3.f);
-				result -= gradient_x(r - 1, c) * (2.f / 3.f);
-				result += gradient_x(r - 2, c) / 12.f;
+				result -= gradient_x(r + 2, c) * first_factor;
+				result += gradient_x(r + 1, c) * second_factor;
+				result -= gradient_x(r - 1, c) * second_factor;
+				result += gradient_x(r - 2, c) * first_factor;
 				gradient_xy(r, c) = result;
 			}
 		}
 	}
 
 
-	//order of derivative: 1, order of accuracy: 4
+	//3D, order of derivative: 1, order of accuracy: 4
 	Gradient3D4::Gradient3D4(Image3D& image)
 	{
 		grad_img = &image;
@@ -155,10 +158,10 @@ namespace opencorr
 				for (int k = 2; k < dim_x - 2; k++)
 				{
 					float result = 0.0f;
-					result -= grad_img->vol_mat[i][j][k + 2] / 12.f;
-					result += grad_img->vol_mat[i][j][k + 1] * (2.f / 3.f);
-					result -= grad_img->vol_mat[i][j][k - 1] * (2.f / 3.f);
-					result += grad_img->vol_mat[i][j][k - 2] / 12.f;
+					result -= grad_img->vol_mat[i][j][k + 2] * first_factor;
+					result += grad_img->vol_mat[i][j][k + 1] * second_factor;
+					result -= grad_img->vol_mat[i][j][k - 1] * second_factor;
+					result += grad_img->vol_mat[i][j][k - 2] * first_factor;
 					gradient_x[i][j][k] = result;
 				}
 			}
@@ -185,10 +188,10 @@ namespace opencorr
 				for (int j = 2; j < dim_y - 2; j++)
 				{
 					float result = 0.0f;
-					result -= grad_img->vol_mat[i][j + 2][k] / 12.f;
-					result += grad_img->vol_mat[i][j + 1][k] * (2.f / 3.f);
-					result -= grad_img->vol_mat[i][j - 1][k] * (2.f / 3.f);
-					result += grad_img->vol_mat[i][j - 2][k] / 12.f;
+					result -= grad_img->vol_mat[i][j + 2][k] * first_factor;
+					result += grad_img->vol_mat[i][j + 1][k] * second_factor;
+					result -= grad_img->vol_mat[i][j - 1][k] * second_factor;
+					result += grad_img->vol_mat[i][j - 2][k] * first_factor;
 					gradient_y[i][j][k] = result;
 				}
 			}
@@ -215,10 +218,10 @@ namespace opencorr
 				for (int i = 2; i < dim_z - 2; i++)
 				{
 					float result = 0.0f;
-					result -= grad_img->vol_mat[i + 2][j][k] / 12.f;
-					result += grad_img->vol_mat[i + 1][j][k] * (2.f / 3.f);
-					result -= grad_img->vol_mat[i - 1][j][k] * (2.f / 3.f);
-					result += grad_img->vol_mat[i - 2][j][k] / 12.f;
+					result -= grad_img->vol_mat[i + 2][j][k] * first_factor;
+					result += grad_img->vol_mat[i + 1][j][k] * second_factor;
+					result -= grad_img->vol_mat[i - 1][j][k] * second_factor;
+					result += grad_img->vol_mat[i - 2][j][k] * first_factor;
 					gradient_z[i][j][k] = result;
 				}
 			}

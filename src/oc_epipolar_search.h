@@ -3,7 +3,7 @@
  * study and development of 2D, 3D/stereo and volumetric
  * digital image correlation.
  *
- * Copyright (C) 2021-2024, Zhenyu Jiang <zhenyujiang@scut.edu.cn>
+ * Copyright (C) 2021-2025, Zhenyu Jiang <zhenyujiang@scut.edu.cn>
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License v. 2.0. If a copy of the MPL was not distributed with this
@@ -39,7 +39,7 @@ namespace opencorr
 		float parallax_x[3], parallax_y[3]; //linear regression coefficients of parallax with respect to coordinates
 
 	public:
-		ICGN2D1* icgn1;
+		std::unique_ptr<ICGN2D1> icgn1;
 
 		EpipolarSearch(Calibration& view1_cam, Calibration& view2_cam, int thread_number);
 		~EpipolarSearch();

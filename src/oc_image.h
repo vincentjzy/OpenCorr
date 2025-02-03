@@ -3,7 +3,7 @@
  * study and development of 2D, 3D/stereo and volumetric
  * digital image correlation.
  *
- * Copyright (C) 2021-2024, Zhenyu Jiang <zhenyujiang@scut.edu.cn>
+ * Copyright (C) 2021-2025, Zhenyu Jiang <zhenyujiang@scut.edu.cn>
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License v. 2.0. If a copy of the MPL was not distributed with this
@@ -62,6 +62,26 @@ namespace opencorr
 		void load(std::string file_path);
 
 		void release();
+	};
+
+	//class made to process colorful image
+	class ColorfulImage2D
+	{
+	public:
+		int height, width;
+		unsigned int size;
+
+		std::string file_path;
+
+		cv::Mat cv_mat;
+		std::vector<cv::Mat> cv_channels;
+		Eigen::MatrixXf b_eg_mat, g_eg_mat, r_eg_mat;
+
+		ColorfulImage2D(int width, int height);
+		ColorfulImage2D(std::string file_path);
+		~ColorfulImage2D() = default;
+
+		void load(std::string file_path);
 	};
 
 }//namespace opencorr

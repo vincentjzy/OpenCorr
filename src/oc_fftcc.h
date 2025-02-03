@@ -3,7 +3,7 @@
  * study and development of 2D, 3D/stereo and volumetric
  * digital image correlation.
  *
- * Copyright (C) 2021-2024, Zhenyu Jiang <zhenyujiang@scut.edu.cn>
+ * Copyright (C) 2021-2025, Zhenyu Jiang <zhenyujiang@scut.edu.cn>
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License v. 2.0. If a copy of the MPL was not distributed with this
@@ -37,13 +37,13 @@ namespace opencorr
 		fftwf_plan tar_plan;
 		fftwf_plan zncc_plan;
 
-		static FFTW* allocate(int subset_radius_x, int subset_radius_y);
-		static FFTW* allocate(int subset_radius_x, int subset_radius_y, int subset_radius_z);
+		static std::unique_ptr<FFTW> allocate(int subset_radius_x, int subset_radius_y);
+		static std::unique_ptr<FFTW> allocate(int subset_radius_x, int subset_radius_y, int subset_radius_z);
 
-		static void release(FFTW* instance);
+		static void release(std::unique_ptr<FFTW>& instance);
 
-		static void reallocate(FFTW* instance, int subset_radius_x, int subset_radius_y);
-		static void reallocate(FFTW* instance, int subset_radius_x, int subset_radius_y, int subset_radius_z);
+		static void update(std::unique_ptr<FFTW>& instance, int subset_radius_x, int subset_radius_y);
+		static void update(std::unique_ptr<FFTW>&, int subset_radius_x, int subset_radius_y, int subset_radius_z);
 	};
 
 
@@ -54,8 +54,8 @@ namespace opencorr
 	class FFTCC2D : public DIC
 	{
 	private:
-		std::vector<FFTW*> instance_pool; //pool of FFTW instances for multi-thread processing
-		FFTW* getInstance(int tid); //get an instance according to the number of current thread id
+		std::vector<std::unique_ptr<FFTW>> instance_pool; //pool of FFTW instances for multi-thread processing
+		std::unique_ptr<FFTW>& getInstance(int tid); //get an instance according to the number of current thread id
 
 	public:
 		FFTCC2D(int subset_radius_x, int subset_radius_y, int thread_number);
@@ -75,8 +75,8 @@ namespace opencorr
 	class FFTCC3D : public DVC
 	{
 	private:
-		std::vector<FFTW*> instance_pool; //pool of FFTW instances for multi-thread processing
-		FFTW* getInstance(int tid); //get an instance according to the number of current thread id
+		std::vector<std::unique_ptr<FFTW>> instance_pool; //pool of FFTW instances for multi-thread processing
+		std::unique_ptr<FFTW>& getInstance(int tid); //get an instance according to the number of current thread id
 
 	public:
 		FFTCC3D(int subset_radius_x, int subset_radius_y, int subset_radius_z, int thread_number);

@@ -3,7 +3,7 @@
  * study and development of 2D, 3D/stereo and volumetric
  * digital image correlation.
  *
- * Copyright (C) 2021-2024, Zhenyu Jiang <zhenyujiang@scut.edu.cn>
+ * Copyright (C) 2021-2025, Zhenyu Jiang <zhenyujiang@scut.edu.cn>
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License v. 2.0. If a copy of the MPL was not distributed with this
@@ -54,6 +54,7 @@ namespace opencorr
 
 		cv::cv2eigen(cv_mat, eg_mat);
 	}
+
 
 
 	//3D image
@@ -169,6 +170,55 @@ namespace opencorr
 		{
 			delete3D(vol_mat);
 		}
+	}
+
+
+	//colorful image 2D
+	ColorfulImage2D::ColorfulImage2D(int width, int height)
+	{
+		cv_mat = cv::Mat::zeros(height, width, CV_8UC3);
+		b_eg_mat = Eigen::MatrixXf::Zero(height, width);
+		g_eg_mat = Eigen::MatrixXf::Zero(height, width);
+		r_eg_mat = Eigen::MatrixXf::Zero(height, width);
+		this->width = width;
+		this->height = height;
+		size = height * width;
+	}
+
+	ColorfulImage2D::ColorfulImage2D(std::string file_path)
+	{
+		load(file_path);
+	}
+
+	void ColorfulImage2D::load(std::string file_path)
+	{
+		cv_mat = cv::imread(file_path, cv::IMREAD_COLOR);
+
+		if (!cv_mat.data)
+		{
+			throw std::string("Fail to load file: " + file_path);
+		}
+
+		this->file_path = file_path;
+
+		//clear channels
+		std::vector<cv::Mat>().swap(cv_channels);
+		//split the three color channels, following the order of B, G, and R
+		split(cv_mat, cv_channels);
+
+		if (width != cv_mat.cols || height != cv_mat.rows)
+		{
+			width = cv_mat.cols;
+			height = cv_mat.rows;
+			size = height * width;
+			b_eg_mat.resize(height, width);
+			g_eg_mat.resize(height, width);
+			r_eg_mat.resize(height, width);
+		}
+
+		cv::cv2eigen(cv_channels[0], b_eg_mat);
+		cv::cv2eigen(cv_channels[1], g_eg_mat);
+		cv::cv2eigen(cv_channels[2], r_eg_mat);
 	}
 
 }//namespace opencorr

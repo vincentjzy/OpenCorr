@@ -3,7 +3,7 @@
  * study and development of 2D, 3D/stereo and volumetric
  * digital image correlation.
  *
- * Copyright (C) 2021-2024, Zhenyu Jiang <zhenyujiang@scut.edu.cn>
+ * Copyright (C) 2021-2025, Zhenyu Jiang <zhenyujiang@scut.edu.cn>
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License v. 2.0. If a copy of the MPL was not distributed with this
@@ -28,7 +28,7 @@ namespace opencorr
 
 	void NearestNeighbor::assignPoints(std::vector<Point2D>& point_queue)
 	{
-		int queue_length = (int)point_queue.size();
+		auto queue_length = point_queue.size();
 		point_cloud.pts.resize(queue_length);
 #pragma omp parallel for
 		for (int i = 0; i < queue_length; i++)
@@ -41,7 +41,7 @@ namespace opencorr
 
 	void NearestNeighbor::assignPoints(std::vector<POI2D>& poi_queue)
 	{
-		int queue_length = (int)poi_queue.size();
+		auto queue_length = poi_queue.size();
 		point_cloud.pts.resize(queue_length);
 #pragma omp parallel for
 		for (int i = 0; i < queue_length; i++)
@@ -54,7 +54,7 @@ namespace opencorr
 
 	void NearestNeighbor::assignPoints(std::vector<Point3D>& point_queue)
 	{
-		int queue_length = (int)point_queue.size();
+		auto queue_length = point_queue.size();
 		point_cloud.pts.resize(queue_length);
 #pragma omp parallel for
 		for (int i = 0; i < queue_length; i++)
@@ -67,7 +67,7 @@ namespace opencorr
 
 	void NearestNeighbor::assignPoints(std::vector<POI3D>& poi_queue)
 	{
-		int queue_length = (int)poi_queue.size();
+		auto queue_length = poi_queue.size();
 		point_cloud.pts.resize(queue_length);
 #pragma omp parallel for
 		for (int i = 0; i < queue_length; i++)

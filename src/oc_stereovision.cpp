@@ -3,7 +3,7 @@
  * study and development of 2D, 3D/stereo and volumetric
  * digital image correlation.
  *
- * Copyright (C) 2021-2024, Zhenyu Jiang <zhenyujiang@scut.edu.cn>
+ * Copyright (C) 2021-2025, Zhenyu Jiang <zhenyujiang@scut.edu.cn>
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License v. 2.0. If a copy of the MPL was not distributed with this
@@ -123,7 +123,7 @@ namespace opencorr
 
 	void Stereovision::reconstruct(std::vector<Point2D>& view1_2d_point_queue, std::vector<Point2D>& view2_2d_point_queue, std::vector<Point3D>& space_3d_point_queue)
 	{
-		int queue_length = (int)view1_2d_point_queue.size();
+		auto queue_length = view1_2d_point_queue.size();
 #pragma omp parallel for
 		for (int i = 0; i < queue_length; i++) {
 			space_3d_point_queue[i] = reconstruct(view1_2d_point_queue[i], view2_2d_point_queue[i]);

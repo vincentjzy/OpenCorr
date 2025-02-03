@@ -3,7 +3,7 @@
  * study and development of 2D, 3D/stereo and volumetric
  * digital image correlation.
  *
- * Copyright (C) 2021-2024, Zhenyu Jiang <zhenyujiang@scut.edu.cn>
+ * Copyright (C) 2021-2025, Zhenyu Jiang <zhenyujiang@scut.edu.cn>
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License v. 2.0. If a copy of the MPL was not distributed with this
@@ -19,7 +19,7 @@
 namespace opencorr
 {
 	//2D implementation
-	NearestNeighbor* FeatureAffine2D::getInstance(int tid)
+	std::unique_ptr<NearestNeighbor>& FeatureAffine2D::getInstance(int tid)
 	{
 		if (tid >= (int)instance_pool.size())
 		{
@@ -44,10 +44,11 @@ namespace opencorr
 		subset_feature_min = 14;
 		subset_radius_min = 10;
 
+		instance_pool.resize(thread_number);
+#pragma omp parallel for
 		for (int i = 0; i < thread_number; i++)
 		{
-			NearestNeighbor* instance = new NearestNeighbor();
-			instance_pool.push_back(instance);
+			instance_pool[i] = std::make_unique<NearestNeighbor>();
 		}
 	}
 
@@ -55,9 +56,9 @@ namespace opencorr
 	{
 		for (auto& instance : instance_pool)
 		{
-			delete instance;
+			instance.reset();
 		}
-		std::vector<NearestNeighbor*>().swap(instance_pool);
+		std::vector<std::unique_ptr<NearestNeighbor>>().swap(instance_pool);
 	}
 
 	RansacConfig FeatureAffine2D::getRansacConfig() const
@@ -115,7 +116,7 @@ namespace opencorr
 	void FeatureAffine2D::compute(POI2D* poi)
 	{
 		//set instance w.r.t. thread id 
-		NearestNeighbor* neighbor_search = getInstance(omp_get_thread_num());
+		std::unique_ptr<NearestNeighbor>& neighbor_search = getInstance(omp_get_thread_num());
 
 		Point3D current_point(poi->x, poi->y, 0.f);
 		std::vector<Point2D> ref_candidates, tar_candidates;
@@ -330,7 +331,7 @@ namespace opencorr
 
 	void FeatureAffine2D::compute(std::vector<POI2D>& poi_queue)
 	{
-		int queue_length = (int)poi_queue.size();
+		auto queue_length = poi_queue.size();
 #pragma omp parallel for
 		for (int i = 0; i < queue_length; i++)
 		{
@@ -341,7 +342,7 @@ namespace opencorr
 
 
 	//3D implementation
-	NearestNeighbor* FeatureAffine3D::getInstance(int tid)
+	std::unique_ptr<NearestNeighbor>& FeatureAffine3D::getInstance(int tid)
 	{
 		if (tid >= (int)instance_pool.size())
 		{
@@ -362,10 +363,11 @@ namespace opencorr
 		ransac_config.trial_number = 32;
 		this->thread_number = thread_number;
 
+		instance_pool.resize(thread_number);
+#pragma omp parallel for
 		for (int i = 0; i < thread_number; i++)
 		{
-			NearestNeighbor* instance = new NearestNeighbor();
-			instance_pool.push_back(instance);
+			instance_pool[i] = std::make_unique<NearestNeighbor>();
 		}
 	}
 
@@ -373,9 +375,9 @@ namespace opencorr
 	{
 		for (auto& instance : instance_pool)
 		{
-			delete instance;
+			instance.reset();
 		}
-		std::vector<NearestNeighbor*>().swap(instance_pool);
+		std::vector<std::unique_ptr<NearestNeighbor>>().swap(instance_pool);
 	}
 
 	RansacConfig FeatureAffine3D::getRansacConfig() const
@@ -427,7 +429,7 @@ namespace opencorr
 	void FeatureAffine3D::compute(POI3D* poi)
 	{
 		//set instance w.r.t. thread id 
-		NearestNeighbor* neighbor_search = getInstance(omp_get_thread_num());
+		std::unique_ptr<NearestNeighbor>& neighbor_search = getInstance(omp_get_thread_num());
 
 		Point3D current_point(poi->x, poi->y, poi->z);
 		std::vector<Point3D> ref_candidates, tar_candidates;
@@ -595,7 +597,7 @@ namespace opencorr
 
 	void FeatureAffine3D::compute(std::vector<POI3D>& poi_queue)
 	{
-		int queue_length = (int)poi_queue.size();
+		auto queue_length = poi_queue.size();
 #pragma omp parallel for
 		for (int i = 0; i < queue_length; i++)
 		{

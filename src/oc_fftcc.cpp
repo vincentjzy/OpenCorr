@@ -3,7 +3,7 @@
  * study and development of 2D, 3D/stereo and volumetric
  * digital image correlation.
  *
- * Copyright (C) 2021-2024, Zhenyu Jiang <zhenyujiang@scut.edu.cn>
+ * Copyright (C) 2021-2025, Zhenyu Jiang <zhenyujiang@scut.edu.cn>
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License v. 2.0. If a copy of the MPL was not distributed with this
@@ -16,14 +16,14 @@
 
 namespace opencorr
 {
-	FFTW* FFTW::allocate(int subset_radius_x, int subset_radius_y)
+	std::unique_ptr<FFTW> FFTW::allocate(int subset_radius_x, int subset_radius_y)
 	{
 		int width = 2 * subset_radius_x;
 		int height = 2 * subset_radius_y;
 		int buffer_length = width * (subset_radius_y + 1);
 		unsigned int subset_size = width * height;
 
-		FFTW* FFTW_instance = new FFTW;
+		std::unique_ptr<FFTW> FFTW_instance = std::make_unique<FFTW>();
 
 		FFTW_instance->ref_freq = (fftwf_complex*)fftw_malloc(sizeof(fftwf_complex) * buffer_length);
 		FFTW_instance->tar_freq = (fftwf_complex*)fftw_malloc(sizeof(fftwf_complex) * buffer_length);
@@ -43,7 +43,7 @@ namespace opencorr
 		return FFTW_instance;
 	}
 
-	FFTW* FFTW::allocate(int subset_radius_x, int subset_radius_y, int subset_radius_z)
+	std::unique_ptr<FFTW> FFTW::allocate(int subset_radius_x, int subset_radius_y, int subset_radius_z)
 	{
 		int dim_x = 2 * subset_radius_x;
 		int dim_y = 2 * subset_radius_y;
@@ -51,7 +51,7 @@ namespace opencorr
 		int buffer_length = dim_x * dim_y * (subset_radius_z + 1);
 		unsigned int subset_size = dim_x * dim_y * dim_z;
 
-		FFTW* FFTW_instance = new FFTW;
+		std::unique_ptr<FFTW> FFTW_instance = std::make_unique<FFTW>();
 
 		FFTW_instance->ref_freq = (fftwf_complex*)fftw_malloc(sizeof(fftwf_complex) * buffer_length);
 		FFTW_instance->tar_freq = (fftwf_complex*)fftw_malloc(sizeof(fftwf_complex) * buffer_length);
@@ -71,7 +71,7 @@ namespace opencorr
 		return FFTW_instance;
 	}
 
-	void FFTW::release(FFTW* instance)
+	void FFTW::release(std::unique_ptr<FFTW>& instance)
 	{
 		delete[] instance->ref_subset;
 		delete[] instance->tar_subset;
@@ -84,7 +84,7 @@ namespace opencorr
 		fftwf_destroy_plan(instance->zncc_plan);
 	}
 
-	void FFTW::reallocate(FFTW* instance, int subset_radius_x, int subset_radius_y)
+	void FFTW::update(std::unique_ptr<FFTW>& instance, int subset_radius_x, int subset_radius_y)
 	{
 		release(instance);
 
@@ -109,7 +109,7 @@ namespace opencorr
 		}
 	}
 
-	void FFTW::reallocate(FFTW* instance, int subset_radius_x, int subset_radius_y, int subset_radius_z)
+	void FFTW::update(std::unique_ptr<FFTW>& instance, int subset_radius_x, int subset_radius_y, int subset_radius_z)
 	{
 		release(instance);
 
@@ -136,32 +136,7 @@ namespace opencorr
 	}
 
 	//FFT accelerated cross correlation 2D
-	FFTCC2D::FFTCC2D(int subset_radius_x, int subset_radius_y, int thread_number)
-	{
-		this->subset_radius_x = subset_radius_x;
-		this->subset_radius_y = subset_radius_y;
-		this->thread_number = thread_number;
-
-		for (int i = 0; i < thread_number; i++)
-		{
-			FFTW* instance = FFTW::allocate(subset_radius_x, subset_radius_y);
-			instance_pool.push_back(instance);
-		}
-	}
-
-	FFTCC2D::~FFTCC2D()
-	{
-		for (auto& instance : instance_pool)
-		{
-			FFTW::release(instance);
-			delete instance;
-		}
-		std::vector<FFTW*>().swap(instance_pool);
-	}
-
-	void FFTCC2D::prepare() {}
-
-	FFTW* FFTCC2D::getInstance(int tid)
+	std::unique_ptr<FFTW>& FFTCC2D::getInstance(int tid)
 	{
 		if (tid >= (int)instance_pool.size())
 		{
@@ -171,10 +146,36 @@ namespace opencorr
 		return instance_pool[tid];
 	}
 
+	FFTCC2D::FFTCC2D(int subset_radius_x, int subset_radius_y, int thread_number)
+	{
+		this->subset_radius_x = subset_radius_x;
+		this->subset_radius_y = subset_radius_y;
+		this->thread_number = thread_number;
+
+		instance_pool.resize(thread_number);
+#pragma omp parallel for
+		for (int i = 0; i < thread_number; i++)
+		{
+			instance_pool[i] = FFTW::allocate(subset_radius_x, subset_radius_y);
+		}
+	}
+
+	FFTCC2D::~FFTCC2D()
+	{
+		for (auto& instance : instance_pool)
+		{
+			FFTW::release(instance);
+			instance.reset();
+		}
+		std::vector<std::unique_ptr<FFTW >>().swap(instance_pool);
+	}
+
+	void FFTCC2D::prepare() {}
+
 	void FFTCC2D::compute(POI2D* poi)
 	{
 		//set instance w.r.t. thread id 
-		FFTW* current_instance = getInstance(omp_get_thread_num());
+		std::unique_ptr<FFTW>& fftcc = getInstance(omp_get_thread_num());
 
 		int subset_width = subset_radius_x * 2;
 		int subset_height = subset_radius_y * 2;
@@ -182,6 +183,15 @@ namespace opencorr
 
 		//set initial guess of displacement
 		Point2D initial_displacement(poi->deformation.u, poi->deformation.v);
+
+		//check if the position of POI is too close to the boundary
+		if ((int)poi->x < subset_radius_x || (int)poi->x >= ref_img->width - subset_radius_x
+			|| (int)poi->y < subset_radius_y || (int)poi->y >= ref_img->height - subset_radius_y
+			|| int(poi->x + initial_displacement.x) < subset_radius_x || int(poi->x + initial_displacement.x) >= ref_img->width - subset_radius_x
+			|| int(poi->y + initial_displacement.y) < subset_radius_y || int(poi->y + initial_displacement.y) >= ref_img->height - subset_radius_y)
+		{
+			return;
+		}
 
 		//initialize mean and norm in subsets
 		float ref_mean = 0.f;
@@ -196,13 +206,13 @@ namespace opencorr
 				//fill reference subset
 				Point2D ref_point(poi->x + c - subset_radius_x, poi->y + r - subset_radius_y);
 				float value = ref_img->eg_mat((int)ref_point.y, (int)ref_point.x);
-				current_instance->ref_subset[r * subset_width + c] = value;
+				fftcc->ref_subset[r * subset_width + c] = value;
 				ref_mean += value;
 
 				//fill the target subset with initial guess of displacement
 				Point2D tar_point = ref_point + initial_displacement;
 				value = tar_img->eg_mat((int)tar_point.y, (int)tar_point.x);
-				current_instance->tar_subset[r * subset_width + c] = value;
+				fftcc->tar_subset[r * subset_width + c] = value;
 				tar_mean += value;
 			}
 		}
@@ -212,34 +222,32 @@ namespace opencorr
 		//zero-mean operation of gray-scale values in the two subsets
 		for (int i = 0; i < subset_size; i++)
 		{
-			current_instance->ref_subset[i] -= ref_mean;
-			current_instance->tar_subset[i] -= tar_mean;
-			ref_norm += current_instance->ref_subset[i] * current_instance->ref_subset[i];
-			tar_norm += current_instance->tar_subset[i] * current_instance->tar_subset[i];
+			fftcc->ref_subset[i] -= ref_mean;
+			fftcc->tar_subset[i] -= tar_mean;
+			ref_norm += fftcc->ref_subset[i] * fftcc->ref_subset[i];
+			tar_norm += fftcc->tar_subset[i] * fftcc->tar_subset[i];
 		}
 
-		fftwf_execute(current_instance->ref_plan);
-		fftwf_execute(current_instance->tar_plan);
+		fftwf_execute(fftcc->ref_plan);
+		fftwf_execute(fftcc->tar_plan);
 
 		int buffer_length = subset_width * (subset_radius_y + 1);
 		for (int n = 0; n < buffer_length; n++)
 		{
-			current_instance->zncc_freq[n][0] = (current_instance->ref_freq[n][0] * current_instance->tar_freq[n][0])
-				+ (current_instance->ref_freq[n][1] * current_instance->tar_freq[n][1]);
-			current_instance->zncc_freq[n][1] = (current_instance->ref_freq[n][0] * current_instance->tar_freq[n][1])
-				- (current_instance->ref_freq[n][1] * current_instance->tar_freq[n][0]);
+			fftcc->zncc_freq[n][0] = (fftcc->ref_freq[n][0] * fftcc->tar_freq[n][0]) + (fftcc->ref_freq[n][1] * fftcc->tar_freq[n][1]);
+			fftcc->zncc_freq[n][1] = (fftcc->ref_freq[n][0] * fftcc->tar_freq[n][1]) - (fftcc->ref_freq[n][1] * fftcc->tar_freq[n][0]);
 		}
 
-		fftwf_execute(current_instance->zncc_plan);
+		fftwf_execute(fftcc->zncc_plan);
 
 		//search for max ZCC
 		float max_zncc = -2.f;
 		int max_zncc_index = 0;
 		for (int i = 0; i < subset_size; i++)
 		{
-			if (current_instance->zncc[i] > max_zncc)
+			if (fftcc->zncc[i] > max_zncc)
 			{
-				max_zncc = current_instance->zncc[i];
+				max_zncc = fftcc->zncc[i];
 				max_zncc_index = i;
 			}
 		}
@@ -266,7 +274,7 @@ namespace opencorr
 
 	void FFTCC2D::compute(std::vector<POI2D>& poi_queue)
 	{
-		int queue_length = (int)poi_queue.size();
+		auto queue_length = poi_queue.size();
 #pragma omp parallel for
 		for (int i = 0; i < queue_length; i++)
 		{
@@ -277,33 +285,7 @@ namespace opencorr
 
 
 	//FFT accelerated cross correlation 3D
-	FFTCC3D::FFTCC3D(int subset_radius_x, int subset_radius_y, int subset_radius_z, int thread_number)
-	{
-		this->subset_radius_x = subset_radius_x;
-		this->subset_radius_y = subset_radius_y;
-		this->subset_radius_z = subset_radius_z;
-		this->thread_number = thread_number;
-
-		for (int i = 0; i < thread_number; i++)
-		{
-			FFTW* instance = FFTW::allocate(subset_radius_x, subset_radius_y, subset_radius_z);
-			instance_pool.push_back(instance);
-		}
-	}
-
-	FFTCC3D::~FFTCC3D()
-	{
-		for (auto& instance : instance_pool)
-		{
-			FFTW::release(instance);
-			delete instance;
-		}
-		std::vector<FFTW*>().swap(instance_pool);
-	}
-
-	void FFTCC3D::prepare() {}
-
-	FFTW* FFTCC3D::getInstance(int tid)
+	std::unique_ptr<FFTW>& FFTCC3D::getInstance(int tid)
 	{
 		if (tid >= (int)instance_pool.size())
 		{
@@ -313,10 +295,37 @@ namespace opencorr
 		return instance_pool[tid];
 	}
 
+	FFTCC3D::FFTCC3D(int subset_radius_x, int subset_radius_y, int subset_radius_z, int thread_number)
+	{
+		this->subset_radius_x = subset_radius_x;
+		this->subset_radius_y = subset_radius_y;
+		this->subset_radius_z = subset_radius_z;
+		this->thread_number = thread_number;
+
+		instance_pool.resize(thread_number);
+#pragma omp parallel for
+		for (int i = 0; i < thread_number; i++)
+		{
+			instance_pool[i] = FFTW::allocate(subset_radius_x, subset_radius_y, subset_radius_z);
+		}
+	}
+
+	FFTCC3D::~FFTCC3D()
+	{
+		for (auto& instance : instance_pool)
+		{
+			FFTW::release(instance);
+			instance.reset();
+		}
+		std::vector<std::unique_ptr<FFTW>>().swap(instance_pool);
+	}
+
+	void FFTCC3D::prepare() {}
+
 	void FFTCC3D::compute(POI3D* poi)
 	{
 		//set instance w.r.t. thread id 
-		FFTW* current_instance = getInstance(omp_get_thread_num());
+		std::unique_ptr<FFTW>& fftcc = getInstance(omp_get_thread_num());
 
 		int subset_dim_x = subset_radius_x * 2;
 		int subset_dim_y = subset_radius_y * 2;
@@ -341,13 +350,13 @@ namespace opencorr
 					//fill the reference subset
 					Point3D ref_point(poi->x + k - subset_radius_x, poi->y + j - subset_radius_y, poi->z + i - subset_radius_z);
 					float value = ref_img->vol_mat[(int)ref_point.z][(int)ref_point.y][(int)ref_point.x];
-					current_instance->ref_subset[(i * subset_dim_y + j) * subset_dim_x + k] = value;
+					fftcc->ref_subset[(i * subset_dim_y + j) * subset_dim_x + k] = value;
 					ref_mean += value;
 
 					//fill the target subset with initial guess of displacement
 					Point3D tar_point = ref_point + initial_displacement;
 					value = tar_img->vol_mat[(int)tar_point.z][(int)tar_point.y][(int)tar_point.x];
-					current_instance->tar_subset[(i * subset_dim_y + j) * subset_dim_x + k] = value;
+					fftcc->tar_subset[(i * subset_dim_y + j) * subset_dim_x + k] = value;
 					tar_mean += value;
 				}
 			}
@@ -358,34 +367,32 @@ namespace opencorr
 		//zero-mean operation of gray-scale values in the two subsets
 		for (int i = 0; i < subset_size; i++)
 		{
-			current_instance->ref_subset[i] -= ref_mean;
-			current_instance->tar_subset[i] -= tar_mean;
-			ref_norm += current_instance->ref_subset[i] * current_instance->ref_subset[i];
-			tar_norm += current_instance->tar_subset[i] * current_instance->tar_subset[i];
+			fftcc->ref_subset[i] -= ref_mean;
+			fftcc->tar_subset[i] -= tar_mean;
+			ref_norm += fftcc->ref_subset[i] * fftcc->ref_subset[i];
+			tar_norm += fftcc->tar_subset[i] * fftcc->tar_subset[i];
 		}
 
-		fftwf_execute(current_instance->ref_plan);
-		fftwf_execute(current_instance->tar_plan);
+		fftwf_execute(fftcc->ref_plan);
+		fftwf_execute(fftcc->tar_plan);
 
 		unsigned int buffer_length = subset_dim_x * subset_dim_y * (subset_radius_z + 1);
 		for (unsigned int n = 0; n < buffer_length; n++)
 		{
-			current_instance->zncc_freq[n][0] = (current_instance->ref_freq[n][0] * current_instance->tar_freq[n][0])
-				+ (current_instance->ref_freq[n][1] * current_instance->tar_freq[n][1]);
-			current_instance->zncc_freq[n][1] = (current_instance->ref_freq[n][0] * current_instance->tar_freq[n][1])
-				- (current_instance->ref_freq[n][1] * current_instance->tar_freq[n][0]);
+			fftcc->zncc_freq[n][0] = (fftcc->ref_freq[n][0] * fftcc->tar_freq[n][0]) + (fftcc->ref_freq[n][1] * fftcc->tar_freq[n][1]);
+			fftcc->zncc_freq[n][1] = (fftcc->ref_freq[n][0] * fftcc->tar_freq[n][1]) - (fftcc->ref_freq[n][1] * fftcc->tar_freq[n][0]);
 		}
 
-		fftwf_execute(current_instance->zncc_plan);
+		fftwf_execute(fftcc->zncc_plan);
 
 		//search for max ZCC
 		float max_zncc = -2.f;
 		int max_zncc_index = 0;
 		for (int i = 0; i < subset_size; i++)
 		{
-			if (current_instance->zncc[i] > max_zncc)
+			if (fftcc->zncc[i] > max_zncc)
 			{
-				max_zncc = current_instance->zncc[i];
+				max_zncc = fftcc->zncc[i];
 				max_zncc_index = i;
 			}
 		}
@@ -419,7 +426,7 @@ namespace opencorr
 
 	void FFTCC3D::compute(std::vector<POI3D>& poi_queue)
 	{
-		int queue_length = (int)poi_queue.size();
+		auto queue_length = poi_queue.size();
 #pragma omp parallel for
 		for (int i = 0; i < queue_length; i++)
 		{

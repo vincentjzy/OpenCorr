@@ -3,7 +3,7 @@
  * study and development of 2D, 3D/stereo and volumetric
  * digital image correlation.
  *
- * Copyright (C) 2021-2024, Zhenyu Jiang <zhenyujiang@scut.edu.cn>
+ * Copyright (C) 2021-2025, Zhenyu Jiang <zhenyujiang@scut.edu.cn>
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License v. 2.0. If a copy of the MPL was not distributed with this
@@ -42,7 +42,7 @@ namespace opencorr
 	{
 		if (search_radius < search_step)
 		{
-			std::cerr << "Search radius is less than search step" << std::endl;
+			throw std::string("Search radius is less than search step");
 			return;
 		}
 		this->search_radius = search_radius;
@@ -51,7 +51,7 @@ namespace opencorr
 
 	void EpipolarSearch::createICGN(int subset_radius_x, int subset_radius_y, float conv_criterion, float stop_condition)
 	{
-		icgn1 = new ICGN2D1(subset_radius_x, subset_radius_y, conv_criterion, stop_condition, thread_number);
+		icgn1 = std::make_unique<ICGN2D1>(subset_radius_x, subset_radius_y, conv_criterion, stop_condition, thread_number);
 	}
 
 	void EpipolarSearch::prepareICGN()
@@ -64,7 +64,7 @@ namespace opencorr
 	{
 		if (icgn1 != nullptr)
 		{
-			delete icgn1;
+			icgn1.reset();
 		}
 	}
 
@@ -142,8 +142,7 @@ namespace opencorr
 		Eigen::Vector3f view2_epipolar = fundamental_matrix * view1_vector;
 		float line_slope = -view2_epipolar(0) / view2_epipolar(1);
 		float line_intercept = -view2_epipolar(2) / view2_epipolar(1);
-		int x_view2 = (int)((line_slope * (poi->y + poi->deformation.v + parallax.y - line_intercept)
-			+ poi->x + poi->deformation.u + parallax.x) / (line_slope * line_slope + 1));
+		int x_view2 = (int)((line_slope * (poi->y + poi->deformation.v + parallax.y - line_intercept) + poi->x + poi->deformation.u + parallax.x) / (line_slope * line_slope + 1));
 		int y_view2 = (int)(line_slope * x_view2 + line_intercept);
 
 		//get the center of searching region
@@ -155,7 +154,8 @@ namespace opencorr
 
 		//get the other trial locations in searching region
 		int x_trial, y_trial;
-		for (int i = search_step; i < search_radius; i += search_step) {
+		for (int i = search_step; i < search_radius; i += search_step)
+		{
 			x_trial = x_view2 + i;
 			y_trial = (int)(line_slope * x_trial + line_intercept);
 			current_poi.deformation.u = x_trial - poi->x;
@@ -178,7 +178,7 @@ namespace opencorr
 		}
 
 		//coarse check using ICGN1
-		int queue_size = (int)poi_candidates.size();
+		auto queue_size = poi_candidates.size();
 #pragma omp parallel for
 		for (int i = 0; i < queue_size; i++)
 		{
@@ -194,7 +194,7 @@ namespace opencorr
 
 	void EpipolarSearch::compute(std::vector<POI2D>& poi_queue)
 	{
-		int queue_length = (int)poi_queue.size();
+		auto queue_length = poi_queue.size();
 		//CAUTION: no need to use OMP parallel for, as the parallelism has been implemented in the processing of each POI
 		for (int i = 0; i < queue_length; i++)
 		{

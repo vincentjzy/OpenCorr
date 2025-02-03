@@ -3,7 +3,7 @@
  * study and development of 2D, 3D/stereo and volumetric
  * digital image correlation.
  *
- * Copyright (C) 2021-2024, Zhenyu Jiang <zhenyujiang@scut.edu.cn>
+ * Copyright (C) 2021-2025, Zhenyu Jiang <zhenyujiang@scut.edu.cn>
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License v. 2.0. If a copy of the MPL was not distributed with this
@@ -37,8 +37,8 @@ namespace opencorr
 	class FeatureAffine2D : public DIC
 	{
 	private:
-		std::vector<NearestNeighbor*> instance_pool;
-		NearestNeighbor* getInstance(int tid);
+		std::vector<std::unique_ptr<NearestNeighbor>> instance_pool;
+		std::unique_ptr<NearestNeighbor>& getInstance(int tid);
 
 	protected:
 		float neighbor_search_radius; //seaching radius for mached keypoints around a POI
@@ -77,8 +77,8 @@ namespace opencorr
 	class FeatureAffine3D : public DVC
 	{
 	private:
-		std::vector<NearestNeighbor*> instance_pool;
-		NearestNeighbor* getInstance(int tid);
+		std::vector<std::unique_ptr<NearestNeighbor>> instance_pool;
+		std::unique_ptr<NearestNeighbor>& getInstance(int tid);
 
 	protected:
 		float neighbor_search_radius; //seaching radius for mached keypoints around a POI

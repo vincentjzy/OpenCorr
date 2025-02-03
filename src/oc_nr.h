@@ -3,7 +3,7 @@
  * study and development of 2D, 3D/stereo and volumetric
  * digital image correlation.
  *
- * Copyright (C) 2021-2024, Zhenyu Jiang <zhenyujiang@scut.edu.cn>
+ * Copyright (C) 2021-2025, Zhenyu Jiang <zhenyujiang@scut.edu.cn>
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License v. 2.0. If a copy of the MPL was not distributed with this
@@ -30,32 +30,33 @@ namespace opencorr
 	class NR2D1_
 	{
 	public:
-		Subset2D* ref_subset;
-		Subset2D* tar_subset;
+		std::unique_ptr<Subset2D> ref_subset;
+		std::unique_ptr<Subset2D> tar_subset;
 		Eigen::MatrixXf tar_gradient_x;
 		Eigen::MatrixXf tar_gradient_y;
 		Eigen::MatrixXf error_img;
-		Matrix6f hessian, inv_hessian;
+		Matrix6f hessian;
+		Matrix6f inv_hessian;
 		float*** sd_img; //steepest descent image
 
-		static NR2D1_* allocate(int subset_radius_x, int subset_radius_y);
-		static void release(NR2D1_* instance);
-		static void update(NR2D1_* instance, int subset_radius_x, int subset_radius_y);
+		static std::unique_ptr<NR2D1_> allocate(int subset_radius_x, int subset_radius_y);
+		static void release(std::unique_ptr<NR2D1_>& instance);
+		static void update(std::unique_ptr<NR2D1_>& instance, int subset_radius_x, int subset_radius_y);
 	};
 
 	class NR2D1 : public DIC
 	{
 	private:
-		Gradient2D4* tar_gradient; //gradient for calculating Hessian matrix of reference subset
-		Interpolation2D* tar_interp; //interpolation for generating target subset during iteration
-		Interpolation2D* tar_interp_x; //interpolation for generating target gradient along axis-x during iteration
-		Interpolation2D* tar_interp_y; //interpolation for generating target gradient along axis-y during iteration
+		std::unique_ptr<Gradient2D4> tar_gradient; //gradient for calculating Hessian matrix of reference subset
+		std::unique_ptr<Interpolation2D> tar_interp; //interpolation for generating target subset during iteration
+		std::unique_ptr<Interpolation2D> tar_interp_x; //interpolation for generating target gradient along axis-x during iteration
+		std::unique_ptr<Interpolation2D> tar_interp_y; //interpolation for generating target gradient along axis-y during iteration
 
 		float conv_criterion; //convergence criterion: norm of maximum deformation increment in subset
 		float stop_condition; //stop condition: max iteration
 
-		std::vector<NR2D1_*> instance_pool; //pool of instances for multi-thread processing
-		NR2D1_* getInstance(int tid); //get an instance according to the number of current thread id
+		std::vector<std::unique_ptr<NR2D1_>> instance_pool; //pool of instances for multi-thread processing
+		std::unique_ptr<NR2D1_>& getInstance(int tid); //get an instance according to the number of current thread id
 
 	public:
 		NR2D1(int subset_radius_x, int subset_radius_y, float conv_criterion, float stop_condition, int thread_number);
