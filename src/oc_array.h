@@ -3,7 +3,7 @@
  * study and development of 2D, 3D/stereo and volumetric
  * digital image correlation.
  *
- * Copyright (C) 2021-2025, Zhenyu Jiang <zhenyujiang@scut.edu.cn>
+ * Copyright (C) 2021-2024, Zhenyu Jiang <zhenyujiang@scut.edu.cn>
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License v. 2.0. If a copy of the MPL was not distributed with this
@@ -27,27 +27,10 @@ typedef Eigen::Matrix<float, 4, 1> Vector4f;
 namespace opencorr
 {
 	//new and delete 2d array
-	float** new2D(int dimension1, int dimension2); //array[dimension1][dimension2]
-	void delete2D(float**& ptr);
-
-	//new and delete 3d array
-	float*** new3D(int dimension1, int dimension2, int dimension3); //array[dimension1][dimension2][dimension3]
-	void delete3D(float***& ptr);
-
-	//new and delete 4d array
-	float**** new4D(int dimension1, int dimension2, int dimension3, int dimension4); //array[dimension1][dimension2][dimension3][dimension4]
-	void delete4D(float****& ptr);
-
-	//allocate memory for 2d, 3d, and 4d arrays
-	template <class Real>
-	void createPtr(Real*& ptr, int dimension1)
+	template <class Real = float>
+	Real** new2D(int dimension1, int dimension2) //array[dimension1][dimension2]
 	{
-		ptr = (Real*)calloc(dimension1, sizeof(Real)); //allocate the memory and initialize all the elements with zero
-	}
-
-	template <class Real>
-	void createPtr(Real**& ptr, int dimension1, int dimension2)
-	{
+		Real** ptr = nullptr;
 		Real* ptr1d = (Real*)calloc(dimension1 * dimension2, sizeof(Real));
 		ptr = (Real**)malloc(dimension1 * sizeof(Real*));
 
@@ -55,11 +38,24 @@ namespace opencorr
 		{
 			ptr[i] = ptr1d + i * dimension2;
 		}
+
+		return ptr;
 	}
 
-	template <class Real>
-	void createPtr(Real***& ptr, int dimension1, int dimension2, int dimension3)
+	template <class Real = float>
+	void delete2D(Real**& ptr)
 	{
+		if (ptr == nullptr) return;
+
+		free(ptr);
+		ptr = nullptr;
+	}
+
+	//new and delete 3d array
+	template <class Real = float>
+	Real*** new3D(int dimension1, int dimension2, int dimension3) //array[dimension1][dimension2][dimension3]
+	{
+		Real*** ptr = nullptr;
 		Real* ptr1d = (Real*)calloc(dimension1 * dimension2 * dimension3, sizeof(Real));
 		Real** ptr2d = (Real**)malloc(dimension1 * dimension2 * sizeof(Real*));
 		ptr = (Real***)malloc(dimension1 * sizeof(Real**));
@@ -72,11 +68,25 @@ namespace opencorr
 			}
 			ptr[i] = ptr2d + i * dimension2;
 		}
+
+		return ptr;
 	}
 
-	template <class Real>
-	void createPtr(Real****& ptr, int dimension1, int dimension2, int dimension3, int dimension4)
+	template <class Real = float>
+	void delete3D(Real***& ptr)
 	{
+		if (ptr == nullptr) return;
+
+		free(ptr[0]);
+		free(ptr);
+		ptr = nullptr;
+	}
+
+	//new and delete 4d array
+	template <class Real = float>
+	Real**** new4D(int dimension1, int dimension2, int dimension3, int dimension4) //array[dimension1][dimension2][dimension3][dimension4]
+	{
+		Real**** ptr = nullptr;
 		Real* ptr1d = (Real*)calloc(dimension1 * dimension2 * dimension3 * dimension4, sizeof(Real));
 		Real** ptr2d = (Real**)malloc(dimension1 * dimension2 * dimension3 * sizeof(Real*));
 		Real*** ptr3d = (Real***)malloc(dimension1 * dimension2 * sizeof(Real**));
@@ -94,36 +104,15 @@ namespace opencorr
 			}
 			ptr[i] = ptr3d + i * dimension2;
 		}
+
+		return ptr;
 	}
 
-	//release memory of 2d, 3d, and 4d arrays
-	template <class Real>
-	void destroyPtr(Real*& ptr)
+	template <class Real = float>
+	void delete4D(Real****& ptr)
 	{
-		free(ptr);
-		ptr = nullptr;
-	}
+		if (ptr == nullptr) return;
 
-	template <class Real>
-	void destroyPtr(Real**& ptr)
-	{
-		free(ptr[0]);
-		free(ptr);
-		ptr = nullptr;
-	}
-
-	template<class Real>
-	void destroyPtr(Real***& ptr)
-	{
-		free(ptr[0][0]);
-		free(ptr[0]);
-		free(ptr);
-		ptr = nullptr;
-	}
-
-	template <class Real>
-	void destroyPtr(Real****& ptr)
-	{
 		free(ptr[0][0][0]);
 		free(ptr[0][0]);
 		free(ptr[0]);

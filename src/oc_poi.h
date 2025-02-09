@@ -3,7 +3,7 @@
  * study and development of 2D, 3D/stereo and volumetric
  * digital image correlation.
  *
- * Copyright (C) 2021-2025, Zhenyu Jiang <zhenyujiang@scut.edu.cn>
+ * Copyright (C) 2021-2024, Zhenyu Jiang <zhenyujiang@scut.edu.cn>
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License v. 2.0. If a copy of the MPL was not distributed with this
@@ -17,7 +17,6 @@
 #ifndef _POI_H_
 #define _POI_H_
 
-#include "oc_point.h"
 #include "oc_deformation.h"
 
 namespace opencorr
@@ -108,17 +107,36 @@ namespace opencorr
 		StrainVector2D strain;
 		Point2D subset_radius;
 
-		POI2D(int x, int y);
-		POI2D(float x, float y);
-		POI2D(Point2D location);
-		~POI2D();
+		inline POI2D(int x, int y) :Point2D(x, y)
+		{
+			clear();
+		}
+
+		inline POI2D(float x, float y) : Point2D(x, y)
+		{
+			clear();
+		}
+
+		inline POI2D(Point2D location) : Point2D(location)
+		{
+			clear();
+		}
+
+		inline ~POI2D() {}
 
 		//reset data except the location
-		void clear();
+		inline void clear()
+		{
+			std::fill(std::begin(deformation.p), std::end(deformation.p), 0.f);
+			std::fill(std::begin(result.r), std::end(result.r), 0.f);
+			std::fill(std::begin(strain.e), std::end(strain.e), 0.f);
+			subset_radius.x = 0.f;
+			subset_radius.y = 0.f;
+		}
 	};
 
 
-	//class for stereo DIC
+	//class for 3D/stereo DIC
 	class POI2DS : public Point2D
 	{
 	public:
@@ -128,13 +146,40 @@ namespace opencorr
 		StrainVector3D strain;
 		Point2D subset_radius;
 
-		POI2DS(int x, int y);
-		POI2DS(float x, float y);
-		POI2DS(Point2D location);
-		~POI2DS();
+		inline POI2DS(int x, int y) :Point2D(x, y)
+		{
+			clear();
+		}
+
+		inline POI2DS(float x, float y) : Point2D(x, y)
+		{
+			clear();
+		}
+
+		inline POI2DS(Point2D location) : Point2D(location)
+		{
+			clear();
+		}
+
+		inline ~POI2DS() {}
 
 		//reset data except the location
-		void clear();
+		inline void clear()
+		{
+			std::fill(std::begin(deformation.p), std::end(deformation.p), 0.f);
+			std::fill(std::begin(result.r), std::end(result.r), 0.f);
+			std::fill(std::begin(strain.e), std::end(strain.e), 0.f);
+
+			ref_coor.x = 0.f;
+			ref_coor.y = 0.f;
+			ref_coor.z = 0.f;
+			tar_coor.x = 0.f;
+			tar_coor.y = 0.f;
+			tar_coor.z = 0.f;
+
+			subset_radius.x = 0.f;
+			subset_radius.y = 0.f;
+		}
 	};
 
 
@@ -147,13 +192,33 @@ namespace opencorr
 		StrainVector3D strain;
 		Point3D subset_radius;
 
-		POI3D(int x, int y, int z);
-		POI3D(float x, float y, float z);
-		POI3D(Point3D location);
-		~POI3D();
+		inline POI3D(int x, int y, int z) :Point3D(x, y, z)
+		{
+			clear();
+		}
+
+		inline POI3D(float x, float y, float z) : Point3D(x, y, z)
+		{
+			clear();
+		}
+
+		inline POI3D(Point3D location) : Point3D(location)
+		{
+			clear();
+		}
+
+		inline ~POI3D() {}
 
 		//reset data except the location
-		void clear();
+		inline void clear()
+		{
+			std::fill(std::begin(deformation.p), std::end(deformation.p), 0.f);
+			std::fill(std::begin(result.r), std::end(result.r), 0.f);
+			std::fill(std::begin(strain.e), std::end(strain.e), 0.f);
+			subset_radius.x = 0.f;
+			subset_radius.y = 0.f;
+			subset_radius.z = 0.f;
+		}
 	};
 
 }//namespace opencorr

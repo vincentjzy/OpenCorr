@@ -3,7 +3,7 @@
  * study and development of 2D, 3D/stereo and volumetric
  * digital image correlation.
  *
- * Copyright (C) 2021-2025, Zhenyu Jiang <zhenyujiang@scut.edu.cn>
+ * Copyright (C) 2021-2024, Zhenyu Jiang <zhenyujiang@scut.edu.cn>
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License v. 2.0. If a copy of the MPL was not distributed with this
@@ -33,7 +33,12 @@ namespace opencorr
 	public:
 		virtual ~Feature2D() = default;
 
-		void setImages(Image2D& ref_img, Image2D& tar_img);
+		inline void setImages(Image2D& ref_img, Image2D& tar_img)
+		{
+			this->ref_img = &ref_img;
+			this->tar_img = &tar_img;
+		}
+
 		virtual void prepare() = 0;
 		virtual void compute() = 0;
 	};
@@ -47,7 +52,11 @@ namespace opencorr
 	public:
 		virtual ~Feature3D() = default;
 
-		void setImages(Image3D& ref_img, Image3D& tar_img);
+		inline void setImages(Image3D& ref_img, Image3D& tar_img)
+		{
+			this->ref_img = &ref_img;
+			this->tar_img = &tar_img;
+		}
 		virtual void prepare() = 0;
 		virtual void compute() = 0;
 	};

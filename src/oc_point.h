@@ -3,7 +3,7 @@
  * study and development of 2D, 3D/stereo and volumetric
  * digital image correlation.
  *
- * Copyright (C) 2021-2025, Zhenyu Jiang <zhenyujiang@scut.edu.cn>
+ * Copyright (C) 2021-2024, Zhenyu Jiang <zhenyujiang@scut.edu.cn>
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License v. 2.0. If a copy of the MPL was not distributed with this
@@ -27,14 +27,35 @@ namespace opencorr
 	public:
 		float x, y;
 
-		Point2D();
-		Point2D(float x, float y);
-		Point2D(int x, int y);
-		~Point2D();
+		inline Point2D()
+		{
+			x = 0.f;
+			y = 0.f;
+		}
 
-		float vectorNorm() const;
+		inline Point2D(float x, float y)
+		{
+			this->x = x;
+			this->y = y;
+		}
+		inline Point2D(int x, int y)
+		{
+			this->x = (float)x;
+			this->y = (float)y;
+		}
 
-		friend std::ostream& operator<<(std::ostream& output, const Point2D& point);
+		inline ~Point2D() {}
+
+		inline float vectorNorm() const
+		{
+			return sqrt(x * x + y * y);
+		}
+
+		inline friend std::ostream& operator<<(std::ostream& output, const Point2D& point)
+		{
+			output << point.x << "," << point.y;
+			return output;
+		}
 	};
 
 	//reload basic operators
@@ -96,14 +117,39 @@ namespace opencorr
 	public:
 		float x, y, z;
 
-		Point3D();
-		Point3D(float x, float y, float z);
-		Point3D(int x, int y, int z);
-		~Point3D();
+		inline Point3D()
+		{
+			x = 0.f;
+			y = z = 0.f;
+			z = 0.f;
+		}
 
-		float vectorNorm() const;
+		inline Point3D(float x, float y, float z)
+		{
+			this->x = x;
+			this->y = y;
+			this->z = z;
+		}
 
-		friend std::ostream& operator<<(std::ostream& output, const Point3D& point);
+		inline Point3D(int x, int y, int z)
+		{
+			this->x = (float)x;
+			this->y = (float)y;
+			this->z = (float)z;
+		}
+
+		inline ~Point3D() {}
+
+		inline float vectorNorm() const
+		{
+			return sqrt(x * x + y * y + z * z);
+		}
+
+		inline friend std::ostream& operator<<(std::ostream& output, const Point3D& point)
+		{
+			output << point.x << "," << point.y << "," << point.z;
+			return output;
+		}
 	};
 
 	//reload basic operators
