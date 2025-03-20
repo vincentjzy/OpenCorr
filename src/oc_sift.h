@@ -60,7 +60,7 @@ namespace opencorr
 		void prepare();
 		void compute();
 
-		void clear();
+		void clear(); //clear the queues of matched keypoints
 	};
 
 
@@ -159,7 +159,7 @@ namespace opencorr
 		void prepare();
 		void compute();
 
-		void clear();
+		void clear(); //clear the queues of matched keypoints
 
 		void initializeIcosahedron(TriangleTile* icosahedron);
 		void gaussianBlur(float*** src_img, float*** dst_img, int* dim_xyz, float* unit_xyz, float sigma); //dim_xyz[] = { x, y, z }

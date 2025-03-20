@@ -96,6 +96,9 @@ namespace opencorr
 		std::vector<std::vector<cv::DMatch>> matches;
 		matcher.knnMatch(ref_descriptor, tar_descriptor, matches, 2);
 
+		//clear the queues of matched keypoints
+		clear();
+
 		//check if the matching ratio is satisfied, then assign the matched keypoints to the queues
 		int matches_size = (int)matches.size();
 #pragma omp parallel sections
@@ -272,6 +275,9 @@ namespace opencorr
 		//clear pyramids and release memory
 		clearPyramid(gaussian_pyramid);
 		clearPyramid(dog_pyramid);
+
+		//clear the queues of matched keypoints
+		clear();
 
 		//monodirectional matching, but many-to-one correspondences are eliminated through reverse matching
 		monodirectionalMatch(ref_kp, ref_descriptor, tar_kp, tar_descriptor, ref_matched_kp, tar_matched_kp);
