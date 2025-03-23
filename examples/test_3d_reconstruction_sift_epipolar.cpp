@@ -161,13 +161,14 @@ int main()
 	//create a FeatureAffine instance along with a SIFT instance to exstimate a map of parallax between the two views
 	FeatureAffine2D* feature_affine = new FeatureAffine2D(subset_radius_x, subset_radius_y, cpu_thread_number);
 	SIFT2D* sift = new SIFT2D();
+	sift->setThreads(cpu_thread_number);
 
 	//set search paramaters of Feature Affine
 	int search_radius_x = 16;
 	int search_radius_y = 16;
 	float neighbor_search_radius = sqrt(search_radius_x * search_radius_x + search_radius_y * search_radius_y);
 	int min_neighbor_number = 14;
-	feature_affine->setSearchParameters(neighbor_search_radius, min_neighbor_number);
+	feature_affine->setSearch(neighbor_search_radius, min_neighbor_number);
 
 	//set RANSAC configuration in Feature Affine
 	RansacConfig ransac_config;
@@ -273,7 +274,7 @@ int main()
 
 		parallax(i, 0) = poi_high_zncc[i].deformation.u;
 		parallax(i, 1) = poi_high_zncc[i].deformation.v;
-		parallax(i, 2) = 0.f;
+		parallax(i, 2) = 1.f;
 	}
 
 	Eigen::Matrix3f lr_matrix = point_coor.colPivHouseholderQr().solve(parallax);

@@ -68,6 +68,7 @@ int main()
 	//create instances
 	SIFT2D* sift = new SIFT2D();
 	sift->setImages(ref_img, tar_img);
+	sift->setThreads(cpu_thread_number);
 
 	FeatureAffine2D* feature_affine = new FeatureAffine2D(subset_radius_x, subset_radius_y, cpu_thread_number);
 	int neighbor_num = 2 * feature_affine->getNeighborMin();
