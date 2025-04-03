@@ -60,7 +60,7 @@ namespace opencorr
 		//initialization, refer to opencv document for details
 		std::vector<cv::KeyPoint> ref_kp;
 		cv::Mat ref_descriptor;
-		cv::Ptr<cv::Feature2D> ref_sift = cv::SIFT::create(
+		cv::Ptr<cv::SIFT> ref_sift = cv::SIFT::create(
 			sift_config.n_features,
 			sift_config.n_octave_layers,
 			sift_config.contrast_threshold,
@@ -69,7 +69,7 @@ namespace opencorr
 
 		std::vector<cv::KeyPoint> tar_kp;
 		cv::Mat tar_descriptor;
-		cv::Ptr<cv::Feature2D> tar_sift = cv::SIFT::create(
+		cv::Ptr<cv::SIFT> tar_sift = cv::SIFT::create(
 			sift_config.n_features,
 			sift_config.n_octave_layers,
 			sift_config.contrast_threshold,
@@ -100,7 +100,7 @@ namespace opencorr
 		clear();
 
 		//check if the matching ratio is satisfied, then assign the matched keypoints to the queues
-		int matches_size = (int)matches.size();
+		size_t matches_size = matches.size();
 #pragma omp parallel sections
 		{
 #pragma omp section
@@ -812,20 +812,20 @@ namespace opencorr
 								//check if the DoG value at current position is greater or less than all the eight neighbors
 								if ((dog_value > dog_pyramid[layer_idx].vol_mat[i - 1][j][k]
 									&& dog_value > dog_pyramid[layer_idx].vol_mat[i + 1][j][k]
-									&& dog_value > dog_pyramid[layer_idx].vol_mat[i][j - 1][k]
-									&& dog_value > dog_pyramid[layer_idx].vol_mat[i][j + 1][k]
-									&& dog_value > dog_pyramid[layer_idx].vol_mat[i][j][k - 1]
-									&& dog_value > dog_pyramid[layer_idx].vol_mat[i][j][k + 1]
-									&& dog_value > dog_pyramid[layer_idx - 1].vol_mat[i][j][k]
-									&& dog_value > dog_pyramid[layer_idx + 1].vol_mat[i][j][k])
+										&& dog_value > dog_pyramid[layer_idx].vol_mat[i][j - 1][k]
+											&& dog_value > dog_pyramid[layer_idx].vol_mat[i][j + 1][k]
+												&& dog_value > dog_pyramid[layer_idx].vol_mat[i][j][k - 1]
+													&& dog_value > dog_pyramid[layer_idx].vol_mat[i][j][k + 1]
+													&& dog_value > dog_pyramid[layer_idx - 1].vol_mat[i][j][k]
+													&& dog_value > dog_pyramid[layer_idx + 1].vol_mat[i][j][k])
 									|| (dog_value < dog_pyramid[layer_idx].vol_mat[i - 1][j][k]
-										&& dog_value < dog_pyramid[layer_idx].vol_mat[i + 1][j][k]
+									&& dog_value < dog_pyramid[layer_idx].vol_mat[i + 1][j][k]
 										&& dog_value < dog_pyramid[layer_idx].vol_mat[i][j - 1][k]
-										&& dog_value < dog_pyramid[layer_idx].vol_mat[i][j + 1][k]
-										&& dog_value < dog_pyramid[layer_idx].vol_mat[i][j][k - 1]
-										&& dog_value < dog_pyramid[layer_idx].vol_mat[i][j][k + 1]
-										&& dog_value < dog_pyramid[layer_idx - 1].vol_mat[i][j][k]
-										&& dog_value < dog_pyramid[layer_idx + 1].vol_mat[i][j][k]))
+											&& dog_value < dog_pyramid[layer_idx].vol_mat[i][j + 1][k]
+												&& dog_value < dog_pyramid[layer_idx].vol_mat[i][j][k - 1]
+													&& dog_value < dog_pyramid[layer_idx].vol_mat[i][j][k + 1]
+													&& dog_value < dog_pyramid[layer_idx - 1].vol_mat[i][j][k]
+													&& dog_value < dog_pyramid[layer_idx + 1].vol_mat[i][j][k]))
 								{
 									Keypoint3D keypoint_candidate;
 									keypoint_candidate.coor_layer.x = k;
