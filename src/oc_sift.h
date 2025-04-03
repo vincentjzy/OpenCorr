@@ -56,7 +56,6 @@ namespace opencorr
 		float getMatchingRatio() const;
 		void setSiftConfig(Sift2dConfig sift_config);
 		void setMatching(float matching_ratio);
-		void setThreads(int thread_number);
 
 		void prepare();
 		void compute();
