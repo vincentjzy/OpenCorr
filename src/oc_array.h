@@ -17,7 +17,7 @@
 #ifndef _ARRAY_H_
 #define _ARRAY_H_
 
-#include <Eigen>
+#include <Eigen/Eigen>
 
 typedef Eigen::Matrix<float, 6, 6> Matrix6f;
 typedef Eigen::Matrix<float, 12, 12> Matrix12f;

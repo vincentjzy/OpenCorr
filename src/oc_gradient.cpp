@@ -12,6 +12,8 @@
  * More information about OpenCorr can be found at https://www.opencorr.org/
  */
 
+#include <omp.h>
+
 #include "oc_gradient.h"
 
 namespace opencorr

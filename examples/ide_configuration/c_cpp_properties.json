@@ -1,0 +1,22 @@
+{
+    "configurations": [
+        {
+            "name": "Mac",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "/opt/homebrew/opt/llvm/include/**",
+                "/opt/homebrew/opt/libomp/include/**",
+                "/opt/homebrew/opt/eigen/include/eigen3/**",
+                "/opt/homebrew/opt/fftw/include/**",
+                "/opt/homebrew/opt/nanoflann/include/**",
+                "/opt/homebrew/opt/opencv/include/opencv4/**"
+            ],
+            "defines": [],
+            "cStandard": "c17",
+            "cppStandard": "c++14",
+            "intelliSenseMode": "macos-clang-arm64",
+            "compilerPath": "/opt/homebrew/opt/llvm/bin/clang++"
+        }
+    ],
+    "version": 4
+}

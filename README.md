@@ -59,6 +59,9 @@ Users can also access the information of OpenCorr via website [opencorr.org](htt
 >2024.12.11, Regular update, including: (i) adding a module of inverse compositional Levenberg-Marquardt algorithm (ICLM); (ii) improving the codes according to the commits proposed by Czcibor Bohusz-Dobosz.
 >
 >2025.02.03, Regular update, including: (i) introducing unique_ptr to the modules of DIC and DVC, which may improve the robustness; (ii) cleaning up the codes.
+>
+>2025.05.06, Add the instructions to compile the programs using Visual Studio Code on macOs. Update the codes to improve their compatibility with OpenMp on macOs.
+
 
 # Instructions
 

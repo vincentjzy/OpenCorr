@@ -5,6 +5,7 @@
 */
 
 #include <fstream>
+#include <omp.h>
 
 #include "opencorr.h"
 

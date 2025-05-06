@@ -6,6 +6,7 @@
 */
 
 #include <fstream>
+#include <omp.h>
 
 #include "opencorr.h"
 #include "opencorr_gpu.h"

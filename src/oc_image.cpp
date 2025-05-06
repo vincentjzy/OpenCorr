@@ -13,6 +13,7 @@
  */
 
 #include <fstream>
+#include <omp.h>
 
 #include "oc_image.h"
 
