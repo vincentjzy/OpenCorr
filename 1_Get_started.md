@@ -45,7 +45,7 @@ Then, add the name list of static library files into the edit box. Beware that t
 
 To facilitate the configuration for beginners, we made a compressed package of Visual Studio solution and share it on  [opencorr.org](https://opencorr.org/Download). Users may download and unzip it (e.g. using 7-Zip), then open OpenCorr.sln in VS 2022 or higher version of Visual Studio, and start programming.
 
-There are a few examples in folder "examples" of GitHub repository along with images, which demonstrate how to make a DIC  or DVC program by assembling the modules in OpenCorr. Before building the executables, make sure that the file paths in the codes are correctly set. 
+There are a few examples in folder "[examples](https://github.com/vincentjzy/OpenCorr/tree/main/examples)" of GitHub repository along with images, which demonstrate how to make a DIC  or DVC program by assembling the modules in OpenCorr. Before building the executables, make sure that the file paths in the codes are correctly set. 
 
 ## 1.2 Configuration on macOs
 
@@ -57,6 +57,6 @@ Supposing that the codes of OpenCorr are placed in a folder like /Users/(your us
 
 *Figure 1.5. Configuration of building in Visual Studio Code*
 
-There are examples of c_cpp_properties.json and tasks.json in folder "[examples/configuration](https://github.com/vincentjzy/OpenCorr/tree/main/examples/ide_configuration)" of GitHub repository. You can download them and replace the ones in your folder. Just be careful about the path of the installed libraries could be different if the CPU of your computer is not an Apple Silicon type. The path can be checked using homebrew commands like "brew --prefix Eigen". Once configuration is completed, you can open an example (see Section 1.1) in VS Code and Run Build Taks (Menu->Terminal->Run Build Task) to build an executable. Check the path of images to process in the codes before building.
+There are examples of c_cpp_properties.json and tasks.json in folder "[examples/ide_configuration](https://github.com/vincentjzy/OpenCorr/tree/main/examples/ide_configuration)" of GitHub repository. You can download them and replace the ones in your folder. Just be careful about the path of the installed libraries could be different if the CPU of your computer is not an Apple Silicon type. The path can be checked using homebrew commands like "brew --prefix Eigen". Once configuration is completed, you can open an example (see Section 1.1) in VS Code and Run Build Taks (Menu->Terminal->Run Build Task) to build an executable. Check the path of images to process in the codes before building.
 
-Developers who would like to use CMake to do the job may refer to a sample of CMake script (CMakeLists.txt) in folder "[examples/configuration](https://github.com/vincentjzy/OpenCorr/tree/main/examples/ide_configuration)" of GitHub repository.
+Developers who would like to use CMake to do the job may refer to a sample of CMake script (CMakeLists.txt) in folder "[examples/ide_configuration](https://github.com/vincentjzy/OpenCorr/tree/main/examples/ide_configuration)" of GitHub repository.
