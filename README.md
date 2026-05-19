@@ -60,7 +60,9 @@ Users can also access the information of OpenCorr via website [opencorr.org](htt
 >
 >2025.02.03, Regular update, including: (i) introducing unique_ptr to the modules of DIC and DVC, which may improve the robustness; (ii) cleaning up the codes.
 >
->2025.05.06, Add the instructions to compile the programs using Visual Studio Code on macOs. Update the codes to improve their compatibility with OpenMp on macOs.
+>2025.05.06, Add the instructions to compile the programs using Visual Studio Code on macOS. Update the codes to improve their compatibility with OpenMP on macOS.
+>
+>2026.05.19, Release of OpenCorr GUI 3.0, which provides result visualization of various forms.
 
 
 # Instructions
@@ -84,6 +86,8 @@ Users can also access the information of OpenCorr via website [opencorr.org](htt
 - Mr LIN Aoyu, Engineer, China Southern Power Grid
 - Mr LI Rui, PhD candidate, South China University of Technology
 - Mr REN Haoqiang, PhD candidate, South China University of Technology
+- Mr HE Kai, PhD candidate, South China University of Technology
+- Mr WANG Hongli, Master candidate, South China University of Technology
 
 # Acknowledgements
 

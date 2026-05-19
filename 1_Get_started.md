@@ -47,9 +47,9 @@ To facilitate the configuration for beginners, we made a compressed package of V
 
 There are a few examples in folder "[examples](https://github.com/vincentjzy/OpenCorr/tree/main/examples)" of GitHub repository along with images, which demonstrate how to make a DIC  or DVC program by assembling the modules in OpenCorr. Before building the executables, make sure that the file paths in the codes are correctly set. 
 
-## 1.2 Configuration on macOs
+## 1.2 Configuration on macOS
 
-It is recommended to install the four open source libraries (Eigen, OpenCV, FFTW, and nanoflann) through homebrew ([brew.sh](https://brew.sh)), which is a popular package manager for macOs. To compile the programs with OpenMP, LLVM needs to be installed (also can be done through homebrew). VS Code can be installed directly by downloading the package from its website ([code.visualstudio.com](https://code.visualstudio.com)). Afterward, C/C++ Extension Pack needs to be installed in VS Code.
+It is recommended to install the four open source libraries (Eigen, OpenCV, FFTW, and nanoflann) through homebrew ([brew.sh](https://brew.sh)), which is a popular package manager for macOS. To compile the programs with OpenMP, LLVM needs to be installed (also can be done through homebrew). VS Code can be installed directly by downloading the package from its website ([code.visualstudio.com](https://code.visualstudio.com)). Afterward, C/C++ Extension Pack needs to be installed in VS Code.
 
 Supposing that the codes of OpenCorr are placed in a folder like /Users/(your username)/Workshop/OpenCorr, open this folder in VS Code (Menu->File->Open Folder..). Then, choose  Tasks: Configure Default Build Task and Tasks: Configure Task in Command Palette (Menu->View->Command Palette). The two commands create two JSON files in sub-folder .vscode: c_cpp_properties.json and tasks.json. We can open the two JSON files in VS Code and add configuration of compiler, include path, and option of libraries (Figure 1.5).
 
