@@ -47,6 +47,7 @@ namespace opencorr
 	{
 		if (ptr == nullptr) return;
 
+		free(ptr[0]);
 		free(ptr);
 		ptr = nullptr;
 	}
@@ -77,6 +78,7 @@ namespace opencorr
 	{
 		if (ptr == nullptr) return;
 
+		free(ptr[0][0]);
 		free(ptr[0]);
 		free(ptr);
 		ptr = nullptr;
