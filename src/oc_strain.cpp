@@ -237,7 +237,7 @@ namespace opencorr
 	void Strain::compute(std::vector<POI2D>& poi_queue)
 	{
 		int queue_length = (int)poi_queue.size();
-#pragma omp parallel for
+#pragma omp parallel for num_threads(thread_number)
 		for (int i = 0; i < queue_length; i++)
 		{
 			if (poi_queue[i].result.zncc >= zncc_threshold)
@@ -357,7 +357,7 @@ namespace opencorr
 	void Strain::compute(std::vector<POI2DS>& poi_queue)
 	{
 		int queue_length = (int)poi_queue.size();
-#pragma omp parallel for
+#pragma omp parallel for num_threads(thread_number)
 		for (int i = 0; i < queue_length; i++)
 		{
 			if (poi_queue[i].result.r1r2_zncc >= zncc_threshold
@@ -474,7 +474,7 @@ namespace opencorr
 	void Strain::compute(std::vector<POI3D>& poi_queue)
 	{
 		int queue_length = (int)poi_queue.size();
-#pragma omp parallel for
+#pragma omp parallel for num_threads(thread_number)
 		for (int i = 0; i < queue_length; i++)
 		{
 			if (poi_queue[i].result.zncc >= zncc_threshold)
