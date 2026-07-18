@@ -241,6 +241,19 @@ namespace opencorr
 				}
 			}
 
+			//Interpolation2D::compute() (e.g. BicubicBspline) returns -1.f, not NaN, for a
+			//coordinate outside the target image's interpolatable range. A real pixel
+			//intensity is never negative, so this is an unambiguous way to detect a
+			//partially-out-of-bounds warped subset (a deformation guess that pushes SOME but
+			//not all sample points outside the image) without disturbing the normal in-bounds
+			//path. Without this check the fabricated -1 values silently blend into the ZNSSD
+			//cost below as if they were real intensities instead of being rejected.
+			if ((icgn->tar_subset->eg_mat.array() < 0.f).any())
+			{
+				poi->result.zncc = -3.f;
+				return;
+			}
+
 			float tar_mean_norm = icgn->tar_subset->zeroMeanNorm();
 
 			//calculate error image
@@ -438,6 +451,13 @@ namespace opencorr
 					global_coor = icgn->tar_subset->center + warped_coor;
 					icgn->tar_subset->eg_mat(r, c) = tar_interp->compute(global_coor);
 				}
+			}
+
+			//see the comment on the equivalent check in ICGN2D1::compute(POI2D*) above
+			if ((icgn->tar_subset->eg_mat.array() < 0.f).any())
+			{
+				poi->result.zncc = -3.f;
+				return;
 			}
 
 			float tar_mean_norm = icgn->tar_subset->zeroMeanNorm();
@@ -767,6 +787,14 @@ namespace opencorr
 					icgn->tar_subset->eg_mat(r, c) = tar_interp->compute(global_coor);
 				}
 			}
+
+			//see the comment on the equivalent check in ICGN2D1::compute(POI2D*) above
+			if ((icgn->tar_subset->eg_mat.array() < 0.f).any())
+			{
+				poi->result.zncc = -3.f;
+				return;
+			}
+
 			float tar_mean_norm = icgn->tar_subset->zeroMeanNorm();
 
 			//calculate error image
@@ -988,6 +1016,12 @@ namespace opencorr
 					global_coor = icgn->tar_subset->center + warped_coor;
 					icgn->tar_subset->eg_mat(r, c) = tar_interp->compute(global_coor);
 				}
+			}
+			//see the comment on the equivalent check in ICGN2D1::compute(POI2D*) above
+			if ((icgn->tar_subset->eg_mat.array() < 0.f).any())
+			{
+				poi->result.zncc = -3.f;
+				return;
 			}
 			float tar_mean_norm = icgn->tar_subset->zeroMeanNorm();
 
@@ -1322,6 +1356,10 @@ namespace opencorr
 		{
 			iteration_counter++;
 			//reconstruct target subset
+			//vol_mat is a raw float*** (not an Eigen matrix), so this is tracked with a flag
+			//instead of the .array() reduction used in the 2D overloads above -- same rationale
+			//(TricubicBspline::compute() also returns -1.f for an out-of-range coordinate)
+			bool tar_subset_out_of_range = false;
 			for (int i = 0; i < subset_dim_z; i++)
 			{
 				for (int j = 0; j < subset_dim_y; j++)
@@ -1336,9 +1374,19 @@ namespace opencorr
 						local_coor.z = z_local;
 						warped_coor = p_current.warp(local_coor);
 						global_coor = icgn->tar_subset->center + warped_coor;
-						icgn->tar_subset->vol_mat[i][j][k] = tar_interp->compute(global_coor);
+						float gray_value = tar_interp->compute(global_coor);
+						if (gray_value < 0.f)
+						{
+							tar_subset_out_of_range = true;
+						}
+						icgn->tar_subset->vol_mat[i][j][k] = gray_value;
 					}
 				}
+			}
+			if (tar_subset_out_of_range)
+			{
+				poi->result.zncc = -3.f;
+				return;
 			}
 			float tar_mean_norm = icgn->tar_subset->zeroMeanNorm();
 
