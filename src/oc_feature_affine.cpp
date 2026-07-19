@@ -586,7 +586,7 @@ namespace opencorr
 			poi->deformation.w = affine_matrix(3, 2);
 			poi->deformation.wx = affine_matrix(0, 2);
 			poi->deformation.wy = affine_matrix(1, 2);
-			poi->deformation.wy = affine_matrix(2, 2) - 1.f;
+			poi->deformation.wz = affine_matrix(2, 2) - 1.f;
 
 			//store results of RANSAC procedure
 			poi->result.iteration = (float)trial_counter;
