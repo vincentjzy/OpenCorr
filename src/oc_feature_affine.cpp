@@ -13,6 +13,7 @@
  */
 
 #include <numeric>
+#include <random>
 #include <omp.h>
 
 #include "oc_feature_affine.h"
