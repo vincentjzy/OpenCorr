@@ -343,7 +343,7 @@ namespace opencorr
 	void ICGN2D1::compute(std::vector<POI2D>& poi_queue)
 	{
 		auto queue_length = poi_queue.size();
-#pragma omp parallel for
+#pragma omp parallel for num_threads(thread_number)
 		for (int i = 0; i < queue_length; i++)
 		{
 			compute(&poi_queue[i]);
@@ -549,7 +549,7 @@ namespace opencorr
 	void ICGN2D1::compute(std::vector<POI2D>& poi_queue, std::vector<Point2D>& center_offset_queue)
 	{
 		auto queue_length = poi_queue.size();
-#pragma omp parallel for
+#pragma omp parallel for num_threads(thread_number)
 		for (int i = 0; i < queue_length; i++)
 		{
 			compute(&poi_queue[i], center_offset_queue[i]);
@@ -900,7 +900,7 @@ namespace opencorr
 	void ICGN2D2::compute(std::vector<POI2D>& poi_queue)
 	{
 		auto queue_length = poi_queue.size();
-#pragma omp parallel for
+#pragma omp parallel for num_threads(thread_number)
 		for (int i = 0; i < queue_length; i++)
 		{
 			compute(&poi_queue[i]);
@@ -1128,7 +1128,7 @@ namespace opencorr
 	void ICGN2D2::compute(std::vector<POI2D>& poi_queue, std::vector<Point2D>& center_offset_queue)
 	{
 		auto queue_length = poi_queue.size();
-#pragma omp parallel for
+#pragma omp parallel for num_threads(thread_number)
 		for (int i = 0; i < queue_length; i++)
 		{
 			compute(&poi_queue[i], center_offset_queue[i]);
@@ -1492,7 +1492,7 @@ namespace opencorr
 	void ICGN3D1::compute(std::vector<POI3D>& poi_queue)
 	{
 		auto queue_length = poi_queue.size();
-#pragma omp parallel for
+#pragma omp parallel for num_threads(thread_number)
 		for (int i = 0; i < queue_length; i++)
 		{
 			compute(&poi_queue[i]);
