@@ -63,6 +63,8 @@ Users can also access the information of OpenCorr via website [opencorr.org](htt
 >2025.05.06, Add the instructions to compile the programs using Visual Studio Code on macOS. Update the codes to improve their compatibility with OpenMP on macOS.
 >
 >2026.05.19, Release of OpenCorr GUI 3.0, which provides result visualization of various forms.
+>
+>2026.08.14, Major update, including: (i) adding a module of Regional Fitting. It serves as a powerful remedial procedure to tackle the POIs at which ICGN fails due to poor initial guess. An example of stereo reconstruction is provided to demonstrates the usage and efficacy. (ii) improving the codes according to the commits proposed by R.LEE and katalystnord.
 
 
 # Instructions
@@ -153,6 +155,3 @@ We are jubilant at that OpenCorr helps other colleagues in their study as a soft
 25. Zhengduo Zhu, Jiaqiu Wang, Hao Wu, Minglong Chen, Zidun Wang, Runxin Fang, Xianjue Huang, Hujin Xie, Han Yu, Yuchu Tian, Zhiyong Li. Performance test of digital volume correlation on tracking left atrium motion from cardiac CT. Acta Mechanica Sinica (2025) 41(4): 624216. (https://doi.org/10.1007/s10409-024-24216-x)
 26. Zitong Wang, Pan Zhu, Jiaxi Guan, Lu Liu, Xinglin Zhou. ECI-Net: A modular and lightweight Deep DIC network for real-time robust 2D displacement measurement. Optics & Laser Technology (2025) 183: 112376. (https://doi.org/10.1016/j.optlastec.2024.112376)
 27. Yaru Wang, Qingchuan Zhang, Yong Su. Theoretical analysis of systematic errors in Gaussian weighted digital image correlation due to undermatched shape functions. Optics & Laser Technology (2025) 184: 112332. (https://doi.org/10.1016/j.optlastec.2024.112332)
-
-Counting of visitors started from 03 Aug, 2023
-![Visitor Count](https://profile-counter.glitch.me/vincentjzy/count.svg)
