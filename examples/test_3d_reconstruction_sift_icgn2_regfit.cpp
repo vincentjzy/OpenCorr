@@ -107,8 +107,8 @@ int main()
 
 	//set POIs
 	Point2D upper_left_point(420, 250);
-	int poi_number_x = 522;
-	int poi_number_y = 522;
+	int poi_number_x = 521;
+	int poi_number_y = 521;
 	int grid_space = 3;
 
 	//store POIs in a queue
@@ -138,21 +138,22 @@ int main()
 	vector<Point3D> pt_3d_queue(queue_length, point_3d);
 
 	//DIC parameter
-	int subset_radius_x = 11;
-	int subset_radius_y = 11;
+	int subset_radius_x = 9;
+	int subset_radius_y = 9;
 	float conv_criterion = 0.005f;
 	float stop_condition = 10.f;
 	float zncc_threshold_high = 0.9f;
 	float zncc_threshold_low = 0.5f;
-	float search_radius = max(subset_radius_x, subset_radius_y) * 2.5f;
+	float search_radius_large = max(subset_radius_x, subset_radius_y) * 2.5f; //search radius for SIFT feature guided matching
+	float search_radius_small = 12.f; //search radius for region fitting
 	int neighbor_min = 9;
-	int trial_rounds = 10;
+	int trial_rounds = 20;
 
 	//create an instance of ICGN with the 2nd order shape function
 	ICGN2D2* icgn2 = new ICGN2D2(subset_radius_x, subset_radius_y, conv_criterion, stop_condition, cpu_thread_number);
 
 	//instance of RegionFit to process the POIs with ZNCC value below threshold
-	RegionFit2D* region_fit = new RegionFit2D(search_radius, neighbor_min, cpu_thread_number);
+	RegionFit2D* region_fit = new RegionFit2D(search_radius_small, neighbor_min, cpu_thread_number);
 
 	//create a FeatureAffine instance along with a SIFT instance
 	SIFT2D* sift = new SIFT2D();
@@ -160,7 +161,7 @@ int main()
 
 	//set search paramaters of FeatureAffine
 	neighbor_min = 14;
-	feature_affine->setSearch(search_radius, neighbor_min);
+	feature_affine->setSearch(search_radius_large, neighbor_min);
 
 	//set RANSAC configuration in FeatureAffine
 	RansacConfig ransac_config;
