@@ -18,6 +18,13 @@
 
 namespace opencorr
 {
+	namespace
+	{
+		//Interpolation2D/3D::compute() return this for a coordinate outside the
+		//interpolatable range (see oc_cubic_bspline.cpp).
+		constexpr float INTERPOLATION_OUT_OF_BOUNDS = -1.f;
+	}
+
 	std::unique_ptr<ICGN2D1_> ICGN2D1_::allocate(int subset_radius_x, int subset_radius_y)
 	{
 		int subset_width = 2 * subset_radius_x + 1;
@@ -248,7 +255,11 @@ namespace opencorr
 			//not all sample points outside the image) without disturbing the normal in-bounds
 			//path. Without this check the fabricated -1 values silently blend into the ZNSSD
 			//cost below as if they were real intensities instead of being rejected.
-			if ((icgn->tar_subset->eg_mat.array() < 0.f).any())
+			//Compared for equality against the sentinel, not for "is it negative": an
+			//INTERPOLATED value can be legitimately below zero through spline
+			//undershoot near a sharp edge, which is what a speckle dot is.
+			const float out_of_bounds = INTERPOLATION_OUT_OF_BOUNDS;
+			if ((icgn->tar_subset->eg_mat.array() == out_of_bounds).any())
 			{
 				poi->result.zncc = -3.f;
 				return;
@@ -454,7 +465,11 @@ namespace opencorr
 			}
 
 			//see the comment on the equivalent check in ICGN2D1::compute(POI2D*) above
-			if ((icgn->tar_subset->eg_mat.array() < 0.f).any())
+			//Compared for equality against the sentinel, not for "is it negative": an
+			//INTERPOLATED value can be legitimately below zero through spline
+			//undershoot near a sharp edge, which is what a speckle dot is.
+			const float out_of_bounds = INTERPOLATION_OUT_OF_BOUNDS;
+			if ((icgn->tar_subset->eg_mat.array() == out_of_bounds).any())
 			{
 				poi->result.zncc = -3.f;
 				return;
@@ -789,7 +804,11 @@ namespace opencorr
 			}
 
 			//see the comment on the equivalent check in ICGN2D1::compute(POI2D*) above
-			if ((icgn->tar_subset->eg_mat.array() < 0.f).any())
+			//Compared for equality against the sentinel, not for "is it negative": an
+			//INTERPOLATED value can be legitimately below zero through spline
+			//undershoot near a sharp edge, which is what a speckle dot is.
+			const float out_of_bounds = INTERPOLATION_OUT_OF_BOUNDS;
+			if ((icgn->tar_subset->eg_mat.array() == out_of_bounds).any())
 			{
 				poi->result.zncc = -3.f;
 				return;
@@ -1018,7 +1037,11 @@ namespace opencorr
 				}
 			}
 			//see the comment on the equivalent check in ICGN2D1::compute(POI2D*) above
-			if ((icgn->tar_subset->eg_mat.array() < 0.f).any())
+			//Compared for equality against the sentinel, not for "is it negative": an
+			//INTERPOLATED value can be legitimately below zero through spline
+			//undershoot near a sharp edge, which is what a speckle dot is.
+			const float out_of_bounds = INTERPOLATION_OUT_OF_BOUNDS;
+			if ((icgn->tar_subset->eg_mat.array() == out_of_bounds).any())
 			{
 				poi->result.zncc = -3.f;
 				return;
@@ -1375,7 +1398,7 @@ namespace opencorr
 						warped_coor = p_current.warp(local_coor);
 						global_coor = icgn->tar_subset->center + warped_coor;
 						float gray_value = tar_interp->compute(global_coor);
-						if (gray_value < 0.f)
+						if (gray_value == INTERPOLATION_OUT_OF_BOUNDS)
 						{
 							tar_subset_out_of_range = true;
 						}
